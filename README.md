@@ -5,6 +5,8 @@ Documento de viabilidade técnica para um site que permite pesquisar, favoritar 
 **Data:** outubro de 2026  
 **Escopo deste repositório nesta entrega:** apenas o estudo (sem implementação do produto).
 
+Catálogo das APIs do **v1 (só deputados):** [docs/apis-v1.md](docs/apis-v1.md).
+
 ---
 
 ## 1. Veredito
