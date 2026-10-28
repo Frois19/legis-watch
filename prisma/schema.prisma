@@ -1,0 +1,166 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Party {
+  id            Int      @id
+  sigla         String
+  nome          String?
+  uri           String?
+  legislaturaId Int?
+  updatedAt     DateTime @updatedAt
+  members       Deputy[]
+
+  @@index([sigla])
+}
+
+model Deputy {
+  id                Int      @id
+  uri               String?
+  nome              String
+  nomeCivil         String?
+  nomeEleitoral     String?
+  siglaPartido      String?
+  partyId           Int?
+  party             Party?   @relation(fields: [partyId], references: [id])
+  siglaUf           String?
+  legislaturaId     Int?
+  urlFoto           String?
+  email             String?
+  situacao          String?
+  condicaoEleitoral String?
+  redesSociais      String? // JSON array of URLs
+  dataNascimento    String?
+  municipioNascimento String?
+  escolaridade      String?
+  gabineteJson      String? // JSON
+  syncedAt          DateTime?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  propositions      PropositionAuthor[]
+  votes             Vote[]
+  attendances       Attendance[]
+
+  @@index([nome])
+  @@index([siglaPartido])
+  @@index([siglaUf])
+  @@index([legislaturaId])
+}
+
+model Proposition {
+  id               Int      @id
+  uri              String?
+  siglaTipo        String?
+  numero           Int?
+  ano              Int?
+  ementa           String?
+  dataApresentacao String?
+  statusResumo     String?
+  syncedAt         DateTime?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  authors          PropositionAuthor[]
+  voteSessions     VoteSession[]
+
+  @@index([siglaTipo, numero, ano])
+  @@index([ano])
+}
+
+model PropositionAuthor {
+  id             Int         @id @default(autoincrement())
+  propositionId  Int
+  proposition    Proposition @relation(fields: [propositionId], references: [id], onDelete: Cascade)
+  deputyId       Int
+  deputy         Deputy      @relation(fields: [deputyId], references: [id], onDelete: Cascade)
+  proponente     Boolean     @default(false)
+  ordemAssinatura Int?
+
+  @@unique([propositionId, deputyId])
+  @@index([deputyId])
+}
+
+model VoteSession {
+  id             String   @id // id da votação na Câmara (string)
+  dataHoraRegistro String?
+  descricao      String?
+  aprovacao      Boolean?
+  uriProposicaoPrincipal String?
+  propositionId  Int?
+  proposition    Proposition? @relation(fields: [propositionId], references: [id])
+  siglaOrgao     String?
+  year           Int?
+  syncedAt       DateTime?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  votes          Vote[]
+
+  @@index([year])
+  @@index([propositionId])
+}
+
+model Vote {
+  id            Int         @id @default(autoincrement())
+  voteSessionId String
+  voteSession   VoteSession @relation(fields: [voteSessionId], references: [id], onDelete: Cascade)
+  deputyId      Int
+  deputy        Deputy      @relation(fields: [deputyId], references: [id], onDelete: Cascade)
+  tipoVoto      String // Sim, Não, Abstenção, Obstrução, ...
+  dataRegistro  String?
+  year          Int?
+
+  @@unique([voteSessionId, deputyId])
+  @@index([deputyId, year])
+  @@index([tipoVoto])
+}
+
+model Event {
+  id          Int      @id
+  dataHoraInicio String?
+  dataHoraFim String?
+  situacao    String?
+  descricaoTipo String?
+  descricao   String?
+  localCamara String?
+  year        Int?
+  syncedAt    DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  attendances Attendance[]
+
+  @@index([year])
+  @@index([dataHoraInicio])
+}
+
+model Attendance {
+  id        Int     @id @default(autoincrement())
+  eventId   Int
+  event     Event   @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  deputyId  Int
+  deputy    Deputy  @relation(fields: [deputyId], references: [id], onDelete: Cascade)
+  presente  Boolean @default(true)
+  year      Int?
+
+  @@unique([eventId, deputyId])
+  @@index([deputyId, year])
+}
+
+model SyncRun {
+  id         Int      @id @default(autoincrement())
+  domain     String // deputies | parties | propositions | votes | attendance
+  status     String // running | success | error
+  startedAt  DateTime @default(now())
+  finishedAt DateTime?
+  message    String?
+  countsJson String? // JSON with counters
+
+  @@index([domain, startedAt])
+}
