@@ -1,26 +1,103 @@
 @import "tailwindcss";
+@import "tw-animate-css";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@custom-variant dark (&:is(.dark *));
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-sans);
+  --font-display: var(--font-display);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+:root {
+  --radius: 0.5rem;
+  /* Ink teal civic palette — avoid purple / cream-terracotta defaults */
+  --background: #f3f6f4;
+  --foreground: #12231f;
+  --card: #ffffff;
+  --card-foreground: #12231f;
+  --primary: #0f4c45;
+  --primary-foreground: #f4fbf8;
+  --secondary: #d9ebe4;
+  --secondary-foreground: #16352f;
+  --muted: #e4ece8;
+  --muted-foreground: #4d635d;
+  --accent: #1f7a6c;
+  --accent-foreground: #f4fbf8;
+  --destructive: #b42318;
+  --border: #c9d7d1;
+  --input: #c9d7d1;
+  --ring: #1f7a6c;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), system-ui, sans-serif;
+  min-height: 100vh;
+}
+
+.font-display {
+  font-family: var(--font-display), Georgia, serif;
+}
+
+.site-backdrop {
+  background:
+    radial-gradient(ellipse 80% 50% at 10% -10%, #b7ddd3 0%, transparent 55%),
+    radial-gradient(ellipse 70% 45% at 90% 0%, #cfe0d8 0%, transparent 50%),
+    linear-gradient(180deg, #eef5f1 0%, #f3f6f4 40%, #e8f0ec 100%);
+}
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-rise {
+  animation: rise-in 0.55s ease-out both;
+}
+
+.animate-fade {
+  animation: fade-in 0.4s ease-out both;
+}
+
+.animate-rise-delay-1 {
+  animation: rise-in 0.55s ease-out 0.08s both;
+}
+
+.animate-rise-delay-2 {
+  animation: rise-in 0.55s ease-out 0.16s both;
 }

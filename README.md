@@ -47,7 +47,14 @@ npm run sync -- attendance --year=2026
 npm run dev
 ```
 
-API em [http://localhost:3456/api/health](http://localhost:3456/api/health).
+App em [http://localhost:3456](http://localhost:3456) · API em `/api/health`.
+
+### UI (v1)
+
+- `/` — busca por nome, partido e UF
+- `/favoritos` — favoritos no `localStorage` do navegador
+- `/deputados/[id]` — perfil com abas de projetos, votações, presença e partido
+
 
 ## Endpoints principais
 
