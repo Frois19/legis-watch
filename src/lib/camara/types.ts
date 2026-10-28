@@ -82,17 +82,34 @@ export type CamaraBulkVoteSession = {
   dataHoraRegistro?: string;
   descricao?: string;
   aprovacao?: number | boolean | null;
-  uriProposicaoPrincipal?: string;
-  proposicaoId?: number;
   siglaOrgao?: string;
+  ultimaApresentacaoProposicao?: {
+    idProposicao?: number | string;
+    uriProposicao?: string;
+    descricao?: string;
+  };
 };
 
 export type CamaraBulkVote = {
   idVotacao?: string | number;
-  idDeputado?: number;
-  deputado_?: { id?: number };
+  idDeputado?: number | string;
+  deputado_?: { id?: number | string };
   voto?: string;
+  dataHoraVoto?: string;
   dataHoraRegistro?: string;
+};
+
+export type CamaraBulkVoteProposition = {
+  idVotacao?: string | number;
+  proposicao_?: {
+    id?: number | string;
+    uri?: string;
+    titulo?: string;
+    ementa?: string;
+    siglaTipo?: string;
+    numero?: number;
+    ano?: number;
+  };
 };
 
 export type CamaraBulkEvent = {

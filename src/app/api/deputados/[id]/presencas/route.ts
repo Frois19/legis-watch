@@ -4,8 +4,8 @@ import { NextRequest, NextResponse } from "next/server";
 type Params = { params: Promise<{ id: string }> };
 
 /**
- * Presenças registradas em eventos da Câmara.
- * Faltas são eventos do ano (opcionalmente filtrados) sem registro de presença do deputado.
+ * Presenças em sessões deliberativas do Plenário.
+ * Falta = sessão deliberativa encerrada/realizada sem registro de presença do deputado.
  */
 export async function GET(request: NextRequest, { params }: Params) {
   const deputyId = Number((await params).id);
@@ -34,13 +34,9 @@ export async function GET(request: NextRequest, { params }: Params) {
   const events = await prisma.event.findMany({
     where: {
       year,
-      // Heurística inicial: sessões/reuniões com descrição de tipo contendo "Sessão" ou Plenário
-      OR: [
-        { descricaoTipo: { contains: "Sessão" } },
-        { descricaoTipo: { contains: "Sessao" } },
-        { localCamara: { contains: "Plenário" } },
-        { localCamara: { contains: "Plenario" } },
-      ],
+      descricaoTipo: "Sessão Deliberativa",
+      situacao: { not: "Cancelada" },
+      localCamara: { contains: "Plenário da Câmara" },
     },
     orderBy: { dataHoraInicio: "desc" },
   });
@@ -77,7 +73,7 @@ export async function GET(request: NextRequest, { params }: Params) {
       presentes,
       faltas,
       metodologia:
-        "Eventos do ano com tipo/local de sessão/plenário cruzados com eventosPresencaDeputados. Ausência no arquivo = falta candidata — não é lista oficial completa de faltas remuneradas.",
+        "Apenas Sessões Deliberativas não canceladas no Plenário da Câmara, cruzadas com eventosPresencaDeputados. Ausência no arquivo = falta candidata — não substitui a lista oficial de faltas remuneradas.",
     },
     items,
   });

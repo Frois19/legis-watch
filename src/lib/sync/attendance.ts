@@ -2,54 +2,65 @@ import { downloadAttendances, downloadEvents } from "@/lib/camara/client";
 import { prisma } from "@/lib/db/prisma";
 import { withSyncRun } from "./run";
 
+async function createManyChunks<T extends object>(
+  rows: T[],
+  insert: (chunk: T[]) => Promise<unknown>,
+  chunkSize = 1000,
+) {
+  for (let i = 0; i < rows.length; i += chunkSize) {
+    await insert(rows.slice(i, i + chunkSize));
+  }
+}
+
 export async function syncAttendanceForYear(year: number) {
   return withSyncRun(`attendance:${year}`, async () => {
-    const events = await downloadEvents(year);
-    const attendances = await downloadAttendances(year);
+    console.log(`[attendance:${year}] baixando arquivos…`);
+    const [events, attendances] = await Promise.all([
+      downloadEvents(year),
+      downloadAttendances(year),
+    ]);
+    console.log(
+      `[attendance:${year}] events=${events.length} attendances=${attendances.length}`,
+    );
 
-    let eventsUpserted = 0;
-    let attendancesUpserted = 0;
-    let skipped = 0;
+    await prisma.attendance.deleteMany({ where: { year } });
+    await prisma.event.deleteMany({ where: { year } });
 
-    for (const event of events) {
+    const eventRows = events.map((event) => {
       const localCamara =
         typeof event.localCamara === "string"
           ? event.localCamara
-          : event.localCamara?.nome;
+          : event.localCamara?.nome ?? null;
 
-      await prisma.event.upsert({
-        where: { id: event.id },
-        create: {
-          id: event.id,
-          dataHoraInicio: event.dataHoraInicio,
-          dataHoraFim: event.dataHoraFim,
-          situacao: event.situacao,
-          descricaoTipo: event.descricaoTipo,
-          descricao: event.descricao,
-          localCamara,
-          year,
-          syncedAt: new Date(),
-        },
-        update: {
-          dataHoraInicio: event.dataHoraInicio,
-          dataHoraFim: event.dataHoraFim,
-          situacao: event.situacao,
-          descricaoTipo: event.descricaoTipo,
-          descricao: event.descricao,
-          localCamara,
-          year,
-          syncedAt: new Date(),
-        },
-      });
-      eventsUpserted += 1;
-    }
+      return {
+        id: event.id,
+        dataHoraInicio: event.dataHoraInicio ?? null,
+        dataHoraFim: event.dataHoraFim || null,
+        situacao: event.situacao ?? null,
+        descricaoTipo: event.descricaoTipo ?? null,
+        descricao: event.descricao ?? null,
+        localCamara,
+        year,
+        syncedAt: new Date(),
+      };
+    });
+
+    await createManyChunks(eventRows, (chunk) =>
+      prisma.event.createMany({ data: chunk }),
+    );
 
     const deputyIds = new Set(
       (await prisma.deputy.findMany({ select: { id: true } })).map((d) => d.id),
     );
-    const eventIds = new Set(
-      (await prisma.event.findMany({ select: { id: true } })).map((e) => e.id),
-    );
+    const eventIds = new Set(eventRows.map((e) => e.id));
+
+    const attendanceRows: Array<{
+      eventId: number;
+      deputyId: number;
+      presente: boolean;
+      year: number;
+    }> = [];
+    let skipped = 0;
 
     for (const row of attendances) {
       const eventId = row.idEvento;
@@ -62,28 +73,31 @@ export async function syncAttendanceForYear(year: number) {
         skipped += 1;
         continue;
       }
-
-      await prisma.attendance.upsert({
-        where: {
-          eventId_deputyId: { eventId, deputyId },
-        },
-        create: {
-          eventId,
-          deputyId,
-          presente: true,
-          year,
-        },
-        update: {
-          presente: true,
-          year,
-        },
+      attendanceRows.push({
+        eventId,
+        deputyId,
+        presente: true,
+        year,
       });
-      attendancesUpserted += 1;
     }
 
+    const uniqueAttendance = Array.from(
+      new Map(
+        attendanceRows.map((a) => [`${a.eventId}:${a.deputyId}`, a]),
+      ).values(),
+    );
+
+    await createManyChunks(uniqueAttendance, (chunk) =>
+      prisma.attendance.createMany({ data: chunk }),
+    );
+
+    console.log(
+      `[attendance:${year}] ok events=${eventRows.length} attendances=${uniqueAttendance.length} skipped=${skipped}`,
+    );
+
     return {
-      events: eventsUpserted,
-      attendances: attendancesUpserted,
+      events: eventRows.length,
+      attendances: uniqueAttendance.length,
       skipped,
     };
   });

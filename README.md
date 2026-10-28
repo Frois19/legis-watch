@@ -36,10 +36,14 @@ DEPUTY_DETAIL_LIMIT=10 npm run sync -- deputies
 # Proposições de um deputado
 npm run sync -- propositions --deputy=204379
 
-# Votos e presença (arquivos anuais — pode demorar / ser pesado)
+# Votos e presença (arquivos anuais em lote)
 npm run sync -- votes --year=2026
 npm run sync -- attendance --year=2026
+
+# Detalhar redes sociais dos primeiros N deputados
+DEPUTY_DETAIL_LIMIT=50 npm run sync -- deputies
 ```
+
 
 ## Dev server
 

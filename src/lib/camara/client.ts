@@ -3,6 +3,7 @@ import type {
   CamaraBulkAttendance,
   CamaraBulkEvent,
   CamaraBulkVote,
+  CamaraBulkVoteProposition,
   CamaraBulkVoteSession,
   CamaraDeputyDetail,
   CamaraDeputyListItem,
@@ -215,6 +216,14 @@ export async function downloadVoteSessions(
 export async function downloadVotes(year: number): Promise<CamaraBulkVote[]> {
   return downloadBulkJson<CamaraBulkVote>(
     `votacoesVotos/json/votacoesVotos-${year}.json`,
+  );
+}
+
+export async function downloadVotePropositions(
+  year: number,
+): Promise<CamaraBulkVoteProposition[]> {
+  return downloadBulkJson<CamaraBulkVoteProposition>(
+    `votacoesProposicoes/json/votacoesProposicoes-${year}.json`,
   );
 }
 

@@ -51,6 +51,9 @@ npm run sync -- attendance --year=2026
 npm run sync -- bootstrap
 ```
 
+Os syncs de `votes` e `attendance` usam os arquivos anuais da Câmara (bulk) e gravam em lote no SQLite. Presença na API considera só **Sessões Deliberativas** não canceladas no Plenário da Câmara.
+
+
 ## Variáveis de ambiente
 
 Ver [.env.example](../.env.example).
