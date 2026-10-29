@@ -56,6 +56,9 @@ npm run sync -- estadual --source=alepe
 
 # Senadores em exercício (Dados Abertos do Senado)
 npm run sync -- senadores
+
+# Perfil enriquecido (filiações, mandatos, matérias de um senador)
+npm run sync -- senador-perfil --codigo=5672
 ```
 
 ## Dev server
@@ -71,7 +74,7 @@ App em [http://localhost:3456](http://localhost:3456) · API em `/api/health`.
 - `/` — busca por esfera (federal / estadual / senador / todos), nome, partido, UF e mandato
 - `/favoritos` — favoritos federais no `localStorage` do navegador
 - `/deputados/[id]` — perfil federal com abas de projetos, votações, presença e partido
-- `/parlamentares/[source]/[id]` — perfil estadual (27 UFs) ou senador (`senado/{codigo}`)
+- `/parlamentares/[source]/[id]` — perfil estadual (27 UFs) ou senador (`senado/{codigo}` com matérias, filiações e mandatos)
 
 ## Testes (backend)
 

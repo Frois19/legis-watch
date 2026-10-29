@@ -8,5 +8,10 @@ export {
   syncMandatesForDeputies,
 } from "./legislatures";
 export { syncPropositionsForDeputy } from "./propositions";
-export { syncSenadores } from "./senado";
+export {
+  ensureSenatorProfile,
+  syncSenatorProfile,
+  syncSenadores,
+} from "./senado";
+export type { SenatorWithProfile } from "./senado";
 export { syncVotesForYear } from "./votes";

@@ -198,6 +198,25 @@ async function main() {
   await waitReady(page);
   await shot(page, "10-perfil-estadual-mg.png");
 
+  // 11 — busca senadores
+  await page.goto(`${BASE}/`, { waitUntil: "domcontentloaded" });
+  await waitReady(page);
+  await page.getByRole("button", { name: "Senadores", exact: true }).click();
+  await page.getByLabel("UF").selectOption("AC");
+  await page.getByRole("button", { name: "Buscar", exact: true }).click();
+  await page.getByText(/resultado/i).waitFor({ timeout: 15000 });
+  await page.waitForTimeout(800);
+  await shot(page, "11-busca-senadores.png");
+
+  // 12 — perfil senador (matérias / filiações / mandatos)
+  await page.goto(`${BASE}/parlamentares/senado/5672`, {
+    waitUntil: "domcontentloaded",
+  });
+  await waitReady(page);
+  await page.getByRole("tab", { name: /Matérias/ }).waitFor({ timeout: 20000 });
+  await page.waitForTimeout(800);
+  await shot(page, "12-perfil-senador.png");
+
   await browser.close();
   console.log("done");
 }

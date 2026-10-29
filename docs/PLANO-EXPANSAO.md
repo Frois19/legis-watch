@@ -16,7 +16,7 @@ Situação: **federal completo** (Câmara) + **estadual em 27 UFs** (busca/perfi
 |---|---|
 | Câmara dos Deputados (federal) | Implementado (sync + UI) |
 | Assembleias Legislativas (estadual) | 27 UFs: busca + perfil (PE live ALEPE; demais fixture de cadastro) |
-| Senado Federal | Busca + perfil (lista atual); matérias/votos em breve; presença com disclaimer |
+| Senado Federal | Busca + perfil (lista, filiações, mandatos, matérias); votos em breve; presença com disclaimer |
 
 Não existe API nacional única para deputados estaduais. Cada Assembleia publica (ou não) seus dados com formatos diferentes. Por isso a expansão estadual precisa ser **por adapter + rollout UFs**.
 
@@ -262,7 +262,8 @@ Não há equivalente confiável ao bulk/presença da Câmara. Plano:
 ## B.5 Critérios de pronto (Senado)
 
 - [x] Sync de lista atual (`npm run sync -- senadores`) + perfil
-- [ ] Perfil com matérias e votos
+- [x] Perfil com filiações, mandatos e matérias (autorias sob demanda)
+- [ ] Votações nominais
 - [x] Disclaimer de presença no perfil
 - [x] Busca unificada federal / estadual / senador
 - [x] Testes com fixtures do Senado
@@ -274,8 +275,9 @@ Não há equivalente confiável ao bulk/presença da Câmara. Plano:
 | Model `Senator` + IDs `senado:{codigo}` | Feito |
 | Client Senado + fixture fallback | Feito |
 | Sync / API `/api/parlamentares?esfera=senador` | Feito |
+| Filiações / mandatos / matérias + UI em abas | Feito |
 | UI esfera Senadores + perfil | Feito |
-| Matérias / votações | Pendente |
+| Votações nominais | Pendente |
 
 ---
 

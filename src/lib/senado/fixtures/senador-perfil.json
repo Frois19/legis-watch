@@ -1,0 +1,148 @@
+{
+  "5672": {
+    "affiliations": [
+      {
+        "codigoPartido": "521",
+        "siglaPartido": "REPUBLICANOS",
+        "nomePartido": "Republicanos",
+        "dataFiliacao": "2025-11-12",
+        "dataDesfiliacao": null
+      },
+      {
+        "codigoPartido": "582",
+        "siglaPartido": "UNIÃO",
+        "nomePartido": "União Brasil",
+        "dataFiliacao": "2022-02-24",
+        "dataDesfiliacao": "2025-11-10"
+      },
+      {
+        "codigoPartido": "554",
+        "siglaPartido": "DEM",
+        "nomePartido": "Democratas",
+        "dataFiliacao": "2017-08-01",
+        "dataDesfiliacao": "2022-02-23"
+      },
+      {
+        "codigoPartido": "521",
+        "siglaPartido": "REPUBLICANOS",
+        "nomePartido": "Republicanos",
+        "dataFiliacao": "2015-02-01",
+        "dataDesfiliacao": "2017-07-31"
+      }
+    ],
+    "mandates": [
+      {
+        "codigoMandato": "596",
+        "siglaUf": "AC",
+        "participacao": "Titular",
+        "legislaturaInicio": 57,
+        "legislaturaFim": 58,
+        "dataInicio": "2023-02-01",
+        "dataFim": "2031-01-31"
+      }
+    ],
+    "matters": [
+      {
+        "externalId": "155808",
+        "siglaTipo": "RQS",
+        "numero": 41,
+        "ano": 2023,
+        "ementa": "Desarquivamento das seguintes proposições: PRS 10/2016, PLS 183/2016, PLS 277/2016, PLS 275/2016, PLS 279/2016, PEC 34/2016, PLS 316/2016, PLS 444/2016, PLS 29/2017, PLS 170/2017, PLS 171/2017, PLS 187/2017, PLS 211/2017, PLS 266/2017, PLS 265/2017, PLS 262/2017, PLS 263/2017, PLS 300/2017, PLS 338/2017, PLS 339/2017, PEC 36/2017, PFS 2/2017, PLS 469/2017, PLS 509/2017, PLS 225/2018, PEC 10/2018, PLS 335/2018, PDS 139/2018, PLS 461/2018, PLS 460/2018, PLS 294/2016, PLS 26/2015, PLS 67/2015, PLS 69/2015, PLS 65/2015, PLS 66/2015, PLS 63/2015, PLS 73/2015, PLS 71/2015, PLS 64/2015, PLS 219/2015, PLS 278/2015, PLS 322/2015, PLS 354/2015, PLS 412/2015, PLS 506/2015, PLS 510/2015, PLS 528/2015, PRS 42/2015, PLS 703/2015, PLS 704/2015, PLS 758/2015, PLS 72/2015, PLS 279/2015.",
+        "dataApresentacao": "2023-02-02",
+        "identificacao": "RQS 41/2023",
+        "autorPrincipal": false,
+        "urlPublica": "https://www25.senado.leg.br/web/atividade/materias/-/materia/155808"
+      },
+      {
+        "externalId": "155842",
+        "siglaTipo": "RQS",
+        "numero": 48,
+        "ano": 2023,
+        "ementa": "Desarquivamento das seguintes proposições: PEC 1/2015, PEC 39/2015, PRS 17/2015, PEC 57/2015, PEC 81/2015, PLS 507/2015, PLS 668/2015, PLS 768/2015, PLS 66/2016, PLS 288/2016, PLS 350/2016, PLS 362/2016, PLS 437/2016, PLS 278/2018.",
+        "dataApresentacao": "2023-02-06",
+        "identificacao": "RQS 48/2023",
+        "autorPrincipal": false,
+        "urlPublica": "https://www25.senado.leg.br/web/atividade/materias/-/materia/155842"
+      },
+      {
+        "externalId": "155891",
+        "siglaTipo": "RQS",
+        "numero": 68,
+        "ano": 2023,
+        "ementa": "Desarquivamento do Substitutivo da Câmara dos Deputados (SCD) nº 6/2016.",
+        "dataApresentacao": "2023-02-06",
+        "identificacao": "RQS 68/2023",
+        "autorPrincipal": false,
+        "urlPublica": "https://www25.senado.leg.br/web/atividade/materias/-/materia/155891"
+      },
+      {
+        "externalId": "156481",
+        "siglaTipo": "RQS",
+        "numero": 225,
+        "ano": 2023,
+        "ementa": "Desarquivamento do PL nº 2504/2019, que “altera a Lei nº 11.889,de 24 de dezembro de 2008, para estabelecer o piso salarial dos Técnicos em Saúde Bucal – TSB e Auxiliares em Saúde Bucal – ASB, e modifica a competência dos TSB”.",
+        "dataApresentacao": "2023-02-07",
+        "identificacao": "RQS 225/2023",
+        "autorPrincipal": false,
+        "urlPublica": "https://www25.senado.leg.br/web/atividade/materias/-/materia/156481"
+      },
+      {
+        "externalId": "155883",
+        "siglaTipo": "RQS",
+        "numero": 65,
+        "ano": 2023,
+        "ementa": "Requer o desarquivamento do PLS nº 166/2018.",
+        "dataApresentacao": "2023-02-08",
+        "identificacao": "RQS 65/2023",
+        "autorPrincipal": false,
+        "urlPublica": "https://www25.senado.leg.br/web/atividade/materias/-/materia/155883"
+      }
+    ]
+  },
+  "default": {
+    "affiliations": [
+      {
+        "codigoPartido": "521",
+        "siglaPartido": "REPUBLICANOS",
+        "nomePartido": "Republicanos",
+        "dataFiliacao": "2025-11-12",
+        "dataDesfiliacao": null
+      }
+    ],
+    "mandates": [
+      {
+        "codigoMandato": "596",
+        "siglaUf": "AC",
+        "participacao": "Titular",
+        "legislaturaInicio": 57,
+        "legislaturaFim": 58,
+        "dataInicio": "2023-02-01",
+        "dataFim": "2031-01-31"
+      }
+    ],
+    "matters": [
+      {
+        "externalId": "155808",
+        "siglaTipo": "RQS",
+        "numero": 41,
+        "ano": 2023,
+        "ementa": "Desarquivamento das seguintes proposições: PRS 10/2016, PLS 183/2016, PLS 277/2016, PLS 275/2016, PLS 279/2016, PEC 34/2016, PLS 316/2016, PLS 444/2016, PLS 29/2017, PLS 170/2017, PLS 171/2017, PLS 187/2017, PLS 211/2017, PLS 266/2017, PLS 265/2017, PLS 262/2017, PLS 263/2017, PLS 300/2017, PLS 338/2017, PLS 339/2017, PEC 36/2017, PFS 2/2017, PLS 469/2017, PLS 509/2017, PLS 225/2018, PEC 10/2018, PLS 335/2018, PDS 139/2018, PLS 461/2018, PLS 460/2018, PLS 294/2016, PLS 26/2015, PLS 67/2015, PLS 69/2015, PLS 65/2015, PLS 66/2015, PLS 63/2015, PLS 73/2015, PLS 71/2015, PLS 64/2015, PLS 219/2015, PLS 278/2015, PLS 322/2015, PLS 354/2015, PLS 412/2015, PLS 506/2015, PLS 510/2015, PLS 528/2015, PRS 42/2015, PLS 703/2015, PLS 704/2015, PLS 758/2015, PLS 72/2015, PLS 279/2015.",
+        "dataApresentacao": "2023-02-02",
+        "identificacao": "RQS 41/2023",
+        "autorPrincipal": false,
+        "urlPublica": "https://www25.senado.leg.br/web/atividade/materias/-/materia/155808"
+      },
+      {
+        "externalId": "155842",
+        "siglaTipo": "RQS",
+        "numero": 48,
+        "ano": 2023,
+        "ementa": "Desarquivamento das seguintes proposições: PEC 1/2015, PEC 39/2015, PRS 17/2015, PEC 57/2015, PEC 81/2015, PLS 507/2015, PLS 668/2015, PLS 768/2015, PLS 66/2016, PLS 288/2016, PLS 350/2016, PLS 362/2016, PLS 437/2016, PLS 278/2018.",
+        "dataApresentacao": "2023-02-06",
+        "identificacao": "RQS 48/2023",
+        "autorPrincipal": false,
+        "urlPublica": "https://www25.senado.leg.br/web/atividade/materias/-/materia/155842"
+      }
+    ]
+  }
+}

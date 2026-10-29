@@ -1,14 +1,29 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
-import type { SenadoListRow, SenadoParliamentarian } from "./types";
+import type {
+  SenadoAffiliation,
+  SenadoListRow,
+  SenadoMandate,
+  SenadoMatter,
+  SenadoParliamentarian,
+  SenadoProfileBundle,
+} from "./types";
+import { SENADO_MATTER_URL } from "./types";
+
+const SENADO_BASE =
+  process.env.SENADO_API_ROOT ?? "https://legis.senado.leg.br/dadosabertos";
 
 const SENADO_LIST_URL =
-  process.env.SENADO_API_BASE ??
-  "https://legis.senado.leg.br/dadosabertos/senador/lista/atual.json";
+  process.env.SENADO_API_BASE ?? `${SENADO_BASE}/senador/lista/atual.json`;
 
 function httpsPhoto(url: string | null | undefined): string | null {
   if (!url) return null;
   return url.replace(/^http:\/\//i, "https://");
+}
+
+function asArray<T>(value: T | T[] | null | undefined): T[] {
+  if (!value) return [];
+  return Array.isArray(value) ? value : [value];
 }
 
 function mapIdentificacao(
@@ -66,6 +81,22 @@ async function loadFixture(): Promise<SenadoParliamentarian[]> {
     .filter((r): r is SenadoParliamentarian => !!r);
 }
 
+async function loadProfileFixture(
+  codigo: string,
+): Promise<SenadoProfileBundle | null> {
+  const file = path.join(
+    process.cwd(),
+    "src/lib/senado/fixtures/senador-perfil.json",
+  );
+  try {
+    const raw = await readFile(file, "utf8");
+    const data = JSON.parse(raw) as Record<string, SenadoProfileBundle>;
+    return data[codigo] ?? data.default ?? null;
+  } catch {
+    return null;
+  }
+}
+
 type LiveListPayload = {
   ListaParlamentarEmExercicio?: {
     Parlamentares?: {
@@ -76,6 +107,20 @@ type LiveListPayload = {
     };
   };
 };
+
+async function senadoFetch<T>(path: string): Promise<T> {
+  const url = path.startsWith("http") ? path : `${SENADO_BASE}${path}`;
+  const response = await fetch(url, {
+    headers: { Accept: "application/json" },
+    signal: AbortSignal.timeout(
+      Number(process.env.SENADO_TIMEOUT_MS ?? 20_000),
+    ),
+  });
+  if (!response.ok) {
+    throw new Error(`Senado HTTP ${response.status} em ${path}`);
+  }
+  return (await response.json()) as T;
+}
 
 export async function listSenadoresAtual(): Promise<SenadoParliamentarian[]> {
   try {
@@ -113,3 +158,133 @@ export async function listSenadoresAtual(): Promise<SenadoParliamentarian[]> {
     return loadFixture();
   }
 }
+
+function mapAffiliations(payload: unknown): SenadoAffiliation[] {
+  const root = payload as {
+    FiliacaoParlamentar?: {
+      Parlamentar?: {
+        Filiacoes?: { Filiacao?: unknown };
+      };
+    };
+  };
+  const rows = asArray(
+    root.FiliacaoParlamentar?.Parlamentar?.Filiacoes?.Filiacao as
+      | Record<string, unknown>
+      | Record<string, unknown>[]
+      | undefined,
+  );
+  return rows.map((row) => {
+    const partido = (row.Partido as Record<string, unknown> | undefined) ?? {};
+    return {
+      codigoPartido: String(partido.CodigoPartido ?? "").trim() || null,
+      siglaPartido: String(partido.SiglaPartido ?? "").trim() || null,
+      nomePartido: String(partido.NomePartido ?? "").trim() || null,
+      dataFiliacao: String(row.DataFiliacao ?? "").trim() || null,
+      dataDesfiliacao: String(row.DataDesfiliacao ?? "").trim() || null,
+    };
+  });
+}
+
+function mapMandates(payload: unknown): SenadoMandate[] {
+  const root = payload as {
+    MandatoParlamentar?: {
+      Parlamentar?: {
+        Mandatos?: { Mandato?: unknown };
+      };
+    };
+  };
+  const rows = asArray(
+    root.MandatoParlamentar?.Parlamentar?.Mandatos?.Mandato as
+      | Record<string, unknown>
+      | Record<string, unknown>[]
+      | undefined,
+  );
+  return rows.map((row) => {
+    const first =
+      (row.PrimeiraLegislaturaDoMandato as Record<string, unknown> | undefined) ??
+      {};
+    const second =
+      (row.SegundaLegislaturaDoMandato as Record<string, unknown> | undefined) ??
+      {};
+    const legInicio = Number(first.NumeroLegislatura ?? NaN);
+    const legFim = Number(second.NumeroLegislatura ?? first.NumeroLegislatura ?? NaN);
+    return {
+      codigoMandato: String(row.CodigoMandato ?? "").trim() || null,
+      siglaUf: String(row.UfParlamentar ?? "").trim() || null,
+      participacao: String(row.DescricaoParticipacao ?? "").trim() || null,
+      legislaturaInicio: Number.isFinite(legInicio) ? legInicio : null,
+      legislaturaFim: Number.isFinite(legFim) ? legFim : null,
+      dataInicio: String(first.DataInicio ?? "").trim() || null,
+      dataFim: String(second.DataFim ?? first.DataFim ?? "").trim() || null,
+    };
+  });
+}
+
+function mapMatters(payload: unknown, limit: number): SenadoMatter[] {
+  const root = payload as {
+    MateriasAutoriaParlamentar?: {
+      Parlamentar?: {
+        Autorias?: { Autoria?: unknown };
+      };
+    };
+  };
+  const rows = asArray(
+    root.MateriasAutoriaParlamentar?.Parlamentar?.Autorias?.Autoria as
+      | Record<string, unknown>
+      | Record<string, unknown>[]
+      | undefined,
+  );
+  const mapped: SenadoMatter[] = [];
+  for (const row of rows) {
+    if (mapped.length >= limit) break;
+    const materia = (row.Materia as Record<string, unknown> | undefined) ?? {};
+    const externalId = String(materia.Codigo ?? "").trim();
+    if (!externalId) continue;
+    const numero = Number(materia.Numero ?? NaN);
+    const ano = Number(materia.Ano ?? NaN);
+    mapped.push({
+      externalId,
+      siglaTipo: String(materia.Sigla ?? "").trim() || null,
+      numero: Number.isFinite(numero) ? numero : null,
+      ano: Number.isFinite(ano) ? ano : null,
+      ementa: String(materia.Ementa ?? "").trim() || null,
+      dataApresentacao: String(materia.Data ?? "").trim() || null,
+      identificacao:
+        String(materia.DescricaoIdentificacao ?? "").trim() || null,
+      autorPrincipal:
+        String(row.IndicadorAutorPrincipal ?? "").trim().toLowerCase() === "sim",
+      urlPublica: `${SENADO_MATTER_URL}${externalId}`,
+    });
+  }
+  return mapped;
+}
+
+export async function fetchSenatorProfileBundle(
+  codigo: string,
+  opts?: { matterLimit?: number },
+): Promise<SenadoProfileBundle> {
+  const matterLimit = opts?.matterLimit ?? Number(process.env.SENADO_MATTER_LIMIT ?? 80);
+  try {
+    const [filiacoes, mandatos, autorias] = await Promise.all([
+      senadoFetch(`/senador/${codigo}/filiacoes.json`),
+      senadoFetch(`/senador/${codigo}/mandatos.json`),
+      senadoFetch(`/senador/${codigo}/autorias.json`),
+    ]);
+    return {
+      affiliations: mapAffiliations(filiacoes),
+      mandates: mapMandates(mandatos),
+      matters: mapMatters(autorias, matterLimit),
+    };
+  } catch (error) {
+    if (process.env.SENADO_REQUIRE_LIVE === "1") throw error;
+    console.warn(
+      `[senado] perfil ${codigo} indisponível; tentando fixture:`,
+      error instanceof Error ? error.message : error,
+    );
+    const fixture = await loadProfileFixture(codigo);
+    if (fixture) return fixture;
+    throw error;
+  }
+}
+
+export { mapAffiliations, mapMandates, mapMatters };

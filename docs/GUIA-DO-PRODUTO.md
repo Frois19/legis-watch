@@ -26,7 +26,7 @@ Para regenerar os prints: `npm run docs:screenshots` (requer o dev server em `:3
 | Presença e faltas | (Federal) Filtrar dias de falta e abrir a **ata do dia** (pauta + votações) |
 | Partido | (Federal) Ver outros deputados do mesmo partido no mandato selecionado |
 | Perfil estadual | Nome, partido, UF, e-mail e o que a casa já cobre (projetos/votos/presença quando houver) |
-| Perfil de senador | Cadastro + disclaimer de presença (API do Senado não equivale à da Câmara) |
+| Perfil de senador | Filiações, mandatos, matérias de autoria + disclaimer de presença |
 
 ---
 
@@ -138,11 +138,11 @@ Catálogo completo das 27 UFs: [estaduais.md](./estaduais.md).
 
 ## 8. Senadores
 
-Esfera **Senadores** na busca; perfil em `/parlamentares/senado/{codigo}`.
+Esfera **Senadores** na busca; perfil em `/parlamentares/senado/{codigo}` com abas de matérias, filiações e mandatos (enriquecimento sob demanda).
 
 ![Busca de senadores](./screenshots/11-busca-senadores.png)
 
-![Perfil de senador com disclaimer de presença](./screenshots/12-perfil-senador.png)
+![Perfil de senador com matérias e disclaimer de presença](./screenshots/12-perfil-senador.png)
 
 Detalhes: [senado.md](./senado.md).
 

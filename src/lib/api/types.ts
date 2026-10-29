@@ -83,6 +83,37 @@ export type StateDeputyDetail = {
   href: string;
 };
 
+export type SenatorAffiliationItem = {
+  codigoPartido: string | null;
+  siglaPartido: string | null;
+  nomePartido: string | null;
+  dataFiliacao: string | null;
+  dataDesfiliacao: string | null;
+};
+
+export type SenatorMandateItem = {
+  codigoMandato: string | null;
+  siglaUf: string | null;
+  participacao: string | null;
+  legislaturaInicio: number | null;
+  legislaturaFim: number | null;
+  dataInicio: string | null;
+  dataFim: string | null;
+};
+
+export type SenatorMatterItem = {
+  id: string;
+  externalId: string;
+  siglaTipo: string | null;
+  numero: number | null;
+  ano: number | null;
+  ementa: string | null;
+  dataApresentacao: string | null;
+  identificacao: string | null;
+  autorPrincipal: boolean;
+  urlPublica: string | null;
+};
+
 export type SenatorDetail = {
   key: string;
   sphere: "senador";
@@ -108,6 +139,10 @@ export type SenatorDetail = {
     attendance: boolean;
   };
   attendanceDisclaimer: string;
+  affiliations: SenatorAffiliationItem[];
+  mandates: SenatorMandateItem[];
+  matters: SenatorMatterItem[];
+  profileSyncedAt: string | null;
   syncedAt: string | null;
   href: string;
 };

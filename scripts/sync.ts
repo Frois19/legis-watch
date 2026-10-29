@@ -23,11 +23,13 @@ import {
   syncParties,
   syncPropositionsForDeputy,
   syncAllStateAssemblies,
+  syncSenatorProfile,
   syncSenadores,
   syncStateAssembly,
   syncVotesForYear,
 } from "../src/lib/sync";
 import { currentLegislatura } from "../src/lib/camara/client";
+import { prisma } from "../src/lib/db/prisma";
 
 function arg(name: string): string | undefined {
   const prefix = `--${name}=`;
@@ -41,6 +43,7 @@ async function main() {
   const deputyId = Number(arg("deputy") ?? 0);
   const legislaturaId = Number(arg("legislatura") ?? currentLegislatura());
   const source = arg("source") ?? "all";
+  const codigo = arg("codigo") ?? arg("senator");
 
   switch (command) {
     case "legislatures":
@@ -86,13 +89,48 @@ async function main() {
     case "senado":
       console.log(await syncSenadores());
       break;
+    case "senador-perfil":
+    case "senadores-perfil": {
+      if (codigo) {
+        console.log(await syncSenatorProfile(codigo));
+        break;
+      }
+      if (command === "senadores-perfil" || arg("all") === "1") {
+        const rows = await prisma.senator.findMany({
+          select: { externalId: true, nome: true },
+          orderBy: { nome: "asc" },
+        });
+        let ok = 0;
+        for (const row of rows) {
+          try {
+            const result = await syncSenatorProfile(row.externalId);
+            console.log(row.externalId, row.nome, result);
+            ok += 1;
+          } catch (error) {
+            console.error(
+              row.externalId,
+              row.nome,
+              error instanceof Error ? error.message : error,
+            );
+          }
+        }
+        console.log({ enriched: ok, total: rows.length });
+        break;
+      }
+      throw new Error(
+        "Use --codigo=<id> (ex.: 5672) ou senadores-perfil / --all=1",
+      );
+    }
     default:
       console.error(`Unknown command: ${command ?? "(none)"}`);
       console.error(
-        "Commands: legislatures | parties | deputies | mandates | propositions | votes | attendance | bootstrap | estadual | senadores",
+        "Commands: legislatures | parties | deputies | mandates | propositions | votes | attendance | bootstrap | estadual | senadores | senador-perfil",
       );
       console.error(
         "estadual: npm run sync -- estadual --source=all | --source=alepe",
+      );
+      console.error(
+        "senador-perfil: npm run sync -- senador-perfil --codigo=5672",
       );
       process.exit(1);
   }

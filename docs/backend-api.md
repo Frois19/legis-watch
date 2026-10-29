@@ -64,7 +64,7 @@ Resposta inclui `items[]` com `sphere`, `source`, `href`, `assemblyName`, etc. C
 
 Campos: nome, partido, UF, e-mail, `coverage` (search/profile/propositions/votes/attendance), `syncedAt`.
 
-Perfil do Senado inclui `attendanceDisclaimer` (a API não publica presença equivalente à da Câmara).
+Perfil do Senado inclui `affiliations`, `mandates`, `matters`, `profileSyncedAt` e `attendanceDisclaimer` (a API não publica presença equivalente à da Câmara). O primeiro acesso dispara sync de perfil se estiver ausente ou expirado.
 
 ### Catálogo de assembleias
 

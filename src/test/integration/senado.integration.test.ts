@@ -2,7 +2,7 @@ import { beforeAll, describe, expect, it } from "vitest";
 import { NextRequest } from "next/server";
 import { GET as listParlamentares } from "@/app/api/parlamentares/route";
 import { GET as getParlamentar } from "@/app/api/parlamentares/[source]/[id]/route";
-import { syncSenadores } from "@/lib/sync";
+import { syncSenatorProfile, syncSenadores } from "@/lib/sync";
 import { prisma } from "@/lib/db/prisma";
 import { resetDatabase } from "./db";
 
@@ -51,8 +51,39 @@ describe("integration senadores", () => {
     expect(body).toMatchObject({
       sphere: "senador",
       externalId: first!.externalId,
-      coverage: expect.objectContaining({ attendance: false }),
+      coverage: expect.objectContaining({
+        attendance: false,
+        propositions: true,
+      }),
     });
     expect(body.attendanceDisclaimer).toMatch(/Diário do Senado/i);
+    expect(Array.isArray(body.affiliations)).toBe(true);
+    expect(Array.isArray(body.mandates)).toBe(true);
+    expect(Array.isArray(body.matters)).toBe(true);
+  });
+
+  it("syncSenatorProfile persiste filiações/mandatos/matérias", async () => {
+    const target =
+      (await prisma.senator.findUnique({ where: { id: "senado:5672" } })) ??
+      (await prisma.senator.findFirst({ orderBy: { nome: "asc" } }));
+    expect(target).toBeTruthy();
+    const result = await syncSenatorProfile(target!.externalId);
+    expect(result.affiliations + result.mandates + result.matters).toBeGreaterThan(
+      0,
+    );
+    const enriched = await prisma.senator.findUnique({
+      where: { id: target!.id },
+      include: {
+        affiliations: true,
+        mandates: true,
+        matters: true,
+      },
+    });
+    expect(enriched?.profileSyncedAt).toBeTruthy();
+    expect(
+      (enriched?.affiliations.length ?? 0) +
+        (enriched?.mandates.length ?? 0) +
+        (enriched?.matters.length ?? 0),
+    ).toBeGreaterThan(0);
   });
 });

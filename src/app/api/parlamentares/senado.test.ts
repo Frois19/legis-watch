@@ -1,16 +1,21 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { NextRequest } from "next/server";
 
-const { prisma } = vi.hoisted(() => ({
+const { prisma, ensureSenatorProfile } = vi.hoisted(() => ({
   prisma: {
     deputyMandate: { findMany: vi.fn() },
     deputy: { findMany: vi.fn() },
     stateDeputy: { findMany: vi.fn(), findUnique: vi.fn() },
     senator: { findMany: vi.fn(), findUnique: vi.fn() },
   },
+  ensureSenatorProfile: vi.fn(),
 }));
 
 vi.mock("@/lib/db/prisma", () => ({ prisma }));
+vi.mock("@/lib/sync/senado", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/sync/senado")>();
+  return { ...actual, ensureSenatorProfile };
+});
 
 import { searchCache } from "@/lib/cache/memory-cache";
 import { GET as listParlamentares } from "./route";
@@ -58,8 +63,8 @@ describe("API senadores via /api/parlamentares", () => {
     });
   });
 
-  it("retorna perfil de senador com disclaimer de presença", async () => {
-    prisma.senator.findUnique.mockResolvedValue({
+  it("retorna perfil enriquecido com disclaimer de presença", async () => {
+    ensureSenatorProfile.mockResolvedValue({
       id: "senado:5672",
       source: "senado",
       externalId: "5672",
@@ -73,7 +78,43 @@ describe("API senadores via /api/parlamentares", () => {
       email: "sen.alanrick@senado.leg.br",
       situacao: "Exercício",
       participacao: "Titular",
+      profileSyncedAt: new Date("2026-10-29T12:00:00Z"),
       syncedAt: new Date("2026-10-29T12:00:00Z"),
+      affiliations: [
+        {
+          codigoPartido: "521",
+          siglaPartido: "REPUBLICANOS",
+          nomePartido: "Republicanos",
+          dataFiliacao: "2025-11-12",
+          dataDesfiliacao: null,
+        },
+      ],
+      mandates: [
+        {
+          codigoMandato: "596",
+          siglaUf: "AC",
+          participacao: "Titular",
+          legislaturaInicio: 57,
+          legislaturaFim: 58,
+          dataInicio: "2023-02-01",
+          dataFim: "2031-01-31",
+        },
+      ],
+      matters: [
+        {
+          id: "senado:5672:materia:155808",
+          externalId: "155808",
+          siglaTipo: "RQS",
+          numero: 41,
+          ano: 2023,
+          ementa: "Desarquivamento",
+          dataApresentacao: "2023-02-02",
+          identificacao: "RQS 41/2023",
+          autorPrincipal: false,
+          urlPublica:
+            "https://www25.senado.leg.br/web/atividade/materias/-/materia/155808",
+        },
+      ],
     });
 
     const res = await getParlamentar(new Request("http://localhost"), {
@@ -83,6 +124,11 @@ describe("API senadores via /api/parlamentares", () => {
     const body = await res.json();
     expect(body.sphere).toBe("senador");
     expect(body.coverage.attendance).toBe(false);
+    expect(body.coverage.propositions).toBe(true);
     expect(body.attendanceDisclaimer).toMatch(/Diário do Senado/i);
+    expect(body.affiliations).toHaveLength(1);
+    expect(body.mandates[0].codigoMandato).toBe("596");
+    expect(body.matters[0].identificacao).toBe("RQS 41/2023");
+    expect(ensureSenatorProfile).toHaveBeenCalledWith("5672");
   });
 });

@@ -227,9 +227,14 @@ model Senator {
   situacao      String?
   participacao  String?
   rawJson       String?
+  profileSyncedAt DateTime?
   syncedAt      DateTime?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+
+  affiliations  SenatorAffiliation[]
+  mandates      SenatorMandate[]
+  matters       SenatorMatter[]
 
   @@unique([source, externalId])
   @@index([source])
@@ -237,6 +242,59 @@ model Senator {
   @@index([siglaPartido])
   @@index([siglaUf])
   @@index([siglaUf, nome])
+}
+
+model SenatorAffiliation {
+  id               Int      @id @default(autoincrement())
+  senatorId        String
+  senator          Senator  @relation(fields: [senatorId], references: [id], onDelete: Cascade)
+  codigoPartido    String?
+  siglaPartido     String?
+  nomePartido      String?
+  dataFiliacao     String?
+  dataDesfiliacao  String?
+
+  @@index([senatorId])
+  @@index([siglaPartido])
+}
+
+model SenatorMandate {
+  id                 Int      @id @default(autoincrement())
+  senatorId          String
+  senator            Senator  @relation(fields: [senatorId], references: [id], onDelete: Cascade)
+  codigoMandato      String?
+  siglaUf            String?
+  participacao       String?
+  legislaturaInicio  Int?
+  legislaturaFim     Int?
+  dataInicio         String?
+  dataFim            String?
+
+  @@index([senatorId])
+  @@index([siglaUf])
+}
+
+model SenatorMatter {
+  id               String   @id
+  senatorId        String
+  senator          Senator  @relation(fields: [senatorId], references: [id], onDelete: Cascade)
+  externalId       String
+  siglaTipo        String?
+  numero           Int?
+  ano              Int?
+  ementa           String?
+  dataApresentacao String?
+  identificacao    String?
+  autorPrincipal   Boolean  @default(false)
+  urlPublica       String?
+  syncedAt         DateTime?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@unique([senatorId, externalId])
+  @@index([senatorId])
+  @@index([ano])
+  @@index([siglaTipo, numero, ano])
 }
 
 /** Deputado estadual (Assembleias). ID namespaced: "alepe:slug". */

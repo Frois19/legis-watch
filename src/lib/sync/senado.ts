@@ -1,6 +1,9 @@
 import { prisma } from "@/lib/db/prisma";
 import { parliamentarianId } from "@/lib/parliament/types";
-import { listSenadoresAtual } from "@/lib/senado/client";
+import {
+  fetchSenatorProfileBundle,
+  listSenadoresAtual,
+} from "@/lib/senado/client";
 import { withSyncRun } from "./run";
 
 export async function syncSenadores() {
@@ -49,4 +52,129 @@ export async function syncSenadores() {
 
     return { senators: upserted };
   });
+}
+
+export async function syncSenatorProfile(codigo: string) {
+  const externalId = String(codigo).trim();
+  if (!externalId) throw new Error("codigo do senador obrigatório");
+
+  return withSyncRun(`senador-perfil:${externalId}`, async () => {
+    const id = parliamentarianId("senado", externalId);
+    const senator = await prisma.senator.findUnique({ where: { id } });
+    if (!senator) {
+      throw new Error(
+        `Senador ${externalId} não encontrado — rode npm run sync -- senadores`,
+      );
+    }
+
+    const bundle = await fetchSenatorProfileBundle(externalId);
+
+    await prisma.$transaction(async (tx) => {
+      await tx.senatorAffiliation.deleteMany({ where: { senatorId: id } });
+      if (bundle.affiliations.length > 0) {
+        await tx.senatorAffiliation.createMany({
+          data: bundle.affiliations.map((row) => ({
+            senatorId: id,
+            codigoPartido: row.codigoPartido,
+            siglaPartido: row.siglaPartido,
+            nomePartido: row.nomePartido,
+            dataFiliacao: row.dataFiliacao,
+            dataDesfiliacao: row.dataDesfiliacao,
+          })),
+        });
+      }
+
+      await tx.senatorMandate.deleteMany({ where: { senatorId: id } });
+      if (bundle.mandates.length > 0) {
+        await tx.senatorMandate.createMany({
+          data: bundle.mandates.map((row) => ({
+            senatorId: id,
+            codigoMandato: row.codigoMandato,
+            siglaUf: row.siglaUf,
+            participacao: row.participacao,
+            legislaturaInicio: row.legislaturaInicio,
+            legislaturaFim: row.legislaturaFim,
+            dataInicio: row.dataInicio,
+            dataFim: row.dataFim,
+          })),
+        });
+      }
+
+      await tx.senatorMatter.deleteMany({ where: { senatorId: id } });
+      if (bundle.matters.length > 0) {
+        await tx.senatorMatter.createMany({
+          data: bundle.matters.map((row) => ({
+            id: `${id}:materia:${row.externalId}`,
+            senatorId: id,
+            externalId: row.externalId,
+            siglaTipo: row.siglaTipo,
+            numero: row.numero,
+            ano: row.ano,
+            ementa: row.ementa,
+            dataApresentacao: row.dataApresentacao,
+            identificacao: row.identificacao,
+            autorPrincipal: row.autorPrincipal,
+            urlPublica: row.urlPublica,
+            syncedAt: new Date(),
+          })),
+        });
+      }
+
+      await tx.senator.update({
+        where: { id },
+        data: { profileSyncedAt: new Date() },
+      });
+    });
+
+    return {
+      affiliations: bundle.affiliations.length,
+      mandates: bundle.mandates.length,
+      matters: bundle.matters.length,
+    };
+  });
+}
+
+function profileTtlMs() {
+  return Number(process.env.SENADO_PROFILE_TTL_MS ?? 86_400_000);
+}
+
+export type SenatorWithProfile = NonNullable<
+  Awaited<ReturnType<typeof loadSenatorWithProfile>>
+>;
+
+async function loadSenatorWithProfile(id: string) {
+  return prisma.senator.findUnique({
+    where: { id },
+    include: {
+      affiliations: { orderBy: { dataFiliacao: "desc" } },
+      mandates: { orderBy: { dataInicio: "desc" } },
+      matters: { orderBy: [{ ano: "desc" }, { numero: "desc" }] },
+    },
+  });
+}
+
+/** Garante filiações/mandatos/matérias no perfil (sync sob demanda + TTL). */
+export async function ensureSenatorProfile(codigo: string) {
+  const externalId = String(codigo).trim();
+  const id = parliamentarianId("senado", externalId);
+  const existing = await prisma.senator.findUnique({ where: { id } });
+  if (!existing) return null;
+
+  const ttl = profileTtlMs();
+  const stale =
+    !existing.profileSyncedAt ||
+    Date.now() - existing.profileSyncedAt.getTime() > ttl;
+
+  if (stale) {
+    try {
+      await syncSenatorProfile(externalId);
+    } catch (error) {
+      console.warn(
+        `[senado] falha ao enriquecer perfil ${externalId}:`,
+        error instanceof Error ? error.message : error,
+      );
+    }
+  }
+
+  return loadSenatorWithProfile(id);
 }

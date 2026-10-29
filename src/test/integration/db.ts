@@ -11,6 +11,9 @@ export async function resetDatabase() {
   await prisma.proposition.deleteMany();
   await prisma.stateProposition.deleteMany();
   await prisma.stateDeputy.deleteMany();
+  await prisma.senatorMatter.deleteMany();
+  await prisma.senatorAffiliation.deleteMany();
+  await prisma.senatorMandate.deleteMany();
   await prisma.senator.deleteMany();
   await prisma.deputy.deleteMany();
   await prisma.party.deleteMany();
