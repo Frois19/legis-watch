@@ -1,0 +1,208 @@
+/**
+ * Captura prints atualizados para docs/GUIA-DO-PRODUTO.md
+ * Uso: node scripts/capture-docs-screenshots.mjs
+ */
+import { chromium } from "playwright";
+import path from "node:path";
+import { mkdir } from "node:fs/promises";
+
+const BASE = process.env.DOCS_SHOT_BASE ?? "http://localhost:3456";
+const OUT = path.resolve("docs/screenshots");
+
+async function shot(page, name) {
+  const file = path.join(OUT, name);
+  await page.screenshot({ path: file, fullPage: false });
+  console.log("saved", file);
+}
+
+async function waitReady(page) {
+  await page.waitForLoadState("networkidle").catch(() => {});
+  await page.waitForTimeout(500);
+}
+
+async function main() {
+  await mkdir(OUT, { recursive: true });
+  const browser = await chromium.launch({ headless: true });
+  const context = await browser.newContext({
+    viewport: { width: 1280, height: 900 },
+    deviceScaleFactor: 1,
+  });
+  const page = await context.newPage();
+  // Esconde o badge flutuante do Next.js Dev Tools nos prints
+  await page.addStyleTag({
+    content: `
+      nextjs-portal, [data-nextjs-toast], #__next-build-watcher,
+      button[aria-label="Open Next.js Dev Tools"],
+      button[aria-label*="Next.js"] { display: none !important; }
+    `,
+  });
+  page.on("load", async () => {
+    await page
+      .addStyleTag({
+        content: `
+      nextjs-portal, [data-nextjs-toast], #__next-build-watcher,
+      button[aria-label="Open Next.js Dev Tools"],
+      button[aria-label*="Next.js"] { display: none !important; }
+    `,
+      })
+      .catch(() => {});
+  });
+
+  // Seed favoritos antes de qualquer navegação
+  await context.addInitScript(() => {
+    localStorage.setItem(
+      "legis-watch:favorites:v1",
+      JSON.stringify([
+        {
+          id: 204515,
+          nome: "André Janones",
+          siglaPartido: "AVANTE",
+          siglaUf: "MG",
+          urlFoto:
+            "https://www.camara.leg.br/internet/deputado/bandep/204515.jpg",
+        },
+        {
+          id: 209787,
+          nome: "Nikolas Ferreira",
+          siglaPartido: "PL",
+          siglaUf: "MG",
+          urlFoto:
+            "https://www.camara.leg.br/internet/deputado/bandep/209787.jpg",
+        },
+      ]),
+    );
+  });
+
+  // 01 — busca federal com resultados (Janones / legislatura 56)
+  await page.goto(`${BASE}/`, { waitUntil: "domcontentloaded" });
+  await waitReady(page);
+  await page.getByRole("button", { name: "Deputados federais", exact: true }).click();
+  await page.getByRole("button", { name: /56ª/ }).click();
+  await page.getByLabel("Nome").fill("Janones");
+  await page.getByRole("button", { name: "Buscar", exact: true }).click();
+  await page.getByText(/resultado/i).waitFor({ timeout: 15000 });
+  await page.waitForTimeout(800);
+  await shot(page, "01-busca.png");
+
+  // 07 — busca com esfera visível (home limpa + destaque estadual)
+  await page.goto(`${BASE}/`, { waitUntil: "domcontentloaded" });
+  await waitReady(page);
+  await shot(page, "07-busca-esfera.png");
+
+  // resultados estaduais PE (para possível uso / contexto)
+  await page
+    .getByRole("button", { name: "Deputados estaduais", exact: true })
+    .click();
+  await page.getByLabel("UF").selectOption("PE");
+  await page.getByRole("button", { name: "Buscar", exact: true }).click();
+  await page.getByText(/resultado/i).waitFor({ timeout: 15000 });
+  await page.waitForTimeout(800);
+  await shot(page, "07b-busca-estadual-pe.png");
+
+  // 02 — perfil projetos
+  await page.goto(`${BASE}/deputados/204515?legislaturaId=56`, {
+    waitUntil: "domcontentloaded",
+  });
+  await waitReady(page);
+  await page.getByRole("tab", { name: /Projetos/ }).click();
+  await page.waitForTimeout(1000);
+  await shot(page, "02-perfil-projetos.png");
+
+  // 03 — votações filtro Não
+  await page.getByRole("tab", { name: /Votações/ }).click();
+  await page.waitForTimeout(1200);
+  const voteFilter = page.getByLabel(/Filtrar por voto/i);
+  await voteFilter.selectOption("nao");
+  await page.waitForTimeout(600);
+  await shot(page, "03-votacoes-filtro.png");
+
+  // 04 — presença faltas + ata (mandato 56)
+  await page.getByRole("tab", { name: /Presença/ }).click();
+  await page.waitForTimeout(1200);
+  await page.getByLabel(/Filtrar presença/i).selectOption("faltas");
+  await page.waitForTimeout(600);
+  const ataBtn = page
+    .getByRole("button", { name: /Ver ata do dia/i })
+    .first();
+  if (await ataBtn.count()) {
+    await ataBtn.click();
+    await page
+      .getByText(/Carregando pauta/i)
+      .waitFor({ state: "hidden", timeout: 60000 })
+      .catch(() => {});
+    await page
+      .getByText(/Votações nominais do dia|Pauta|Não há pauta|sem itens/i)
+      .first()
+      .waitFor({ timeout: 15000 })
+      .catch(() => {});
+    await page.waitForTimeout(600);
+  }
+  await shot(page, "04-presenca-faltas-ata.png");
+
+  // 04b — ata com pauta rica (mandato atual 57 + sessão recente)
+  await page.getByLabel("Mandato").selectOption("57");
+  await page.waitForTimeout(2000);
+  await page.getByRole("tab", { name: /Presença/ }).click();
+  await page.waitForTimeout(1500);
+  await page.getByLabel(/Filtrar presença/i).selectOption("todos");
+  await page.waitForTimeout(400);
+  const ataBtn57 = page
+    .getByRole("button", { name: /Ver ata do dia/i })
+    .first();
+  if (await ataBtn57.count()) {
+    await ataBtn57.click();
+    await page
+      .getByText(/Carregando pauta/i)
+      .waitFor({ state: "hidden", timeout: 60000 })
+      .catch(() => {});
+    await page
+      .getByText(/REQ |PL |PEC |Pauta|Votações nominais/i)
+      .first()
+      .waitFor({ timeout: 20000 })
+      .catch(() => {});
+    await page.waitForTimeout(800);
+  }
+  const richAta = page.getByText(/Votações nominais do dia|REQ |PL /i).first();
+  if (await richAta.count()) {
+    await richAta.scrollIntoViewIfNeeded().catch(() => {});
+  }
+  await shot(page, "04b-presenca-ata-pauta.png");
+
+  // 05 — partido
+  await page.getByRole("tab", { name: /Partido/ }).click();
+  await page.waitForTimeout(1200);
+  await shot(page, "05-partido.png");
+
+  // 06 — favoritos
+  await page.goto(`${BASE}/favoritos`, { waitUntil: "domcontentloaded" });
+  await waitReady(page);
+  await page.waitForTimeout(600);
+  await shot(page, "06-favoritos.png");
+
+  // 08/09/10 — perfis estaduais
+  await page.goto(`${BASE}/parlamentares/alepe/joao-paulo`, {
+    waitUntil: "domcontentloaded",
+  });
+  await waitReady(page);
+  await shot(page, "08-perfil-estadual-pe.png");
+
+  await page.goto(`${BASE}/parlamentares/alesp/gabriela-sao-paulo`, {
+    waitUntil: "domcontentloaded",
+  });
+  await waitReady(page);
+  await shot(page, "09-perfil-estadual-sp.png");
+
+  await page.goto(`${BASE}/parlamentares/almg/larissa-belo-horizonte`, {
+    waitUntil: "domcontentloaded",
+  });
+  await waitReady(page);
+  await shot(page, "10-perfil-estadual-mg.png");
+
+  await browser.close();
+  console.log("done");
+}
+
+main().catch((err) => {
+  console.error(err);
+  process.exit(1);
+});

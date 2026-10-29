@@ -10,7 +10,7 @@ Para entender o que o app faz, com prints das telas.
 
 | Documento | Conteúdo |
 |---|---|
-| [Guia do produto](./GUIA-DO-PRODUTO.md) | Busca (federal + estadual), favoritos, projetos, votações, presença/ata, partido |
+| [Guia do produto](./GUIA-DO-PRODUTO.md) | Busca (federal + estadual), favoritos, projetos, votações, presença/ata, partido — prints atualizados |
 | [Deputados estaduais por UF](./estaduais.md) | Catálogo das 27 UFs, live vs fixture, sync e limitações |
 
 ---

@@ -18,6 +18,7 @@
     "db:push": "prisma db push",
     "db:studio": "prisma studio",
     "sync": "tsx scripts/sync.ts",
+    "docs:screenshots": "node scripts/capture-docs-screenshots.mjs",
     "postinstall": "prisma generate"
   },
   "dependencies": {
@@ -47,6 +48,7 @@
     "@vitest/coverage-v8": "^3.2.7",
     "eslint": "^9",
     "eslint-config-next": "15.5.4",
+    "playwright": "^1.55.0",
     "prisma": "^6.19.0",
     "tailwindcss": "^4",
     "tsx": "^4.23.15",

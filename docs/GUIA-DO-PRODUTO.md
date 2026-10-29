@@ -2,11 +2,13 @@
 
 > Navegação: [Índice da documentação](./README.md) · [Estaduais](./estaduais.md) · [APIs da Câmara](./apis-v1.md) · [API interna](./backend-api.md) · [README](../README.md)
 
-Documento para entender **o que o produto faz**, com prints das telas principais.
+Documento para entender **o que o produto faz**, com prints das telas principais (atualizados a partir do app em `localhost:3456`).
 
 **Legis Watch** é um app web para acompanhar parlamentares brasileiros — **deputados federais** (Câmara) e **deputados estaduais** (Assembleias / CLDF) — com dados públicos. Você busca um parlamentar, escolhe a esfera (e o mandato, no federal) e vê o que a casa já publica: projetos, votações, presença e partido no federal; cadastro e cobertura no estadual.
 
 Repositório: [github.com/Frois19/legis-watch](https://github.com/Frois19/legis-watch)
+
+Para regenerar os prints: `npm run docs:screenshots` (requer o dev server em `:3456`).
 
 ---
 
@@ -40,9 +42,17 @@ Tela inicial: escolha a **esfera**, depois os filtros. No federal, escolha tamb�
 - Resultados com foto (quando houver), partido, UF e nome da casa
 - Atalhos de exemplo: Janones (federal) e deputados estaduais de PE
 
-Busca clássica (só federal, prints anteriores):
+### Resultados federais
 
-![Tela de busca do Legis Watch](./screenshots/01-busca.png)
+Exemplo: busca por “Janones” na 56ª legislatura.
+
+![Busca federal com resultado](./screenshots/01-busca.png)
+
+### Resultados estaduais
+
+Exemplo: esfera estadual + UF **PE** (8 parlamentares da ALEPE).
+
+![Busca estadual PE](./screenshots/07b-busca-estadual-pe.png)
 
 ---
 
