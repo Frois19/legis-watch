@@ -1,4 +1,5 @@
 import type { StateAssemblyAdapter } from "../types";
+import { alepAdapter } from "./alep";
 import { alepeAdapter } from "./alepe";
 import { alespAdapter } from "./alesp";
 import { almgAdapter } from "./almg";
@@ -10,6 +11,7 @@ import { createAllSaplAdapters, SAPL_SOURCES } from "./sapl";
  * - PE: ALEPE live (cadastro)
  * - MG: ALMG live (cadastro + filiações/mandatos + proposições via CSV)
  * - SP: ALESP live (cadastro via XML)
+ * - PR: ALEP live (cadastro via remuneração + proposições via webservice)
  * - AC/AL/AM/PB/PI/RO/TO: SAPL live (cadastro + filiações/mandatos/matérias)
  * - Demais UFs: fixture de cadastro
  */
@@ -17,6 +19,7 @@ const liveSources = new Set<string>([
   "alepe",
   "almg",
   "alesp",
+  "alep",
   ...SAPL_SOURCES,
 ]);
 
@@ -28,6 +31,7 @@ const adapters: Record<string, StateAssemblyAdapter> = {
   alepe: alepeAdapter,
   almg: almgAdapter,
   alesp: alespAdapter,
+  alep: alepAdapter,
   ...Object.fromEntries(createAllSaplAdapters().map((a) => [a.info.source, a])),
   ...Object.fromEntries(fixtureAdapters.map((a) => [a.info.source, a])),
 };
@@ -44,5 +48,5 @@ export function listStateAdapterSources(): string[] {
   return Object.keys(adapters).sort();
 }
 
-export { alepeAdapter, alespAdapter, almgAdapter, SAPL_SOURCES };
+export { alepAdapter, alepeAdapter, alespAdapter, almgAdapter, SAPL_SOURCES };
 export { SAPL_HOUSES } from "./sapl";

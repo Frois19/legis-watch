@@ -1,5 +1,6 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
+import { cachedFetchJson } from "@/lib/cache/http-cache";
 import type {
   SenadoAffiliation,
   SenadoListRow,
@@ -109,32 +110,32 @@ type LiveListPayload = {
   };
 };
 
+function senadoTimeoutMs() {
+  return Number(process.env.SENADO_TIMEOUT_MS ?? 20_000);
+}
+
+function senadoCacheTtlMs() {
+  return Number(process.env.SENADO_CACHE_TTL_MS ?? 6 * 60 * 60 * 1000);
+}
+
 async function senadoFetch<T>(path: string): Promise<T> {
   const url = path.startsWith("http") ? path : `${SENADO_BASE}${path}`;
-  const response = await fetch(url, {
+  return cachedFetchJson<T>(url, {
+    namespace: "senado",
     headers: { Accept: "application/json" },
-    signal: AbortSignal.timeout(
-      Number(process.env.SENADO_TIMEOUT_MS ?? 20_000),
-    ),
+    timeoutMs: senadoTimeoutMs(),
+    ttlMs: senadoCacheTtlMs(),
   });
-  if (!response.ok) {
-    throw new Error(`Senado HTTP ${response.status} em ${path}`);
-  }
-  return (await response.json()) as T;
 }
 
 export async function listSenadoresAtual(): Promise<SenadoParliamentarian[]> {
   try {
-    const response = await fetch(SENADO_LIST_URL, {
+    const data = await cachedFetchJson<LiveListPayload>(SENADO_LIST_URL, {
+      namespace: "senado",
       headers: { Accept: "application/json" },
-      signal: AbortSignal.timeout(
-        Number(process.env.SENADO_TIMEOUT_MS ?? 20_000),
-      ),
+      timeoutMs: senadoTimeoutMs(),
+      ttlMs: senadoCacheTtlMs(),
     });
-    if (!response.ok) {
-      throw new Error(`Senado HTTP ${response.status}`);
-    }
-    const data = (await response.json()) as LiveListPayload;
     const rows =
       data.ListaParlamentarEmExercicio?.Parlamentares?.Parlamentar ?? [];
     const mapped = rows

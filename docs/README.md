@@ -11,7 +11,7 @@ Para entender o que o app faz, com prints das telas.
 | Documento | Conteúdo |
 |---|---|
 | [Guia do usuário](./GUIA-DO-PRODUTO.md) | Telas e funcionalidades (federal, estadual enriquecido, senadores) — prints atualizados |
-| [Deputados estaduais por UF](./estaduais.md) | Catálogo das 27 UFs (10 live: PE/MG/SP/SAPL), sync e limitações |
+| [Deputados estaduais por UF](./estaduais.md) | Catálogo das 27 UFs (11 live: PE/MG/SP/PR/SAPL), sync e limitações |
 | [Senadores](./senado.md) | Lista atual, perfil (filiações/mandatos/matérias/votos) e disclaimer de presença |
 
 ---

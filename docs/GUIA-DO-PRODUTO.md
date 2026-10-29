@@ -156,6 +156,7 @@ Ao abrir o perfil, o app sincroniza sob demanda o que a Assembleia publica:
 | Minas Gerais | `almg` | Sim (CSV anual) | Sim | Sim |
 | São Paulo | `alesp` | Sim (XML/ZIP) | — | — |
 | Pernambuco | `alepe` | Sim (XML; fixture se offline) | — | — |
+| Paraná | `alep` | Sim (webservice + cache) | — | — |
 | Demais UFs | fixture | — | — | — |
 
 #### Minas Gerais (ALMG) — proposições (CSV)
@@ -212,7 +213,7 @@ Presença no Senado **não** é inferida pela API — use o tutorial oficial de 
 ## Dados e limitações
 
 - **Federal:** Dados Abertos da Câmara (API + arquivos anuais)
-- **Estadual:** 10 casas live (PE, MG, SP, 7 SAPL); 17 UFs em fixture — [estaduais.md](./estaduais.md) · [fontes](./fontes-endpoints.md)
+- **Estadual:** 11 casas live (PE, MG, SP, PR, 7 SAPL); 16 UFs em fixture — [estaduais.md](./estaduais.md) · [fontes](./fontes-endpoints.md)
 - **Senado:** lista + perfil enriquecido (matérias e votos); presença só pelo Diário / tutorial oficial
 - Favoritos: federal, estadual e senador; só neste navegador
 - Votos/presença estaduais: ainda não (APIs sem voto nominal por parlamentar de forma utilizável)

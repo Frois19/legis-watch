@@ -54,8 +54,10 @@ npm run sync -- estadual --source=all
 # Só PE (ALEPE live + fallback de fixture)
 npm run sync -- estadual --source=alepe
 
-# Casas live adicionais: MG (ALMG) e SAPL (AC/AL/AM/PB/PI/RO/TO)
+# Casas live adicionais: MG (ALMG), SP (ALESP), PR (ALEP) e SAPL
 npm run sync -- estadual --source=almg
+npm run sync -- estadual --source=alesp
+npm run sync -- estadual --source=alep
 npm run sync -- estadual --source=aleac
 
 # Perfil estadual enriquecido (filiações/mandatos/proposições quando a casa publicar)

@@ -1,5 +1,6 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
+import { cachedFetchJson, cachedFetchText } from "@/lib/cache/http-cache";
 import { parseCsv } from "../csv";
 import type {
   AdapterAffiliation,
@@ -89,14 +90,12 @@ async function almgFetch<T>(apiPath: string): Promise<T> {
   const url = apiPath.startsWith("http")
     ? apiPath
     : `${ALMG_BASE.replace(/\/$/, "")}${apiPath}`;
-  const response = await fetch(url, {
+  return cachedFetchJson<T>(url, {
+    namespace: "almg",
     headers: { Accept: "application/json" },
-    signal: AbortSignal.timeout(timeoutMs()),
+    timeoutMs: timeoutMs(),
+    ttlMs: csvCacheTtlMs(),
   });
-  if (!response.ok) {
-    throw new Error(`ALMG HTTP ${response.status} em ${apiPath}`);
-  }
-  return (await response.json()) as T;
 }
 
 function mapEmail(
@@ -223,14 +222,12 @@ async function loadYearPropositions(year: number): Promise<AdapterProposition[]>
   }
 
   const url = `${ALMG_CSV_BASE.replace(/\/$/, "")}/proposicoes/download?ano=${year}`;
-  const response = await fetch(url, {
+  const text = await cachedFetchText(url, {
+    namespace: "almg",
     headers: { Accept: "text/csv,application/octet-stream,*/*" },
-    signal: AbortSignal.timeout(timeoutMs()),
+    timeoutMs: timeoutMs(),
+    ttlMs: csvCacheTtlMs(),
   });
-  if (!response.ok) {
-    throw new Error(`ALMG CSV HTTP ${response.status} ano=${year}`);
-  }
-  const text = await response.text();
   const parsed = parseCsv(text);
   // Guarda todas as linhas mapeáveis sem filtro de autor — o filtro é por id na hora.
   const rows: AdapterProposition[] = [];

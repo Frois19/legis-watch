@@ -1,5 +1,6 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
+import { cachedFetchJson } from "@/lib/cache/http-cache";
 import type {
   AdapterAffiliation,
   AdapterMandate,
@@ -101,18 +102,20 @@ function timeoutMs() {
   return Number(process.env.SAPL_TIMEOUT_MS ?? 20_000);
 }
 
+function cacheTtlMs() {
+  return Number(process.env.SAPL_CACHE_TTL_MS ?? 6 * 60 * 60 * 1000);
+}
+
 async function saplFetch<T>(baseUrl: string, apiPath: string): Promise<T> {
   const url = apiPath.startsWith("http")
     ? apiPath
     : `${baseUrl.replace(/\/$/, "")}${apiPath}`;
-  const response = await fetch(url, {
+  return cachedFetchJson<T>(url, {
+    namespace: "sapl",
     headers: { Accept: "application/json" },
-    signal: AbortSignal.timeout(timeoutMs()),
+    timeoutMs: timeoutMs(),
+    ttlMs: cacheTtlMs(),
   });
-  if (!response.ok) {
-    throw new Error(`SAPL HTTP ${response.status} em ${apiPath}`);
-  }
-  return (await response.json()) as T;
 }
 
 async function saplFetchAllPages<T>(

@@ -15,7 +15,7 @@ Situação: **federal completo** (Câmara) + **estadual em 27 UFs** (busca/perfi
 | Casa | Status |
 |---|---|
 | Câmara dos Deputados (federal) | Implementado (sync + UI) |
-| Assembleias Legislativas (estadual) | 27 UFs: busca + perfil (10 live: PE/MG/SP + 7 SAPL; 17 fixture) |
+| Assembleias Legislativas (estadual) | 27 UFs: busca + perfil (11 live: PE/MG/SP/PR + 7 SAPL; 16 fixture) |
 | Senado Federal | Busca + perfil (lista, filiações, mandatos, matérias, votos); presença com disclaimer |
 
 Não existe API nacional única para deputados estaduais. Cada Assembleia publica (ou não) seus dados com formatos diferentes. Por isso a expansão estadual precisa ser **por adapter + rollout UFs**.
@@ -397,6 +397,7 @@ Produção       → C4 Redis se houver mais de uma instância
 |---|---|
 | C1 Memory cache + TTL/LRU | Feito (`src/lib/cache/`, header `X-Cache`) |
 | C2 Invalidação pós-sync + `POST /api/cache/purge` | Feito |
+| C3 Cache HTTP externo (assembleias + Senado) | Feito (`http-cache.ts` memória + disco) |
 | C3 Índices Prisma de busca | Feito |
 | Debounce na UI (300 ms) | Feito |
 | Cache em `/api/parlamentares` (esfera na chave) | Feito |

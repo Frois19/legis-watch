@@ -1,5 +1,6 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
+import { cachedFetchJson, cachedFetchText } from "@/lib/cache/http-cache";
 import { slugifyExternalId } from "../slug";
 import type {
   AdapterParliamentarian,
@@ -49,6 +50,10 @@ function propositionYears(): number[] {
 
 function propositionLimit() {
   return Number(process.env.ESTADUAL_MATTER_LIMIT ?? 60);
+}
+
+function cacheTtlMs() {
+  return Number(process.env.ALEPE_CACHE_TTL_MS ?? 6 * 60 * 60 * 1000);
 }
 
 function mapRow(row: AlepeRow): AdapterParliamentarian | null {
@@ -182,12 +187,12 @@ export function parseAlepePropositionsXml(
 }
 
 async function fetchXml(url: string): Promise<string> {
-  const response = await fetch(url, {
+  return cachedFetchText(url, {
+    namespace: "alepe",
     headers: { Accept: "application/xml,text/xml,*/*" },
-    signal: AbortSignal.timeout(timeoutMs()),
+    timeoutMs: timeoutMs(),
+    ttlMs: cacheTtlMs(),
   });
-  if (!response.ok) throw new Error(`ALEPE HTTP ${response.status}`);
-  return response.text();
 }
 
 async function fetchPropositionsForAuthor(
@@ -249,14 +254,15 @@ export const alepeAdapter: StateAssemblyAdapter = {
 
   async listParliamentarians() {
     try {
-      const response = await fetch(ALEPE_URL, {
-        headers: { Accept: "application/json" },
-        signal: AbortSignal.timeout(timeoutMs()),
-      });
-      if (!response.ok) {
-        throw new Error(`ALEPE HTTP ${response.status}`);
-      }
-      const data = (await response.json()) as AlepeRow[] | { dados?: AlepeRow[] };
+      const data = await cachedFetchJson<AlepeRow[] | { dados?: AlepeRow[] }>(
+        ALEPE_URL,
+        {
+          namespace: "alepe",
+          headers: { Accept: "application/json" },
+          timeoutMs: timeoutMs(),
+          ttlMs: cacheTtlMs(),
+        },
+      );
       const rows = Array.isArray(data) ? data : (data.dados ?? []);
       const mapped = rows
         .map(mapRow)

@@ -47,7 +47,7 @@ Catálogo em runtime: `GET /api/assembleias` (inclui `syncedCount` e flags de co
 | MG | `almg` | Assembleia Legislativa de Minas Gerais | **Live ALMG** — cadastro + filiações + mandatos + proposições (CSV anual; REST 403) |
 | PA | `alepa` | Assembleia Legislativa do Pará | Fixture |
 | PB | `alepb` | Assembleia Legislativa da Paraíba | **Live SAPL** — cadastro + filiações + mandatos + matérias |
-| PR | `alep` | Assembleia Legislativa do Paraná | Fixture (metadados ALEP ok; listagem de proposições indisponível/401) |
+| PR | `alep` | Assembleia Legislativa do Paraná | **Live ALEP** — cadastro (remuneração) + proposições (`POST /proposicao/filtrar`; cache HTTP) |
 | PE | `alepe` | Assembleia Legislativa de Pernambuco | **Live ALEPE** — cadastro + proposições (XML anual; fixture se a API falhar) |
 | PI | `alepi` | Assembleia Legislativa do Piauí | **Live SAPL** — cadastro + filiações + mandatos + matérias |
 | RJ | `alerj` | Assembleia Legislativa do Rio de Janeiro | Fixture |
@@ -60,14 +60,15 @@ Catálogo em runtime: `GET /api/assembleias` (inclui `syncedCount` e flags de co
 | SE | `alese` | Assembleia Legislativa de Sergipe | Fixture |
 | TO | `aleto` | Assembleia Legislativa do Tocantins | **Live SAPL** — cadastro + filiações + mandatos + matérias |
 
-**Resumo:** 10 casas live (PE + MG + SP + 7 SAPL). Demais 17 UFs em fixture de cadastro.
+**Resumo:** 11 casas live (PE + MG + SP + PR + 7 SAPL). Demais 16 UFs em fixture de cadastro.
 
 Pesquisa de endpoints para os gaps restantes: [fontes-endpoints.md](./fontes-endpoints.md).
 
 Código de referência:
 
 - Catálogo: `src/lib/parliament/ufs.ts`
-- Adapters: `src/lib/parliament/adapters/` (`alepe`, `almg`, `sapl`, `fixture-assembly`)
+- Adapters: `src/lib/parliament/adapters/` (`alepe`, `almg`, `alesp`, `alep`, `sapl`, `fixture-assembly`)
+- Cache HTTP: `src/lib/cache/http-cache.ts` (memória + `.cache/parliament`)
 - Fixtures: `src/lib/parliament/fixtures/`
 - Sync: `src/lib/sync/estadual.ts`
 
@@ -89,6 +90,7 @@ Nas casas **SAPL** e **ALMG**, o perfil ganha abas:
 | **Cobertura** | Flags da casa |
 
 **ALESP (SP):** cadastro + proposições no perfil (primeira carga indexa os ZIPs; depois usa cache).  
+**ALEP (PR):** cadastro via folha de remuneração + proposições via webservice (cache HTTP).  
 **ALEPE (PE):** proposições quando a API responde; senão fixture de demonstração no enriquecimento.
 
 Ainda **não** disponível no estadual (APIs sem voto nominal por parlamentar ou portal HTML):

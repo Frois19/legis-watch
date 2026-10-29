@@ -3,6 +3,7 @@ import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { promisify } from "node:util";
+import { cachedFetchText } from "@/lib/cache/http-cache";
 import { readJsonCache, writeJsonCache } from "../file-cache";
 import type {
   AdapterParliamentarian,
@@ -127,15 +128,16 @@ function normalizeName(value: string): string {
 }
 
 async function fetchText(url: string): Promise<string> {
-  const response = await fetch(url, {
+  return cachedFetchText(url, {
+    namespace: "alesp",
     headers: { Accept: "*/*" },
-    signal: AbortSignal.timeout(timeoutMs()),
+    timeoutMs: timeoutMs(),
+    ttlMs: cacheTtlMs(),
   });
-  if (!response.ok) throw new Error(`ALESP HTTP ${response.status} em ${url}`);
-  return response.text();
 }
 
 async function fetchZipXml(url: string): Promise<string> {
+  // ZIP binário: baixa via fetch e ainda indexa o XML resultante no cache de índice.
   const response = await fetch(url, {
     headers: { Accept: "application/zip,*/*" },
     signal: AbortSignal.timeout(timeoutMs()),
