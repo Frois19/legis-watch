@@ -1,6 +1,14 @@
 import { SearchPanel } from "@/components/search-panel";
+import { listLegislatures } from "@/lib/api/server";
+import { defaultLegislaturaId } from "@/lib/legislatures";
 
-export default function HomePage() {
+export default async function HomePage() {
+  const legislatures = await listLegislatures();
+  const initialLegislaturaId =
+    legislatures.find((l) => l.id === defaultLegislaturaId())?.id ??
+    legislatures[0]?.id ??
+    null;
+
   return (
     <div className="space-y-6">
       <header className="space-y-2">
@@ -16,7 +24,10 @@ export default function HomePage() {
           públicos da Câmara.
         </p>
       </header>
-      <SearchPanel />
+      <SearchPanel
+        legislatures={legislatures}
+        initialLegislaturaId={initialLegislaturaId}
+      />
     </div>
   );
 }

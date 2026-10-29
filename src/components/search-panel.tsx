@@ -3,49 +3,37 @@
 import { DeputyRow } from "@/components/deputy-row";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { listLegislatures, searchDeputies } from "@/lib/api/client";
+import { searchDeputies } from "@/lib/api/client";
 import type { DeputyListItem, LegislatureItem } from "@/lib/api/types";
 import { Search } from "lucide-react";
 import Link from "next/link";
-import { FormEvent, useEffect, useId, useState } from "react";
+import { FormEvent, useId, useState } from "react";
 
 const UFS = [
   "AC","AL","AP","AM","BA","CE","DF","ES","GO","MA","MT","MS","MG","PA","PB",
   "PR","PE","PI","RJ","RN","RS","RO","RR","SC","SP","SE","TO",
 ];
 
-export function SearchPanel() {
+export function SearchPanel({
+  legislatures,
+  initialLegislaturaId,
+}: {
+  legislatures: LegislatureItem[];
+  initialLegislaturaId: number | null;
+}) {
   const formId = useId();
   const statusId = `${formId}-status`;
   const [nome, setNome] = useState("");
   const [siglaUf, setSiglaUf] = useState("");
   const [siglaPartido, setSiglaPartido] = useState("");
-  const [legislaturaId, setLegislaturaId] = useState<number | "">("");
-  const [legislatures, setLegislatures] = useState<LegislatureItem[]>([]);
+  const [legislaturaId, setLegislaturaId] = useState<number | "">(
+    initialLegislaturaId ?? "",
+  );
   const [items, setItems] = useState<DeputyListItem[] | null>(null);
   const [total, setTotal] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
   const [searched, setSearched] = useState(false);
-
-  useEffect(() => {
-    let cancelled = false;
-    void listLegislatures()
-      .then((res) => {
-        if (cancelled) return;
-        setLegislatures(res.items);
-        if (res.items[0] && legislaturaId === "") {
-          setLegislaturaId(res.items[0].id);
-        }
-      })
-      .catch(() => {
-        if (!cancelled) setLegislatures([]);
-      });
-    return () => {
-      cancelled = true;
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   async function runSearch(next?: {
     nome?: string;
@@ -149,15 +137,11 @@ export function SearchPanel() {
               )
             }
           >
-            {legislatures.length === 0 ? (
-              <option value="">Carregando…</option>
-            ) : (
-              legislatures.map((leg) => (
-                <option key={leg.id} value={leg.id}>
-                  {leg.label}
-                </option>
-              ))
-            )}
+            {legislatures.map((leg) => (
+              <option key={leg.id} value={leg.id}>
+                {leg.label}
+              </option>
+            ))}
           </select>
         </div>
         <div className="space-y-1.5">
