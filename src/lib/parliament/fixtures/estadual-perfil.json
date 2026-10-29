@@ -58,7 +58,85 @@
           "dataFim": "2027-01-31"
         }
       ],
-      "propositions": []
+      "propositions": [
+        {
+          "externalId": "PL 1/2026",
+          "siglaTipo": "PL",
+          "numero": 1,
+          "ano": 2026,
+          "ementa": "Fixture ALMG — proposição de demonstração.",
+          "dataApresentacao": "2026-01-10",
+          "statusResumo": "Tramitando",
+          "urlPublica": null,
+          "authorExternalId": "12193"
+        }
+      ]
+    }
+  },
+  "alepe": {
+    "joao-paulo": {
+      "affiliations": [],
+      "mandates": [],
+      "propositions": [
+        {
+          "externalId": "PL-120-2024",
+          "siglaTipo": "PL",
+          "numero": 120,
+          "ano": 2024,
+          "ementa": "Dispõe sobre políticas públicas de mobilidade urbana no Estado de Pernambuco.",
+          "dataApresentacao": "2024-03-12",
+          "statusResumo": "Em tramitação",
+          "urlPublica": null,
+          "authorExternalId": "joao-paulo"
+        },
+        {
+          "externalId": "IND-45-2024",
+          "siglaTipo": "IND",
+          "numero": 45,
+          "ano": 2024,
+          "ementa": "Indica ao Poder Executivo reforço de policiamento na Região Metropolitana.",
+          "dataApresentacao": "2024-05-02",
+          "statusResumo": "Encaminhada",
+          "urlPublica": null,
+          "authorExternalId": "joao-paulo"
+        }
+      ]
+    },
+    "default": {
+      "affiliations": [],
+      "mandates": [],
+      "propositions": [
+        {
+          "externalId": "REQ-10-2024",
+          "siglaTipo": "REQ",
+          "numero": 10,
+          "ano": 2024,
+          "ementa": "Requer informações ao Executivo sobre obras de infraestrutura.",
+          "dataApresentacao": "2024-02-20",
+          "statusResumo": "Em tramitação",
+          "urlPublica": null,
+          "authorExternalId": null
+        }
+      ]
+    }
+  },
+  "alesp": {
+    "default": {
+      "affiliations": [],
+      "mandates": [],
+      "propositions": [
+        {
+          "externalId": "1000000001",
+          "siglaTipo": "PL",
+          "numero": 1,
+          "ano": 2026,
+          "ementa": "Fixture ALESP — proposição de demonstração.",
+          "dataApresentacao": "2026-01-15",
+          "statusResumo": null,
+          "urlPublica": "https://www.al.sp.gov.br/propositura/?id=1000000001",
+          "authorExternalId": null
+        }
+      ]
     }
   }
 }

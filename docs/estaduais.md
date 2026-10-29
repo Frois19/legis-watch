@@ -48,7 +48,7 @@ Catálogo em runtime: `GET /api/assembleias` (inclui `syncedCount` e flags de co
 | PA | `alepa` | Assembleia Legislativa do Pará | Fixture |
 | PB | `alepb` | Assembleia Legislativa da Paraíba | **Live SAPL** — cadastro + filiações + mandatos + matérias |
 | PR | `alep` | Assembleia Legislativa do Paraná | Fixture (metadados ALEP ok; listagem de proposições indisponível/401) |
-| PE | `alepe` | Assembleia Legislativa de Pernambuco | **Live ALEPE** — cadastro (sem proposições na API usada) |
+| PE | `alepe` | Assembleia Legislativa de Pernambuco | **Live ALEPE** — cadastro + proposições (XML anual; fixture se a API falhar) |
 | PI | `alepi` | Assembleia Legislativa do Piauí | **Live SAPL** — cadastro + filiações + mandatos + matérias |
 | RJ | `alerj` | Assembleia Legislativa do Rio de Janeiro | Fixture |
 | RN | `alern` | Assembleia Legislativa do Rio Grande do Norte | Fixture |
@@ -56,7 +56,7 @@ Catálogo em runtime: `GET /api/assembleias` (inclui `syncedCount` e flags de co
 | RO | `alero` | Assembleia Legislativa de Rondônia | **Live SAPL** — cadastro + filiações + mandatos + matérias |
 | RR | `alerr` | Assembleia Legislativa de Roraima | Fixture |
 | SC | `alesc` | Assembleia Legislativa de Santa Catarina | Fixture |
-| SP | `alesp` | Assembleia Legislativa de São Paulo | **Live ALESP** — cadastro (`deputados.xml`); proposições/presença em XML/ZIP ainda não syncados |
+| SP | `alesp` | Assembleia Legislativa de São Paulo | **Live ALESP** — cadastro + proposições (`deputados.xml` + ZIPs; cache em disco) |
 | SE | `alese` | Assembleia Legislativa de Sergipe | Fixture |
 | TO | `aleto` | Assembleia Legislativa do Tocantins | **Live SAPL** — cadastro + filiações + mandatos + matérias |
 
@@ -88,7 +88,8 @@ Nas casas **SAPL** e **ALMG**, o perfil ganha abas:
 | **Mandatos** | Legislaturas / período |
 | **Cobertura** | Flags da casa |
 
-**ALESP (SP):** cadastro live; proposições/presença ainda não entram no perfil (XML/ZIP grandes — ver [fontes-endpoints.md](./fontes-endpoints.md)).
+**ALESP (SP):** cadastro + proposições no perfil (primeira carga indexa os ZIPs; depois usa cache).  
+**ALEPE (PE):** proposições quando a API responde; senão fixture de demonstração no enriquecimento.
 
 Ainda **não** disponível no estadual (APIs sem voto nominal por parlamentar ou portal HTML):
 
@@ -117,7 +118,7 @@ npm run test:integration   # sync + busca/perfil nas 27 UFs
 
 ## Próximos adapters live
 
-Ordem sugerida: proposições ALESP (ZIP) · CLDF PLE · ALEPE proposições por XML · ALEP (PR) quando a listagem pública voltar. Detalhes: [fontes-endpoints.md](./fontes-endpoints.md).
+Ordem sugerida: CLDF PLE (quando a rede responder) · presença ALESP em comissões (com disclaimer) · ALEP (PR). Detalhes: [fontes-endpoints.md](./fontes-endpoints.md).
 
 ---
 

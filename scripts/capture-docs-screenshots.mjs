@@ -202,15 +202,41 @@ async function main() {
     waitUntil: "domcontentloaded",
   });
   await waitReady(page);
+  await page
+    .getByRole("tab", { name: /Proposições/ })
+    .waitFor({ timeout: 30000 })
+    .catch(() => {});
+  await page.getByRole("tab", { name: /Proposições/ }).click().catch(() => {});
+  await page.waitForTimeout(800);
   await shot(page, "08-perfil-estadual-pe.png");
 
-  await page.goto(`${BASE}/parlamentares/alesp/gabriela-sao-paulo`, {
+  // SP live (ALESP) — id numérico do XML
+  let alespId = "1139";
+  try {
+    const spRes = await page.request.get(
+      `${BASE}/api/parlamentares?esfera=estadual_deputado&siglaUf=SP&pageSize=1`,
+    );
+    const spJson = await spRes.json();
+    const href = spJson?.items?.[0]?.href;
+    if (typeof href === "string" && href.includes("/")) {
+      alespId = href.split("/").pop();
+    }
+  } catch {
+    /* usa fallback */
+  }
+  await page.goto(`${BASE}/parlamentares/alesp/${alespId}`, {
     waitUntil: "domcontentloaded",
   });
   await waitReady(page);
+  await page
+    .getByRole("tab", { name: /Proposições/ })
+    .waitFor({ timeout: 120000 })
+    .catch(() => {});
+  await page.getByRole("tab", { name: /Proposições/ }).click().catch(() => {});
+  await page.waitForTimeout(1000);
   await shot(page, "09-perfil-estadual-sp.png");
 
-  // MG live (ALMG) — pega o primeiro id sincronizado via API
+  // MG live (ALMG) — proposições via CSV
   let almgId = "12193";
   try {
     const almgRes = await page.request.get(
@@ -229,11 +255,11 @@ async function main() {
   });
   await waitReady(page);
   await page
-    .getByRole("tab", { name: /Filiações/ })
-    .waitFor({ timeout: 30000 })
+    .getByRole("tab", { name: /Proposições/ })
+    .waitFor({ timeout: 60000 })
     .catch(() => {});
-  await page.getByRole("tab", { name: /Filiações/ }).click().catch(() => {});
-  await page.waitForTimeout(800);
+  await page.getByRole("tab", { name: /Proposições/ }).click().catch(() => {});
+  await page.waitForTimeout(1000);
   await shot(page, "10-perfil-estadual-mg.png");
 
   // AC live (SAPL) — proposições + filiações

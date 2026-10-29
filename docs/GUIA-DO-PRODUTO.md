@@ -142,9 +142,9 @@ URL: `/parlamentares/{source}/{id}`
 
 Nome, partido, UF, e-mail (quando houver), badge da casa e tabela de cobertura.
 
-![Perfil estadual — Pernambuco (ALEPE)](./screenshots/08-perfil-estadual-pe.png)
+![Perfil estadual — Pernambuco (ALEPE) com proposições](./screenshots/08-perfil-estadual-pe.png)
 
-![Perfil estadual — São Paulo (ALESP, fixture)](./screenshots/09-perfil-estadual-sp.png)
+![Perfil estadual — São Paulo (ALESP) com proposições](./screenshots/09-perfil-estadual-sp.png)
 
 ### Casas com perfil enriquecido
 
@@ -154,13 +154,13 @@ Ao abrir o perfil, o app sincroniza sob demanda o que a Assembleia publica:
 |---|---|---|---|---|
 | Acre, Alagoas, Amazonas, Paraíba, Piauí, Rondônia, Tocantins | `aleac`, `aleal`, `aleam`, `alepb`, `alepi`, `alero`, `aleto` | Sim (SAPL) | Sim | Sim |
 | Minas Gerais | `almg` | Sim (CSV anual) | Sim | Sim |
-| São Paulo | `alesp` | Cadastro live; proposições em breve | — | — |
-| Pernambuco | `alepe` | Não | — | — |
+| São Paulo | `alesp` | Sim (XML/ZIP) | — | — |
+| Pernambuco | `alepe` | Sim (XML; fixture se offline) | — | — |
 | Demais UFs | fixture | — | — | — |
 
-#### Minas Gerais (ALMG) — filiações e mandatos
+#### Minas Gerais (ALMG) — proposições (CSV)
 
-![Perfil estadual — Minas Gerais com filiações](./screenshots/10-perfil-estadual-mg.png)
+![Perfil estadual — Minas Gerais com proposições](./screenshots/10-perfil-estadual-mg.png)
 
 #### Acre (SAPL) — proposições de autoria
 
