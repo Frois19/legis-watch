@@ -115,6 +115,21 @@ describe("API senadores via /api/parlamentares", () => {
             "https://www25.senado.leg.br/web/atividade/materias/-/materia/155808",
         },
       ],
+      votes: [
+        {
+          id: "senado:5672:votacao:365429-1",
+          externalId: "365429-1",
+          tipoVoto: "Sim",
+          descricaoVotacao: "Votação do mérito",
+          descricaoResultado: "Aprovado",
+          dataSessao: "2023-10-24",
+          materiaExternalId: "159365",
+          materiaIdentificacao: "PL 5384/2020",
+          materiaEmenta: "Altera a Lei nº 12.711/2012.",
+          urlPublica:
+            "https://www25.senado.leg.br/web/atividade/materias/-/materia/159365",
+        },
+      ],
     });
 
     const res = await getParlamentar(new Request("http://localhost"), {
@@ -125,10 +140,13 @@ describe("API senadores via /api/parlamentares", () => {
     expect(body.sphere).toBe("senador");
     expect(body.coverage.attendance).toBe(false);
     expect(body.coverage.propositions).toBe(true);
+    expect(body.coverage.votes).toBe(true);
     expect(body.attendanceDisclaimer).toMatch(/Diário do Senado/i);
     expect(body.affiliations).toHaveLength(1);
     expect(body.mandates[0].codigoMandato).toBe("596");
     expect(body.matters[0].identificacao).toBe("RQS 41/2023");
+    expect(body.votes[0].tipoVoto).toBe("Sim");
+    expect(body.votes[0].materiaIdentificacao).toBe("PL 5384/2020");
     expect(ensureSenatorProfile).toHaveBeenCalledWith("5672");
   });
 });

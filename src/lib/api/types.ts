@@ -148,6 +148,19 @@ export type SenatorMatterItem = {
   urlPublica: string | null;
 };
 
+export type SenatorVoteItem = {
+  id: string;
+  externalId: string;
+  tipoVoto: string | null;
+  descricaoVotacao: string | null;
+  descricaoResultado: string | null;
+  dataSessao: string | null;
+  materiaExternalId: string | null;
+  materiaIdentificacao: string | null;
+  materiaEmenta: string | null;
+  urlPublica: string | null;
+};
+
 export type SenatorDetail = {
   key: string;
   sphere: "senador";
@@ -176,6 +189,7 @@ export type SenatorDetail = {
   affiliations: SenatorAffiliationItem[];
   mandates: SenatorMandateItem[];
   matters: SenatorMatterItem[];
+  votes: SenatorVoteItem[];
   profileSyncedAt: string | null;
   syncedAt: string | null;
   href: string;

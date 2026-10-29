@@ -55,17 +55,30 @@ export type SenadoMatter = {
   urlPublica: string | null;
 };
 
+export type SenadoVote = {
+  externalId: string;
+  tipoVoto: string | null;
+  descricaoVotacao: string | null;
+  descricaoResultado: string | null;
+  dataSessao: string | null;
+  materiaExternalId: string | null;
+  materiaIdentificacao: string | null;
+  materiaEmenta: string | null;
+  urlPublica: string | null;
+};
+
 export type SenadoProfileBundle = {
   affiliations: SenadoAffiliation[];
   mandates: SenadoMandate[];
   matters: SenadoMatter[];
+  votes: SenadoVote[];
 };
 
 export const SENADO_COVERAGE = {
   search: true,
   profile: true,
   propositions: true,
-  votes: false,
+  votes: true,
   attendance: false,
 } as const;
 

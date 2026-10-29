@@ -24,6 +24,10 @@ const {
       deleteMany: vi.fn(),
       createMany: vi.fn(),
     },
+    senatorVote: {
+      deleteMany: vi.fn(),
+      createMany: vi.fn(),
+    },
     $transaction: vi.fn(async (fn: (tx: unknown) => Promise<unknown>) =>
       fn({
         senatorAffiliation: {
@@ -35,6 +39,10 @@ const {
           createMany: vi.fn(),
         },
         senatorMatter: {
+          deleteMany: vi.fn(),
+          createMany: vi.fn(),
+        },
+        senatorVote: {
           deleteMany: vi.fn(),
           createMany: vi.fn(),
         },
@@ -126,6 +134,19 @@ describe("sync senado", () => {
           urlPublica: "https://example.com/155808",
         },
       ],
+      votes: [
+        {
+          externalId: "999",
+          tipoVoto: "Sim",
+          descricaoVotacao: "Mérito",
+          descricaoResultado: "Aprovado",
+          dataSessao: "2023-10-24",
+          materiaExternalId: "1",
+          materiaIdentificacao: "PL 1/2023",
+          materiaEmenta: null,
+          urlPublica: null,
+        },
+      ],
     });
 
     const result = await syncSenatorProfile("5672");
@@ -133,12 +154,33 @@ describe("sync senado", () => {
       affiliations: 1,
       mandates: 1,
       matters: 1,
+      votes: 1,
     });
     expect(prisma.$transaction).toHaveBeenCalledOnce();
     expect(fetchSenatorProfileBundle).toHaveBeenCalledWith("5672");
   });
 
   it("ensureSenatorProfile sincroniza quando profileSyncedAt é nulo", async () => {
+    const loaded = {
+      id: "senado:5672",
+      externalId: "5672",
+      nome: "Alan Rick",
+      nomeCivil: null,
+      nomeEleitoral: "Alan Rick",
+      siglaPartido: "REPUBLICANOS",
+      siglaUf: "AC",
+      urlFoto: null,
+      urlPagina: null,
+      email: null,
+      situacao: "Exercício",
+      participacao: "Titular",
+      profileSyncedAt: new Date(),
+      syncedAt: new Date(),
+      affiliations: [],
+      mandates: [],
+      matters: [],
+      votes: [],
+    };
     prisma.senator.findUnique
       .mockResolvedValueOnce({
         id: "senado:5672",
@@ -150,33 +192,17 @@ describe("sync senado", () => {
         externalId: "5672",
         profileSyncedAt: null,
       })
-      .mockResolvedValueOnce({
-        id: "senado:5672",
-        externalId: "5672",
-        nome: "Alan Rick",
-        nomeCivil: null,
-        nomeEleitoral: "Alan Rick",
-        siglaPartido: "REPUBLICANOS",
-        siglaUf: "AC",
-        urlFoto: null,
-        urlPagina: null,
-        email: null,
-        situacao: "Exercício",
-        participacao: "Titular",
-        profileSyncedAt: new Date(),
-        syncedAt: new Date(),
-        affiliations: [],
-        mandates: [],
-        matters: [],
-      });
+      .mockResolvedValueOnce(loaded);
     fetchSenatorProfileBundle.mockResolvedValue({
       affiliations: [],
       mandates: [],
       matters: [],
+      votes: [],
     });
 
     const row = await ensureSenatorProfile("5672");
     expect(row?.id).toBe("senado:5672");
+    expect(row?.votes).toEqual([]);
     expect(fetchSenatorProfileBundle).toHaveBeenCalled();
   });
 });

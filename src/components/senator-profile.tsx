@@ -1,9 +1,11 @@
 "use client";
 
 import { DeputyPhoto } from "@/components/deputy-photo";
+import { FavoriteButton } from "@/components/favorite-button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { SenatorDetail } from "@/lib/api/types";
+import { favoriteKey } from "@/lib/favorites/storage";
 import { ExternalLink } from "lucide-react";
 import Link from "next/link";
 
@@ -36,7 +38,8 @@ export function SenatorProfileView({ detail }: { detail: SenatorDetail }) {
       </Link>
 
       <header className="space-y-3 border border-border bg-card p-4">
-        <div className="flex flex-wrap items-start gap-4">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div className="flex flex-wrap items-start gap-4">
           <DeputyPhoto
             id={Number(detail.externalId) || -1}
             name={name}
@@ -80,6 +83,20 @@ export function SenatorProfileView({ detail }: { detail: SenatorDetail }) {
               </a>
             </div>
           </div>
+          </div>
+          <FavoriteButton
+            item={{
+              key: favoriteKey("senador", "senado", detail.externalId),
+              sphere: "senador",
+              source: "senado",
+              externalId: detail.externalId,
+              nome: name,
+              siglaPartido: detail.siglaPartido,
+              siglaUf: detail.siglaUf,
+              urlFoto: detail.urlFoto,
+              href: detail.href,
+            }}
+          />
         </div>
       </header>
 
@@ -87,6 +104,9 @@ export function SenatorProfileView({ detail }: { detail: SenatorDetail }) {
         <TabsList aria-label="Seções do perfil do senador">
           <TabsTrigger value="materias">
             Matérias ({detail.matters.length})
+          </TabsTrigger>
+          <TabsTrigger value="votacoes">
+            Votações ({detail.votes?.length ?? 0})
           </TabsTrigger>
           <TabsTrigger value="filiacoes">
             Filiações ({detail.affiliations.length})
@@ -152,6 +172,70 @@ export function SenatorProfileView({ detail }: { detail: SenatorDetail }) {
                   </li>
                 );
               })}
+            </ul>
+          )}
+        </TabsContent>
+
+        <TabsContent value="votacoes" className="space-y-3">
+          {(detail.votes?.length ?? 0) === 0 ? (
+            <p className="border border-border bg-card p-4 text-sm text-muted-foreground">
+              Nenhuma votação nominal sincronizada ainda. Abra o perfil de novo
+              após o sync de perfil.
+            </p>
+          ) : (
+            <ul className="divide-y divide-border border border-border bg-card">
+              {detail.votes!.map((vote) => (
+                <li key={vote.id} className="space-y-1 px-4 py-3">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Badge
+                      variant={
+                        /sim/i.test(vote.tipoVoto || "")
+                          ? "success"
+                          : /n[aã]o/i.test(vote.tipoVoto || "")
+                            ? "secondary"
+                            : "secondary"
+                      }
+                    >
+                      {vote.tipoVoto || "Voto"}
+                    </Badge>
+                    <p className="font-medium text-foreground">
+                      {vote.materiaIdentificacao ||
+                        vote.descricaoVotacao ||
+                        "Votação"}
+                    </p>
+                  </div>
+                  {vote.descricaoVotacao &&
+                  vote.descricaoVotacao !== vote.materiaIdentificacao ? (
+                    <p className="text-sm text-muted-foreground">
+                      {vote.descricaoVotacao}
+                    </p>
+                  ) : null}
+                  {vote.materiaEmenta ? (
+                    <p className="text-sm text-muted-foreground">
+                      {vote.materiaEmenta}
+                    </p>
+                  ) : null}
+                  <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
+                    {vote.dataSessao ? (
+                      <span>Sessão: {formatDate(vote.dataSessao)}</span>
+                    ) : null}
+                    {vote.descricaoResultado ? (
+                      <span>Resultado: {vote.descricaoResultado}</span>
+                    ) : null}
+                    {vote.urlPublica ? (
+                      <a
+                        href={vote.urlPublica}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 font-medium text-primary underline underline-offset-2"
+                      >
+                        Ver matéria
+                        <ExternalLink className="size-3" aria-hidden="true" />
+                      </a>
+                    ) : null}
+                  </div>
+                </li>
+              ))}
             </ul>
           )}
         </TabsContent>
@@ -242,7 +326,7 @@ export function SenatorProfileView({ detail }: { detail: SenatorDetail }) {
                 [
                   ["Busca / perfil", detail.coverage.profile],
                   ["Proposições / matérias", detail.coverage.propositions],
-                  ["Votações", detail.coverage.votes],
+                  ["Votações nominais", detail.coverage.votes],
                   ["Presença", detail.coverage.attendance],
                 ] as const
               ).map(([label, ok]) => (

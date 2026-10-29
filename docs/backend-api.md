@@ -42,6 +42,7 @@ Headers de cache na listagem: `X-Cache: HIT|MISS`.
 ```http
 GET /api/parlamentares?esfera=federal_deputado|estadual_deputado|senador|todos&nome=&siglaPartido=&siglaUf=&legislaturaId=&page=1&pageSize=20
 GET /api/parlamentares/{source}/{id}
+GET /api/parlamentares/{source}/{id}/proposicoes?page=1&pageSize=50
 GET /api/assembleias
 ```
 
@@ -64,9 +65,11 @@ Resposta inclui `items[]` com `sphere`, `source`, `href`, `assemblyName`, etc. C
 
 Perfil estadual enriquecido (quando a casa tem adapter) inclui `affiliations`, `mandates`, `propositions` e `profileSyncedAt`.
 
+`GET /api/parlamentares/{source}/{id}/proposicoes` lista proposições estaduais já sincronizadas (não se aplica a `senado` — use o perfil). Dispara `ensureStateDeputyProfile` se o TTL expirou.
+
 Campos: nome, partido, UF, e-mail, `coverage` (search/profile/propositions/votes/attendance), `syncedAt`.
 
-Perfil do Senado inclui `affiliations`, `mandates`, `matters`, `profileSyncedAt` e `attendanceDisclaimer` (a API não publica presença equivalente à da Câmara). O primeiro acesso dispara sync de perfil se estiver ausente ou expirado.
+Perfil do Senado inclui `affiliations`, `mandates`, `matters`, `votes`, `profileSyncedAt` e `attendanceDisclaimer` (a API não publica presença equivalente à da Câmara). O primeiro acesso dispara sync de perfil se estiver ausente ou expirado.
 
 ### Catálogo de assembleias
 

@@ -16,7 +16,7 @@ Situação: **federal completo** (Câmara) + **estadual em 27 UFs** (busca/perfi
 |---|---|
 | Câmara dos Deputados (federal) | Implementado (sync + UI) |
 | Assembleias Legislativas (estadual) | 27 UFs: busca + perfil (PE live ALEPE; demais fixture de cadastro) |
-| Senado Federal | Busca + perfil (lista, filiações, mandatos, matérias); votos em breve; presença com disclaimer |
+| Senado Federal | Busca + perfil (lista, filiações, mandatos, matérias, votos); presença com disclaimer |
 
 Não existe API nacional única para deputados estaduais. Cada Assembleia publica (ou não) seus dados com formatos diferentes. Por isso a expansão estadual precisa ser **por adapter + rollout UFs**.
 
@@ -265,7 +265,7 @@ Não há equivalente confiável ao bulk/presença da Câmara. Plano:
 
 - [x] Sync de lista atual (`npm run sync -- senadores`) + perfil
 - [x] Perfil com filiações, mandatos e matérias (autorias sob demanda)
-- [ ] Votações nominais
+- [x] Votações nominais (`/votacoes.json`, limite `SENADO_VOTE_LIMIT`)
 - [x] Disclaimer de presença no perfil
 - [x] Busca unificada federal / estadual / senador
 - [x] Testes com fixtures do Senado
@@ -279,7 +279,7 @@ Não há equivalente confiável ao bulk/presença da Câmara. Plano:
 | Sync / API `/api/parlamentares?esfera=senador` | Feito |
 | Filiações / mandatos / matérias + UI em abas | Feito |
 | UI esfera Senadores + perfil | Feito |
-| Votações nominais | Pendente |
+| Votações nominais | Feito |
 
 ---
 
@@ -411,6 +411,6 @@ Produção       → C4 Redis se houver mais de uma instância
 | 1 | Cache de busca (C1–C3) | Feito (Redis = C4 pendente) |
 | 2 | Modelo unificado + ALEPE + 27 UFs (E0–E1 base) | Feito (busca/perfil) |
 | 3 | Adapters live (ALMG, ALEP, SAPL…) + proposições | Próximo |
-| 4 | Senadores (lista + perfil enriquecido) | Feito (votos ainda pendentes) |
+| 4 | Senadores (lista + perfil enriquecido + votos) | Feito |
 
 Continuar: [Índice](./README.md) · [Estaduais](./estaduais.md) · [APIs Câmara](./apis-v1.md) · [API interna](./backend-api.md)

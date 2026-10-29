@@ -90,7 +90,14 @@ Ainda **não** disponível no estadual (APIs sem voto nominal por parlamentar ou
 
 - Votações nominais individuais
 - Presença / faltas
-- Favoritos (hoje só federais)
+
+Favoritos locais cobrem federal, estadual e senador (mesmo navegador).
+
+Lista dedicada de proposições sincronizadas:
+
+```http
+GET /api/parlamentares/{source}/{id}/proposicoes?page=1&pageSize=50
+```
 
 Prints no [guia do usuário](./GUIA-DO-PRODUTO.md#7-perfil-estadual): PE, SP, MG (filiações) e AC (proposições/filiações).
 
@@ -100,7 +107,7 @@ Ex.: `/parlamentares/aleac/248`, `/parlamentares/almg/12193`, `/parlamentares/al
 ## Testes
 
 ```bash
-npm test                   # inclui matriz unitária por UF + adapters SAPL/ALMG
+npm test                   # inclui matriz unitária por UF + adapters SAPL/ALMG + sync de perfil
 npm run test:integration   # sync + busca/perfil nas 27 UFs
 ```
 

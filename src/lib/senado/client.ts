@@ -7,6 +7,7 @@ import type {
   SenadoMatter,
   SenadoParliamentarian,
   SenadoProfileBundle,
+  SenadoVote,
 } from "./types";
 import { SENADO_MATTER_URL } from "./types";
 
@@ -259,21 +260,65 @@ function mapMatters(payload: unknown, limit: number): SenadoMatter[] {
   return mapped;
 }
 
+function mapVotes(payload: unknown, limit: number): SenadoVote[] {
+  const root = payload as {
+    VotacaoParlamentar?: {
+      Parlamentar?: {
+        Votacoes?: { Votacao?: unknown };
+      };
+    };
+  };
+  const rows = asArray(
+    root.VotacaoParlamentar?.Parlamentar?.Votacoes?.Votacao as
+      | Record<string, unknown>
+      | Record<string, unknown>[]
+      | undefined,
+  );
+  const mapped: SenadoVote[] = [];
+  for (const row of rows) {
+    if (mapped.length >= limit) break;
+    const sessao =
+      (row.SessaoPlenaria as Record<string, unknown> | undefined) ?? {};
+    const materia = (row.Materia as Record<string, unknown> | undefined) ?? {};
+    const externalId = String(
+      row.CodigoSessaoVotacao ?? `${sessao.CodigoSessao}-${row.Sequencial ?? ""}`,
+    ).trim();
+    if (!externalId) continue;
+    const materiaId = String(materia.Codigo ?? "").trim() || null;
+    mapped.push({
+      externalId,
+      tipoVoto: String(row.SiglaDescricaoVoto ?? "").trim() || null,
+      descricaoVotacao: String(row.DescricaoVotacao ?? "").trim() || null,
+      descricaoResultado: String(row.DescricaoResultado ?? "").trim() || null,
+      dataSessao: String(sessao.DataSessao ?? "").trim() || null,
+      materiaExternalId: materiaId,
+      materiaIdentificacao:
+        String(materia.DescricaoIdentificacao ?? "").trim() || null,
+      materiaEmenta: String(materia.Ementa ?? "").trim() || null,
+      urlPublica: materiaId ? `${SENADO_MATTER_URL}${materiaId}` : null,
+    });
+  }
+  return mapped;
+}
+
 export async function fetchSenatorProfileBundle(
   codigo: string,
-  opts?: { matterLimit?: number },
+  opts?: { matterLimit?: number; voteLimit?: number },
 ): Promise<SenadoProfileBundle> {
   const matterLimit = opts?.matterLimit ?? Number(process.env.SENADO_MATTER_LIMIT ?? 80);
+  const voteLimit = opts?.voteLimit ?? Number(process.env.SENADO_VOTE_LIMIT ?? 100);
   try {
-    const [filiacoes, mandatos, autorias] = await Promise.all([
+    const [filiacoes, mandatos, autorias, votacoes] = await Promise.all([
       senadoFetch(`/senador/${codigo}/filiacoes.json`),
       senadoFetch(`/senador/${codigo}/mandatos.json`),
       senadoFetch(`/senador/${codigo}/autorias.json`),
+      senadoFetch(`/senador/${codigo}/votacoes.json`),
     ]);
     return {
       affiliations: mapAffiliations(filiacoes),
       mandates: mapMandates(mandatos),
       matters: mapMatters(autorias, matterLimit),
+      votes: mapVotes(votacoes, voteLimit),
     };
   } catch (error) {
     if (process.env.SENADO_REQUIRE_LIVE === "1") throw error;
@@ -282,9 +327,16 @@ export async function fetchSenatorProfileBundle(
       error instanceof Error ? error.message : error,
     );
     const fixture = await loadProfileFixture(codigo);
-    if (fixture) return fixture;
+    if (fixture) {
+      return {
+        affiliations: fixture.affiliations ?? [],
+        mandates: fixture.mandates ?? [],
+        matters: fixture.matters ?? [],
+        votes: fixture.votes ?? [],
+      };
+    }
     throw error;
   }
 }
 
-export { mapAffiliations, mapMandates, mapMatters };
+export { mapAffiliations, mapMandates, mapMatters, mapVotes };

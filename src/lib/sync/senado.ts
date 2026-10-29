@@ -120,6 +120,26 @@ export async function syncSenatorProfile(codigo: string) {
         });
       }
 
+      await tx.senatorVote.deleteMany({ where: { senatorId: id } });
+      if (bundle.votes.length > 0) {
+        await tx.senatorVote.createMany({
+          data: bundle.votes.map((row) => ({
+            id: `${id}:votacao:${row.externalId}`,
+            senatorId: id,
+            externalId: row.externalId,
+            tipoVoto: row.tipoVoto,
+            descricaoVotacao: row.descricaoVotacao,
+            descricaoResultado: row.descricaoResultado,
+            dataSessao: row.dataSessao,
+            materiaExternalId: row.materiaExternalId,
+            materiaIdentificacao: row.materiaIdentificacao,
+            materiaEmenta: row.materiaEmenta,
+            urlPublica: row.urlPublica,
+            syncedAt: new Date(),
+          })),
+        });
+      }
+
       await tx.senator.update({
         where: { id },
         data: { profileSyncedAt: new Date() },
@@ -130,6 +150,7 @@ export async function syncSenatorProfile(codigo: string) {
       affiliations: bundle.affiliations.length,
       mandates: bundle.mandates.length,
       matters: bundle.matters.length,
+      votes: bundle.votes.length,
     };
   });
 }
@@ -149,6 +170,7 @@ async function loadSenatorWithProfile(id: string) {
       affiliations: { orderBy: { dataFiliacao: "desc" } },
       mandates: { orderBy: { dataInicio: "desc" } },
       matters: { orderBy: [{ ano: "desc" }, { numero: "desc" }] },
+      votes: { orderBy: { dataSessao: "desc" } },
     },
   });
 }

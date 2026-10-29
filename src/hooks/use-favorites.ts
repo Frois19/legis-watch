@@ -1,7 +1,7 @@
 "use client";
 
 import {
-  type FavoriteDeputy,
+  type FavoriteItem,
   readFavorites,
   toggleFavorite as toggleFavoriteStorage,
 } from "@/lib/favorites/storage";
@@ -26,7 +26,7 @@ function getServerSnapshot() {
 
 export function useFavorites() {
   const raw = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
-  const favorites = JSON.parse(raw) as FavoriteDeputy[];
+  const favorites = JSON.parse(raw) as FavoriteItem[];
   const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
@@ -34,12 +34,12 @@ export function useFavorites() {
   }, []);
 
   const isFavorite = useCallback(
-    (id: number) => favorites.some((f) => f.id === id),
+    (key: string) => favorites.some((f) => f.key === key),
     [favorites],
   );
 
-  const toggleFavorite = useCallback((deputy: FavoriteDeputy) => {
-    return toggleFavoriteStorage(deputy);
+  const toggleFavorite = useCallback((item: FavoriteItem) => {
+    return toggleFavoriteStorage(item);
   }, []);
 
   return { favorites, isFavorite, toggleFavorite, hydrated };

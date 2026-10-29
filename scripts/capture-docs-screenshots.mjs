@@ -48,26 +48,44 @@ async function main() {
       .catch(() => {});
   });
 
-  // Seed favoritos antes de qualquer navegação
+  // Seed favoritos multi-esfera (v2) antes de qualquer navegação
   await context.addInitScript(() => {
     localStorage.setItem(
-      "legis-watch:favorites:v1",
+      "legis-watch:favorites:v2",
       JSON.stringify([
         {
-          id: 204515,
+          key: "camara:204515",
+          sphere: "federal_deputado",
+          source: "camara",
+          externalId: "204515",
           nome: "André Janones",
           siglaPartido: "AVANTE",
           siglaUf: "MG",
           urlFoto:
             "https://www.camara.leg.br/internet/deputado/bandep/204515.jpg",
+          href: "/deputados/204515",
         },
         {
-          id: 209787,
-          nome: "Nikolas Ferreira",
-          siglaPartido: "PL",
-          siglaUf: "MG",
-          urlFoto:
-            "https://www.camara.leg.br/internet/deputado/bandep/209787.jpg",
+          key: "aleac:248",
+          sphere: "estadual_deputado",
+          source: "aleac",
+          externalId: "248",
+          nome: "Adailton José",
+          siglaPartido: "PSB",
+          siglaUf: "AC",
+          urlFoto: null,
+          href: "/parlamentares/aleac/248",
+        },
+        {
+          key: "senado:5672",
+          sphere: "senador",
+          source: "senado",
+          externalId: "5672",
+          nome: "Alan Rick",
+          siglaPartido: "REPUBLICANOS",
+          siglaUf: "AC",
+          urlFoto: null,
+          href: "/parlamentares/senado/5672",
         },
       ]),
     );
@@ -269,6 +287,11 @@ async function main() {
   await page.getByRole("tab", { name: /Matérias/ }).waitFor({ timeout: 20000 });
   await page.waitForTimeout(800);
   await shot(page, "12-perfil-senador.png");
+
+  // 12b — votações nominais do senador
+  await page.getByRole("tab", { name: /Votações/ }).click();
+  await page.waitForTimeout(800);
+  await shot(page, "12b-perfil-senador-votacoes.png");
 
   // 13 — filiações do senador
   await page.getByRole("tab", { name: /Filiações/ }).click();

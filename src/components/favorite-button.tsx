@@ -2,21 +2,21 @@
 
 import { Button } from "@/components/ui/button";
 import { useFavorites } from "@/hooks/use-favorites";
-import type { FavoriteDeputy } from "@/lib/favorites/storage";
+import type { FavoriteItem } from "@/lib/favorites/storage";
 import { Star } from "lucide-react";
 
 export function FavoriteButton({
-  deputy,
+  item,
   size = "default",
 }: {
-  deputy: FavoriteDeputy;
+  item: FavoriteItem;
   size?: "default" | "sm" | "icon";
 }) {
   const { isFavorite, toggleFavorite, hydrated } = useFavorites();
-  const active = hydrated && isFavorite(deputy.id);
+  const active = hydrated && isFavorite(item.key);
   const label = active
-    ? `Remover ${deputy.nome} dos favoritos`
-    : `Adicionar ${deputy.nome} aos favoritos`;
+    ? `Remover ${item.nome} dos favoritos`
+    : `Adicionar ${item.nome} aos favoritos`;
 
   return (
     <Button
@@ -28,7 +28,7 @@ export function FavoriteButton({
       onClick={(event) => {
         event.preventDefault();
         event.stopPropagation();
-        toggleFavorite(deputy);
+        toggleFavorite(item);
       }}
     >
       <Star aria-hidden="true" className={active ? "fill-current" : undefined} />

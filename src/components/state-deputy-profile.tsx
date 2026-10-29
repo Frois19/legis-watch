@@ -1,9 +1,11 @@
 "use client";
 
 import { DeputyPhoto } from "@/components/deputy-photo";
+import { FavoriteButton } from "@/components/favorite-button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { StateDeputyDetail } from "@/lib/api/types";
+import { favoriteKey } from "@/lib/favorites/storage";
 import { ExternalLink } from "lucide-react";
 import Link from "next/link";
 
@@ -44,36 +46,55 @@ export function StateDeputyProfileView({
       </Link>
 
       <header className="space-y-3 border border-border bg-card p-4">
-        <div className="flex flex-wrap items-start gap-4">
-          <DeputyPhoto
-            id={Number.isFinite(photoId) ? photoId : -1}
-            name={name}
-            urlFoto={detail.urlFoto}
-          />
-          <div className="min-w-0 space-y-2">
-            <div className="flex flex-wrap items-center gap-2">
-              <Badge variant="secondary">Deputado estadual</Badge>
-              <Badge variant="secondary">{detail.assemblyName}</Badge>
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div className="flex flex-wrap items-start gap-4">
+            <DeputyPhoto
+              id={Number.isFinite(photoId) ? photoId : -1}
+              name={name}
+              urlFoto={detail.urlFoto}
+            />
+            <div className="min-w-0 space-y-2">
+              <div className="flex flex-wrap items-center gap-2">
+                <Badge variant="secondary">Deputado estadual</Badge>
+                <Badge variant="secondary">{detail.assemblyName}</Badge>
+              </div>
+              <h1 className="font-display text-3xl font-semibold text-primary">
+                {name}
+              </h1>
+              {meta ? <p className="text-muted-foreground">{meta}</p> : null}
+              {detail.email ? (
+                <p className="text-sm text-muted-foreground">{detail.email}</p>
+              ) : null}
+              {docsUrl ? (
+                <a
+                  href={docsUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 text-sm font-medium text-primary underline underline-offset-2"
+                >
+                  Dados abertos da casa
+                  <ExternalLink className="size-3.5" aria-hidden="true" />
+                </a>
+              ) : null}
             </div>
-            <h1 className="font-display text-3xl font-semibold text-primary">
-              {name}
-            </h1>
-            {meta ? <p className="text-muted-foreground">{meta}</p> : null}
-            {detail.email ? (
-              <p className="text-sm text-muted-foreground">{detail.email}</p>
-            ) : null}
-            {docsUrl ? (
-              <a
-                href={docsUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 text-sm font-medium text-primary underline underline-offset-2"
-              >
-                Dados abertos da casa
-                <ExternalLink className="size-3.5" aria-hidden="true" />
-              </a>
-            ) : null}
           </div>
+          <FavoriteButton
+            item={{
+              key: favoriteKey(
+                "estadual_deputado",
+                detail.source,
+                detail.externalId,
+              ),
+              sphere: "estadual_deputado",
+              source: detail.source,
+              externalId: detail.externalId,
+              nome: name,
+              siglaPartido: detail.siglaPartido,
+              siglaUf: detail.siglaUf,
+              urlFoto: detail.urlFoto,
+              href: detail.href,
+            }}
+          />
         </div>
       </header>
 

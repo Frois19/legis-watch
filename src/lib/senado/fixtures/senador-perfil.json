@@ -97,6 +97,19 @@
         "autorPrincipal": false,
         "urlPublica": "https://www25.senado.leg.br/web/atividade/materias/-/materia/155883"
       }
+    ],
+    "votes": [
+      {
+        "externalId": "365429-1",
+        "tipoVoto": "Sim",
+        "descricaoVotacao": "Votação do mérito",
+        "descricaoResultado": "Aprovado",
+        "dataSessao": "2023-10-24",
+        "materiaExternalId": "159365",
+        "materiaIdentificacao": "PL 5384/2020",
+        "materiaEmenta": "Altera a Lei nº 12.711/2012.",
+        "urlPublica": "https://www25.senado.leg.br/web/atividade/materias/-/materia/159365"
+      }
     ]
   },
   "default": {
@@ -143,6 +156,7 @@
         "autorPrincipal": false,
         "urlPublica": "https://www25.senado.leg.br/web/atividade/materias/-/materia/155842"
       }
-    ]
+    ],
+    "votes": []
   }
 }

@@ -10,7 +10,7 @@ Guia das **telas e funcionalidades** do produto, com prints atualizados do app e
 |---|---|---|
 | **Deputados federais** | Câmara dos Deputados | Projetos, votações, presença/ata, partido |
 | **Deputados estaduais** | 27 Assembleias / CLDF | Cadastro em todas; proposições, filiações e mandatos nas casas com API |
-| **Senadores** | Senado Federal | Matérias de autoria, filiações, mandatos + disclaimer de presença |
+| **Senadores** | Senado Federal | Matérias, votações nominais, filiações, mandatos + disclaimer de presença |
 
 Repositório: [github.com/Frois19/legis-watch](https://github.com/Frois19/legis-watch)  
 Para regenerar os prints: `npm run docs:screenshots` (dev server em `:3456`).
@@ -21,7 +21,8 @@ Para regenerar os prints: `npm run docs:screenshots` (dev server em `:3456`).
 
 | Novidade | Onde usar |
 |---|---|
-| Perfil do **senador** com abas de matérias, filiações e mandatos | Busca → Senadores → abrir perfil |
+| Perfil do **senador** com matérias, **votações nominais**, filiações e mandatos | Busca → Senadores → abrir perfil |
+| **Favoritos** multi-esfera (federal, estadual e senador) | Estrela na lista/perfil · página Favoritos |
 | Perfil **estadual enriquecido** (SAPL: AC, AL, AM, PB, PI, RO, TO) | Busca → Estaduais → UF → perfil |
 | Perfil **MG (ALMG)** com filiações e mandatos | Busca → Estaduais → UF MG → perfil |
 | Cobertura clara do que cada casa já publica | Aba **Cobertura** no perfil estadual ou do Senado |
@@ -35,9 +36,9 @@ Para regenerar os prints: `npm run docs:screenshots` (dev server em `:3456`).
 | Busca por esfera | Todas | Filtrar federais, estaduais, senadores ou todos |
 | Busca por mandato | Federal | Legislatura (ex.: 56ª / 57ª) |
 | Busca por UF / partido / nome | Estadual e Senado | Achar o parlamentar rápido |
-| Favoritos locais | Federal | Guardar no navegador, sem login |
+| Favoritos locais | Todas | Guardar no navegador, sem login |
 | Projetos / proposições | Federal + SAPL estadual + Senado | O que a pessoa apresentou |
-| Votações nominais | Federal | Sim / Não / Abstenção + resultado da matéria |
+| Votações nominais | Federal + Senado | Sim / Não / Abstenção + matéria relacionada |
 | Presença e ata do dia | Federal | Faltas + pauta e votações da sessão |
 | Filiações e mandatos | Senado + SAPL + MG | Histórico partidário e legislaturas |
 | Disclaimer de presença | Senado | A API não equivale à da Câmara — link ao tutorial oficial |
@@ -127,7 +128,7 @@ Lista outros deputados do mesmo partido no mandato selecionado.
 
 ## 6. Favoritos
 
-Parlamentares **federais** salvos neste dispositivo (`localStorage`). Estaduais e senadores ainda não entram na lista.
+Parlamentares **federais, estaduais e senadores** salvos neste dispositivo (`localStorage`). A lista mostra a esfera (Federal · Estadual · Senado) junto do partido e da UF.
 
 ![Lista de favoritos](./screenshots/06-favoritos.png)
 
@@ -179,11 +180,14 @@ Ao abrir, o app enriquece com Dados Abertos do Senado:
 | Aba | Conteúdo |
 |---|---|
 | **Matérias** | Autorias (ementa, data, link no Senado) |
+| **Votações** | Voto nominal + matéria e resultado da sessão |
 | **Filiações** | Histórico partidário |
 | **Mandatos** | UF, participação e legislaturas |
 | **Cobertura** | O que já está disponível + disclaimer de presença |
 
 ![Perfil de senador — matérias](./screenshots/12-perfil-senador.png)
+
+![Perfil de senador — votações nominais](./screenshots/12b-perfil-senador-votacoes.png)
 
 ![Perfil de senador — filiações](./screenshots/13-perfil-senador-filiacoes.png)
 
@@ -200,7 +204,7 @@ Presença no Senado **não** é inferida pela API — use o tutorial oficial de 
 3. Abrir o perfil  
 4. **Federal:** Projetos → Votações → Presença (ata) → Partido  
 5. **Estadual (SAPL/MG):** Proposições / Filiações / Mandatos / Cobertura  
-6. **Senador:** Matérias / Filiações / Mandatos / Cobertura  
+6. **Senador:** Matérias / Votações / Filiações / Mandatos / Cobertura  
 
 ---
 
@@ -208,8 +212,8 @@ Presença no Senado **não** é inferida pela API — use o tutorial oficial de 
 
 - **Federal:** Dados Abertos da Câmara (API + arquivos anuais)
 - **Estadual:** 9 casas live (PE, MG, 7 SAPL); 18 UFs em fixture de cadastro — [estaduais.md](./estaduais.md)
-- **Senado:** lista + perfil enriquecido; presença só pelo Diário / tutorial oficial
-- Favoritos: só federais, só neste navegador
+- **Senado:** lista + perfil enriquecido (matérias e votos); presença só pelo Diário / tutorial oficial
+- Favoritos: federal, estadual e senador; só neste navegador
 - Votos/presença estaduais: ainda não (APIs sem voto nominal por parlamentar de forma utilizável)
 
 Setup e sync: [README](../README.md).

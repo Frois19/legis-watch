@@ -2,7 +2,7 @@
 
 > Navegação: [Índice](./README.md) · [Guia do usuário](./GUIA-DO-PRODUTO.md) · [API interna](./backend-api.md) · [Plano de expansão](./PLANO-EXPANSAO.md)
 
-O Legis Watch sincroniza a **lista atual de senadores em exercício** e, sob demanda, **filiações, mandatos e matérias de autoria** via Dados Abertos do Senado.
+O Legis Watch sincroniza a **lista atual de senadores em exercício** e, sob demanda, **filiações, mandatos, matérias de autoria e votações nominais** via Dados Abertos do Senado.
 
 ## Sync
 
@@ -10,7 +10,7 @@ O Legis Watch sincroniza a **lista atual de senadores em exercício** e, sob dem
 # Lista em exercício (cadastro)
 npm run sync -- senadores
 
-# Perfil enriquecido de um senador (filiações + mandatos + autorias)
+# Perfil enriquecido (filiações + mandatos + autorias + votos)
 npm run sync -- senador-perfil --codigo=5672
 ```
 
@@ -22,10 +22,11 @@ Fontes live:
 | Filiações | `/senador/{codigo}/filiacoes.json` |
 | Mandatos | `/senador/{codigo}/mandatos.json` |
 | Autorias / matérias | `/senador/{codigo}/autorias.json` |
+| Votações nominais | `/senador/{codigo}/votacoes.json` |
 
 Fallbacks: `src/lib/senado/fixtures/senadores-atual.json` e `senador-perfil.json` se a API falhar.
 
-O perfil também é enriquecido **ao abrir** `/parlamentares/senado/{codigo}` ou `GET /api/parlamentares/senado/{codigo}` (TTL `SENADO_PROFILE_TTL_MS`, padrão 24h). Autorias são limitadas por `SENADO_MATTER_LIMIT` (padrão 80).
+O perfil também é enriquecido **ao abrir** `/parlamentares/senado/{codigo}` ou `GET /api/parlamentares/senado/{codigo}` (TTL `SENADO_PROFILE_TTL_MS`, padrão 24h). Limites: `SENADO_MATTER_LIMIT` (padrão 80) e `SENADO_VOTE_LIMIT` (padrão 100).
 
 ## Busca e perfil
 
@@ -34,9 +35,9 @@ GET /api/parlamentares?esfera=senador&nome=&siglaPartido=&siglaUf=
 GET /api/parlamentares/senado/{codigo}
 ```
 
-Resposta do perfil inclui `affiliations`, `mandates`, `matters`, `profileSyncedAt` e `attendanceDisclaimer`.
+Resposta do perfil inclui `affiliations`, `mandates`, `matters`, `votes`, `profileSyncedAt` e `attendanceDisclaimer`.
 
-UI: esfera **Senadores** na home · perfil `/parlamentares/senado/{codigo}` com abas Matérias / Filiações / Mandatos / Cobertura.
+UI: esfera **Senadores** na home · perfil `/parlamentares/senado/{codigo}` com abas Matérias / Votações / Filiações / Mandatos / Cobertura.
 
 Prints no [guia do usuário](./GUIA-DO-PRODUTO.md#8-senadores): busca, matérias, filiações e cobertura.
 
@@ -49,7 +50,7 @@ Prints no [guia do usuário](./GUIA-DO-PRODUTO.md#8-senadores): busca, matérias
 | Filiações partidárias | Disponível (sob demanda) |
 | Mandatos / legislaturas | Disponível (sob demanda) |
 | Matérias / proposições (autorias) | Disponível (sob demanda, limite configurável) |
-| Votações nominais | Em breve |
+| Votações nominais | Disponível (sob demanda, limite `SENADO_VOTE_LIMIT`) |
 | Presença / faltas | **Não** via API — disclaimer no perfil + link ao tutorial de assiduidade |
 
 ## Disclaimer de presença
@@ -60,7 +61,7 @@ O Senado **não publica** na API um registro de presença equivalente ao bulk/SO
 
 - Client: `src/lib/senado/client.ts`
 - Sync: `src/lib/sync/senado.ts` (`syncSenadores`, `syncSenatorProfile`, `ensureSenatorProfile`)
-- Models Prisma: `Senator`, `SenatorAffiliation`, `SenatorMandate`, `SenatorMatter`
+- Models Prisma: `Senator`, `SenatorAffiliation`, `SenatorMandate`, `SenatorMatter`, `SenatorVote`
 - UI: `src/components/senator-profile.tsx`
 
 ---

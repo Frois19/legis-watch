@@ -36,12 +36,16 @@ export function DeputyRow({
         </Link>
         <FavoriteButton
           size="sm"
-          deputy={{
-            id: deputy.id,
+          item={{
+            key: `camara:${deputy.id}`,
+            sphere: "federal_deputado",
+            source: "camara",
+            externalId: String(deputy.id),
             nome: name,
             siglaPartido: deputy.siglaPartido,
             siglaUf: deputy.siglaUf,
             urlFoto: deputy.urlFoto,
+            href: `/deputados/${deputy.id}`,
           }}
         />
       </div>

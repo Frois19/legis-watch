@@ -5,6 +5,7 @@ import {
   mapAffiliations,
   mapMandates,
   mapMatters,
+  mapVotes,
 } from "./client";
 
 describe("listSenadoresAtual", () => {
@@ -133,6 +134,37 @@ describe("mappers de perfil", () => {
     });
   });
 
+  it("mapVotes lê voto e matéria da sessão", () => {
+    const rows = mapVotes(
+      {
+        VotacaoParlamentar: {
+          Parlamentar: {
+            Votacoes: {
+              Votacao: {
+                CodigoSessaoVotacao: "999",
+                SiglaDescricaoVoto: "Sim",
+                DescricaoVotacao: "Mérito",
+                DescricaoResultado: "Aprovado",
+                SessaoPlenaria: { DataSessao: "2023-10-24" },
+                Materia: {
+                  Codigo: "159365",
+                  DescricaoIdentificacao: "PL 5384/2020",
+                  Ementa: "Ementa",
+                },
+              },
+            },
+          },
+        },
+      },
+      10,
+    );
+    expect(rows[0]).toMatchObject({
+      externalId: "999",
+      tipoVoto: "Sim",
+      materiaIdentificacao: "PL 5384/2020",
+    });
+  });
+
   it("mapMatters limita e monta URL pública", () => {
     const payload = {
       MateriasAutoriaParlamentar: {
@@ -240,6 +272,25 @@ describe("fetchSenatorProfileBundle", () => {
             },
           });
         }
+        if (url.includes("/votacoes")) {
+          return Response.json({
+            VotacaoParlamentar: {
+              Parlamentar: {
+                Votacoes: {
+                  Votacao: {
+                    CodigoSessaoVotacao: "999",
+                    SiglaDescricaoVoto: "Sim",
+                    SessaoPlenaria: { DataSessao: "2023-10-24" },
+                    Materia: {
+                      Codigo: "1",
+                      DescricaoIdentificacao: "PL 1/2023",
+                    },
+                  },
+                },
+              },
+            },
+          });
+        }
         return new Response("not found", { status: 404 });
       }),
     );
@@ -248,6 +299,7 @@ describe("fetchSenatorProfileBundle", () => {
     expect(bundle.affiliations[0]?.siglaPartido).toBe("REPUBLICANOS");
     expect(bundle.mandates[0]?.codigoMandato).toBe("596");
     expect(bundle.matters[0]?.externalId).toBe("155808");
+    expect(bundle.votes[0]?.tipoVoto).toBe("Sim");
   });
 
   it("cai no fixture de perfil quando a API falha", async () => {

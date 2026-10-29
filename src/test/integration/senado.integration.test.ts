@@ -57,33 +57,42 @@ describe("integration senadores", () => {
       }),
     });
     expect(body.attendanceDisclaimer).toMatch(/Diário do Senado/i);
+    expect(body.coverage.votes).toBe(true);
     expect(Array.isArray(body.affiliations)).toBe(true);
     expect(Array.isArray(body.mandates)).toBe(true);
     expect(Array.isArray(body.matters)).toBe(true);
+    expect(Array.isArray(body.votes)).toBe(true);
   });
 
-  it("syncSenatorProfile persiste filiações/mandatos/matérias", async () => {
+  it("syncSenatorProfile persiste filiações/mandatos/matérias/votos", async () => {
     const target =
       (await prisma.senator.findUnique({ where: { id: "senado:5672" } })) ??
       (await prisma.senator.findFirst({ orderBy: { nome: "asc" } }));
     expect(target).toBeTruthy();
     const result = await syncSenatorProfile(target!.externalId);
-    expect(result.affiliations + result.mandates + result.matters).toBeGreaterThan(
-      0,
-    );
+    expect(
+      result.affiliations + result.mandates + result.matters + result.votes,
+    ).toBeGreaterThan(0);
     const enriched = await prisma.senator.findUnique({
       where: { id: target!.id },
       include: {
         affiliations: true,
         mandates: true,
         matters: true,
+        votes: true,
       },
     });
     expect(enriched?.profileSyncedAt).toBeTruthy();
     expect(
       (enriched?.affiliations.length ?? 0) +
         (enriched?.mandates.length ?? 0) +
-        (enriched?.matters.length ?? 0),
+        (enriched?.matters.length ?? 0) +
+        (enriched?.votes.length ?? 0),
     ).toBeGreaterThan(0);
+    // Fixture de 5672 traz ao menos 1 voto; default pode ter 0.
+    if (target!.externalId === "5672") {
+      expect(enriched?.votes.length).toBeGreaterThan(0);
+      expect(result.votes).toBeGreaterThan(0);
+    }
   });
 });

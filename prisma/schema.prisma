@@ -235,6 +235,7 @@ model Senator {
   affiliations  SenatorAffiliation[]
   mandates      SenatorMandate[]
   matters       SenatorMatter[]
+  votes         SenatorVote[]
 
   @@unique([source, externalId])
   @@index([source])
@@ -295,6 +296,29 @@ model SenatorMatter {
   @@index([senatorId])
   @@index([ano])
   @@index([siglaTipo, numero, ano])
+}
+
+model SenatorVote {
+  id                    String   @id
+  senatorId             String
+  senator               Senator  @relation(fields: [senatorId], references: [id], onDelete: Cascade)
+  externalId            String
+  tipoVoto              String?
+  descricaoVotacao      String?
+  descricaoResultado    String?
+  dataSessao            String?
+  materiaExternalId     String?
+  materiaIdentificacao  String?
+  materiaEmenta         String?
+  urlPublica            String?
+  syncedAt              DateTime?
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  @@unique([senatorId, externalId])
+  @@index([senatorId])
+  @@index([tipoVoto])
+  @@index([dataSessao])
 }
 
 /** Deputado estadual (Assembleias). ID namespaced: "alepe:slug" | "aleac:248". */
