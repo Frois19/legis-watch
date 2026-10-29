@@ -266,5 +266,7 @@ export async function downloadAttendances(
 }
 
 export function currentLegislatura(): number {
-  return Number(process.env.LEGISLATURA_ATUAL ?? 57);
+  const raw = process.env.LEGISLATURA_ATUAL;
+  const parsed = Number(raw ?? 57);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : 57;
 }

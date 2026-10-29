@@ -1,0 +1,43 @@
+{
+  "$schema": "./node_modules/@stryker-mutator/core/schema/stryker-schema.json",
+  "packageManager": "npm",
+  "testRunner": "vitest",
+  "checkers": [],
+  "coverageAnalysis": "perTest",
+  "mutator": {
+    "excludedMutations": ["ObjectLiteral"]
+  },
+  "mutate": [
+    "src/lib/propositions/status.ts",
+    "src/lib/legislatures.ts",
+    "src/lib/format.ts",
+    "src/lib/camara/photo.ts",
+    "src/lib/favorites/storage.ts",
+    "src/lib/utils.ts",
+    "src/lib/sync/run.ts"
+  ],
+  "ignorePatterns": [
+    "coverage",
+    ".next",
+    "prisma/dev.db",
+    "agent-tools",
+    "reports"
+  ],
+  "thresholds": {
+    "high": 90,
+    "low": 80,
+    "break": 80
+  },
+  "reporters": ["progress", "clear-text", "html", "json"],
+  "htmlReporter": {
+    "fileName": "reports/mutation/mutation.html"
+  },
+  "jsonReporter": {
+    "fileName": "reports/mutation/mutation.json"
+  },
+  "timeoutMS": 60000,
+  "concurrency": 2,
+  "vitest": {
+    "configFile": "vitest.config.ts"
+  }
+}

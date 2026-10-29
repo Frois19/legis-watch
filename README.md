@@ -55,9 +55,21 @@ App em [http://localhost:3456](http://localhost:3456) · API em `/api/health`.
 
 ### UI (v1)
 
-- `/` — busca por nome, partido e UF
+- `/` — busca por nome, partido, UF e mandato (legislatura)
 - `/favoritos` — favoritos no `localStorage` do navegador
-- `/deputados/[id]` — perfil com abas de projetos, votações, presença e partido
+- `/deputados/[id]` — perfil com abas de projetos, votações, presença e partido (filtro por mandato)
+
+## Testes (backend)
+
+Meta: **≥ 90%** de cobertura unitária em `src/lib` + `src/app/api` (exceto I/O HTTP/bulk da Câmara) e **mutation testing** (Stryker) na lógica de domínio.
+
+```bash
+npm test                 # unitários
+npm run test:coverage    # cobertura com thresholds
+npm run test:mutation    # Stryker (score de mutação)
+```
+
+Relatórios: `coverage/` e `reports/mutation/`.
 
 
 ## Endpoints principais
