@@ -1,23 +1,28 @@
 import { SiteHeader } from "@/components/site-header";
 import type { Metadata } from "next";
-import { Fraunces, Manrope } from "next/font/google";
+import { IBM_Plex_Sans, Source_Serif_4 } from "next/font/google";
 
 import "./globals.css";
 
-const manrope = Manrope({
+const sans = IBM_Plex_Sans({
   subsets: ["latin"],
+  weight: ["400", "500", "600"],
   variable: "--font-sans",
 });
 
-const fraunces = Fraunces({
+const display = Source_Serif_4({
   subsets: ["latin"],
+  weight: ["600", "700"],
   variable: "--font-display",
 });
 
 export const metadata: Metadata = {
-  title: "Legis Watch",
+  title: {
+    default: "Legis Watch",
+    template: "%s · Legis Watch",
+  },
   description:
-    "Pesquise, favoritize e acompanhe deputados federais: presença, projetos, votações e partido.",
+    "Acompanhe deputados federais: projetos, votações, presença e partido.",
 };
 
 export default function RootLayout({
@@ -27,13 +32,17 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pt-BR">
-      <body
-        className={`${manrope.variable} ${fraunces.variable} site-backdrop antialiased`}
-      >
+      <body className={`${sans.variable} ${display.variable} antialiased`}>
+        <a href="#conteudo" className="skip-link">
+          Ir para o conteúdo
+        </a>
         <SiteHeader />
-        <div className="mx-auto min-h-[calc(100vh-5rem)] max-w-5xl px-4 py-8 sm:px-6 sm:py-10">
+        <main
+          id="conteudo"
+          className="mx-auto min-h-[calc(100vh-4.5rem)] max-w-3xl px-4 py-8 sm:px-6"
+        >
           {children}
-        </div>
+        </main>
       </body>
     </html>
   );

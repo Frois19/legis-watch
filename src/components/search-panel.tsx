@@ -7,7 +7,7 @@ import { searchDeputies } from "@/lib/api/client";
 import type { DeputyListItem } from "@/lib/api/types";
 import { Search } from "lucide-react";
 import Link from "next/link";
-import { FormEvent, useState } from "react";
+import { FormEvent, useId, useState } from "react";
 
 const UFS = [
   "AC","AL","AP","AM","BA","CE","DF","ES","GO","MA","MT","MS","MG","PA","PB",
@@ -15,6 +15,8 @@ const UFS = [
 ];
 
 export function SearchPanel() {
+  const formId = useId();
+  const statusId = `${formId}-status`;
   const [nome, setNome] = useState("");
   const [siglaUf, setSiglaUf] = useState("");
   const [siglaPartido, setSiglaPartido] = useState("");
@@ -54,7 +56,11 @@ export function SearchPanel() {
     } catch (err) {
       setItems([]);
       setTotal(0);
-      setError(err instanceof Error ? err.message : "Falha na busca");
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Não foi possível buscar deputados agora.",
+      );
     } finally {
       setPending(false);
     }
@@ -65,32 +71,47 @@ export function SearchPanel() {
     void runSearch();
   }
 
+  let statusText = "Digite um nome, partido ou UF para buscar.";
+  if (pending) statusText = "Buscando deputados…";
+  else if (error) statusText = error;
+  else if (searched && items)
+    statusText =
+      total === 0
+        ? "Nenhum deputado encontrado com esses filtros."
+        : `${total} resultado${total === 1 ? "" : "s"} encontrado${total === 1 ? "" : "s"}.`;
+
   return (
-    <div className="space-y-6">
+    <section aria-labelledby={`${formId}-title`} className="space-y-5">
+      <h2 id={`${formId}-title`} className="sr-only">
+        Busca de deputados
+      </h2>
+
       <form
         onSubmit={onSubmit}
-        className="animate-rise-delay-1 grid gap-3 rounded-xl border border-border/80 bg-white/80 p-4 shadow-sm sm:grid-cols-[1fr_7rem_7rem_auto] sm:p-5"
+        className="grid gap-3 border border-border bg-card p-4 sm:grid-cols-[1fr_6.5rem_6.5rem_auto]"
+        aria-describedby={statusId}
       >
-        <label className="block space-y-1.5">
-          <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+        <div className="space-y-1.5">
+          <label htmlFor={`${formId}-nome`} className="text-sm font-medium">
             Nome
-          </span>
+          </label>
           <Input
+            id={`${formId}-nome`}
             value={nome}
             onChange={(e) => setNome(e.target.value)}
-            placeholder="Ex.: Favacho, Tabata, Nikolas"
-            aria-label="Buscar por nome"
+            placeholder="Ex.: Favacho"
+            autoComplete="off"
           />
-        </label>
-        <label className="block space-y-1.5">
-          <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+        </div>
+        <div className="space-y-1.5">
+          <label htmlFor={`${formId}-uf`} className="text-sm font-medium">
             UF
-          </span>
+          </label>
           <select
+            id={`${formId}-uf`}
             className="flex h-11 w-full rounded-md border border-input bg-background px-3 text-sm"
             value={siglaUf}
             onChange={(e) => setSiglaUf(e.target.value)}
-            aria-label="Filtrar por UF"
           >
             <option value="">Todas</option>
             {UFS.map((uf) => (
@@ -99,83 +120,68 @@ export function SearchPanel() {
               </option>
             ))}
           </select>
-        </label>
-        <label className="block space-y-1.5">
-          <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+        </div>
+        <div className="space-y-1.5">
+          <label htmlFor={`${formId}-partido`} className="text-sm font-medium">
             Partido
-          </span>
+          </label>
           <Input
+            id={`${formId}-partido`}
             value={siglaPartido}
             onChange={(e) => setSiglaPartido(e.target.value)}
             placeholder="PT, PL…"
-            aria-label="Filtrar por partido"
+            autoComplete="off"
           />
-        </label>
+        </div>
         <div className="flex items-end">
-          <Button type="submit" className="w-full sm:w-auto" disabled={pending}>
-            <Search />
+          <Button type="submit" className="w-full" disabled={pending}>
+            <Search aria-hidden="true" />
             {pending ? "Buscando…" : "Buscar"}
           </Button>
         </div>
       </form>
 
-      {!searched && (
-        <p className="animate-rise-delay-2 text-sm text-muted-foreground">
-          Sugestão:{" "}
-          <button
-            type="button"
-            className="font-medium text-primary underline-offset-2 hover:underline"
-            onClick={() => void runSearch({ nome: "Favacho" })}
-          >
-            buscar Favacho
-          </button>{" "}
-          ou abrir o{" "}
-          <Link
-            href="/deputados/204379"
-            className="font-medium text-primary underline-offset-2 hover:underline"
-          >
-            perfil de exemplo
-          </Link>
-          .
-        </p>
-      )}
+      <p className="text-sm text-muted-foreground">
+        Exemplo:{" "}
+        <button
+          type="button"
+          className="font-medium text-primary underline underline-offset-2"
+          onClick={() => void runSearch({ nome: "Favacho" })}
+        >
+          buscar Favacho
+        </button>{" "}
+        ou{" "}
+        <Link
+          href="/deputados/204379"
+          className="font-medium text-primary underline underline-offset-2"
+        >
+          abrir o perfil
+        </Link>
+        .
+      </p>
 
-      <div className="animate-rise-delay-2 rounded-xl border border-border/80 bg-white/80 p-4 shadow-sm sm:p-5">
-        {!searched && (
-          <p className="text-sm text-muted-foreground">
-            Digite um nome, partido ou UF para encontrar deputados da legislatura
-            atual.
-          </p>
-        )}
-        {pending && (
-          <p className="animate-fade text-sm text-muted-foreground">
-            Consultando o banco local…
-          </p>
-        )}
-        {error && (
-          <p className="text-sm text-destructive" role="alert">
-            {error}
-          </p>
-        )}
-        {!pending && searched && items && items.length === 0 && !error && (
-          <p className="text-sm text-muted-foreground">
-            Nenhum deputado encontrado com esses filtros. Rode o sync se a base
-            estiver vazia.
-          </p>
-        )}
-        {!pending && items && items.length > 0 && (
-          <>
-            <p className="mb-2 text-sm text-muted-foreground">
-              {total} resultado{total === 1 ? "" : "s"}
-            </p>
-            <ul>
-              {items.map((deputy, index) => (
-                <DeputyRow key={deputy.id} deputy={deputy} index={index} />
-              ))}
-            </ul>
-          </>
-        )}
+      <div
+        id={statusId}
+        role="status"
+        aria-live="polite"
+        className="text-sm text-muted-foreground"
+      >
+        {statusText}
       </div>
-    </div>
+
+      {error ? (
+        <p className="text-sm text-destructive" role="alert">
+          {error}
+        </p>
+      ) : null}
+
+      {!pending && items && items.length > 0 ? (
+        <ul className="border border-border bg-card px-4" aria-label="Resultados">
+          {items.map((deputy) => (
+            <DeputyRow key={deputy.id} deputy={deputy} />
+          ))}
+        </ul>
+      ) : null}
+    </section>
   );
 }

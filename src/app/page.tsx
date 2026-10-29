@@ -2,20 +2,19 @@ import { SearchPanel } from "@/components/search-panel";
 
 export default function HomePage() {
   return (
-    <div className="space-y-8">
-      <section className="animate-rise max-w-2xl">
-        <p className="font-display text-5xl font-semibold tracking-tight text-primary sm:text-6xl">
+    <div className="space-y-6">
+      <header className="space-y-2">
+        <p className="font-display text-4xl font-semibold tracking-tight text-primary sm:text-5xl">
           Legis Watch
         </p>
-        <h1 className="mt-3 text-xl font-medium text-foreground sm:text-2xl">
-          Acompanhe o mandato de quem você elegeu
+        <h1 className="text-lg text-foreground sm:text-xl">
+          Acompanhe o mandato dos deputados federais
         </h1>
-        <p className="mt-3 max-w-xl text-base leading-relaxed text-muted-foreground">
-          Pesquise deputados federais, favorite um ou mais perfis e veja
-          projetos, votações, presença e partido — com dados públicos da Câmara.
+        <p className="max-w-xl text-sm leading-relaxed text-muted-foreground sm:text-base">
+          Busque um parlamentar, favorite o perfil e veja projetos, votações,
+          presença no plenário e partido — com dados públicos da Câmara.
         </p>
-      </section>
-
+      </header>
       <SearchPanel />
     </div>
   );

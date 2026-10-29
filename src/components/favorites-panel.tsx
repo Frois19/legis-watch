@@ -11,7 +11,7 @@ export function FavoritesPanel() {
 
   if (!hydrated) {
     return (
-      <p className="animate-fade text-sm text-muted-foreground">
+      <p className="text-sm text-muted-foreground" role="status">
         Carregando favoritos…
       </p>
     );
@@ -19,13 +19,13 @@ export function FavoritesPanel() {
 
   if (favorites.length === 0) {
     return (
-      <div className="animate-rise rounded-xl border border-dashed border-border bg-white/60 p-8 text-center">
-        <p className="font-display text-xl font-semibold text-foreground">
+      <div className="border border-dashed border-border bg-card p-8 text-center">
+        <h2 className="font-display text-xl font-semibold text-foreground">
           Nenhum favorito ainda
-        </p>
+        </h2>
         <p className="mt-2 text-sm text-muted-foreground">
-          Busque um deputado e toque em Favoritar para acompanhar o perfil neste
-          dispositivo.
+          Busque um deputado e toque em Favoritar. Os favoritos ficam salvos
+          neste navegador.
         </p>
         <Button asChild className="mt-5">
           <Link href="/">Ir para a busca</Link>
@@ -35,26 +35,32 @@ export function FavoritesPanel() {
   }
 
   return (
-    <div className="animate-rise space-y-4">
+    <div className="space-y-4">
       <div className="flex items-center justify-between gap-3">
         <p className="text-sm text-muted-foreground">
-          {favorites.length} parlamentar{favorites.length === 1 ? "" : "es"}{" "}
-          neste navegador
+          {favorites.length} parlamentar{favorites.length === 1 ? "" : "es"}
         </p>
         <Button
           type="button"
           variant="ghost"
           size="sm"
-          onClick={() => writeFavorites([])}
+          onClick={() => {
+            if (
+              window.confirm(
+                "Remover todos os favoritos deste navegador?",
+              )
+            ) {
+              writeFavorites([]);
+            }
+          }}
         >
           Limpar todos
         </Button>
       </div>
-      <ul className="rounded-xl border border-border/80 bg-white/80 px-4 shadow-sm sm:px-5">
-        {favorites.map((fav, index) => (
+      <ul className="border border-border bg-card px-4" aria-label="Favoritos">
+        {favorites.map((fav) => (
           <DeputyRow
             key={fav.id}
-            index={index}
             deputy={{
               id: fav.id,
               nome: fav.nome,

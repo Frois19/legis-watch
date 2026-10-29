@@ -14,6 +14,9 @@ export function FavoriteButton({
 }) {
   const { isFavorite, toggleFavorite, hydrated } = useFavorites();
   const active = hydrated && isFavorite(deputy.id);
+  const label = active
+    ? `Remover ${deputy.nome} dos favoritos`
+    : `Adicionar ${deputy.nome} aos favoritos`;
 
   return (
     <Button
@@ -21,14 +24,14 @@ export function FavoriteButton({
       size={size}
       variant={active ? "default" : "outline"}
       aria-pressed={active}
-      aria-label={active ? "Remover dos favoritos" : "Adicionar aos favoritos"}
+      aria-label={label}
       onClick={(event) => {
         event.preventDefault();
         event.stopPropagation();
         toggleFavorite(deputy);
       }}
     >
-      <Star className={active ? "fill-current" : undefined} />
+      <Star aria-hidden="true" className={active ? "fill-current" : undefined} />
       {size !== "icon" ? (active ? "Favorito" : "Favoritar") : null}
     </Button>
   );
