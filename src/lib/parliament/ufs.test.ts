@@ -23,4 +23,12 @@ describe("cobertura nacional de UFs estaduais", () => {
     const pe = listStateAdapters().find((a) => a.info.uf === "PE");
     expect(pe?.info.source).toBe("alepe");
   });
+
+  it("MG e SP usam adapters live", () => {
+    const mg = listStateAdapters().find((a) => a.info.uf === "MG");
+    const sp = listStateAdapters().find((a) => a.info.uf === "SP");
+    expect(mg?.info.source).toBe("almg");
+    expect(mg?.info.coverage.propositions).toBe(true);
+    expect(sp?.info.source).toBe("alesp");
+  });
 });

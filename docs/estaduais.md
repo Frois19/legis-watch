@@ -44,7 +44,7 @@ Catálogo em runtime: `GET /api/assembleias` (inclui `syncedCount` e flags de co
 | MA | `alema` | Assembleia Legislativa do Maranhão | Fixture |
 | MT | `almt` | Assembleia Legislativa de Mato Grosso | Fixture |
 | MS | `alems` | Assembleia Legislativa de Mato Grosso do Sul | Fixture |
-| MG | `almg` | Assembleia Legislativa de Minas Gerais | **Live ALMG** — cadastro + filiações + mandatos (proposições API 403) |
+| MG | `almg` | Assembleia Legislativa de Minas Gerais | **Live ALMG** — cadastro + filiações + mandatos + proposições (CSV anual; REST 403) |
 | PA | `alepa` | Assembleia Legislativa do Pará | Fixture |
 | PB | `alepb` | Assembleia Legislativa da Paraíba | **Live SAPL** — cadastro + filiações + mandatos + matérias |
 | PR | `alep` | Assembleia Legislativa do Paraná | Fixture (metadados ALEP ok; listagem de proposições indisponível/401) |
@@ -56,11 +56,13 @@ Catálogo em runtime: `GET /api/assembleias` (inclui `syncedCount` e flags de co
 | RO | `alero` | Assembleia Legislativa de Rondônia | **Live SAPL** — cadastro + filiações + mandatos + matérias |
 | RR | `alerr` | Assembleia Legislativa de Roraima | Fixture |
 | SC | `alesc` | Assembleia Legislativa de Santa Catarina | Fixture |
-| SP | `alesp` | Assembleia Legislativa de São Paulo | Fixture |
+| SP | `alesp` | Assembleia Legislativa de São Paulo | **Live ALESP** — cadastro (`deputados.xml`); proposições/presença em XML/ZIP ainda não syncados |
 | SE | `alese` | Assembleia Legislativa de Sergipe | Fixture |
 | TO | `aleto` | Assembleia Legislativa do Tocantins | **Live SAPL** — cadastro + filiações + mandatos + matérias |
 
-**Resumo:** 9 casas live (PE + MG + 7 SAPL). Demais 18 UFs em fixture de cadastro.
+**Resumo:** 10 casas live (PE + MG + SP + 7 SAPL). Demais 17 UFs em fixture de cadastro.
+
+Pesquisa de endpoints para os gaps restantes: [fontes-endpoints.md](./fontes-endpoints.md).
 
 Código de referência:
 
@@ -77,14 +79,16 @@ Disponível em todas as UFs (após sync de cadastro):
 - Badge da casa + link para dados abertos / portal
 - Tabela de cobertura
 
-Nas casas **SAPL** (e ALMG para filiações/mandatos), o perfil ganha abas:
+Nas casas **SAPL** e **ALMG**, o perfil ganha abas:
 
 | Aba | Conteúdo |
 |---|---|
-| **Proposições** | Autorias / matérias (SAPL; limite `ESTADUAL_MATTER_LIMIT`) |
+| **Proposições** | Autorias / matérias (SAPL + ALMG CSV; limite `ESTADUAL_MATTER_LIMIT`) |
 | **Filiações** | Histórico partidário |
 | **Mandatos** | Legislaturas / período |
 | **Cobertura** | Flags da casa |
+
+**ALESP (SP):** cadastro live; proposições/presença ainda não entram no perfil (XML/ZIP grandes — ver [fontes-endpoints.md](./fontes-endpoints.md)).
 
 Ainda **não** disponível no estadual (APIs sem voto nominal por parlamentar ou portal HTML):
 
@@ -113,7 +117,7 @@ npm run test:integration   # sync + busca/perfil nas 27 UFs
 
 ## Próximos adapters live
 
-Ordem sugerida: ALEP (PR) quando a listagem pública voltar · outros SAPL se a base URL estabilizar · CLDF/ALMT com APIs próprias.
+Ordem sugerida: proposições ALESP (ZIP) · CLDF PLE · ALEPE proposições por XML · ALEP (PR) quando a listagem pública voltar. Detalhes: [fontes-endpoints.md](./fontes-endpoints.md).
 
 ---
 

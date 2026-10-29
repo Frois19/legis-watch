@@ -1,10 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { almgAdapter } from "./almg";
+import { almgAdapter, clearAlmgPropositionCache } from "./almg";
 
 describe("ALMG adapter", () => {
   beforeEach(() => {
     vi.unstubAllGlobals();
+    clearAlmgPropositionCache();
     delete process.env.ALMG_REQUIRE_LIVE;
+    delete process.env.ALMG_PROP_YEARS;
   });
 
   it("lista deputados em exercício", async () => {
@@ -24,11 +26,19 @@ describe("ALMG adapter", () => {
     });
   });
 
-  it("extrai filiações e mandatos do detalhe", async () => {
+  it("extrai filiações, mandatos e proposições do CSV anual", async () => {
+    process.env.ALMG_PROP_YEARS = "2026";
+    const csv = `Codigo,TipoProposicao,SiglaTipoProposicao,Numero,Ano,Ementa,Indexacao,Situacao,DataPublicacao,DataAtualizacao,DataUltimaAcao,Regime,Resumo,Origem,Local,NomeFaseAtual,Legislatura,Autores,LinkTextos
+"PL 10/2026","Projeto de Lei","PL","10","2026","Ementa teste","","Tramitando","01/03/2026","","","","","","","",20,"[{""id"":12193,""nome"":""Adalclever Lopes"",""partido"":""PV""}]","https://example.com/pl"
+`;
     vi.stubGlobal(
       "fetch",
-      vi.fn(async () =>
-        Response.json({
+      vi.fn(async (input: RequestInfo | URL) => {
+        const url = String(input);
+        if (url.includes("/arquivo/proposicoes/download")) {
+          return new Response(csv, { status: 200 });
+        }
+        return Response.json({
           deputado: {
             id: 12193,
             nome: "Adalclever Lopes",
@@ -51,8 +61,8 @@ describe("ALMG adapter", () => {
               },
             ],
           },
-        }),
-      ),
+        });
+      }),
     );
 
     const detail = await almgAdapter.getParliamentarian!("12193");
@@ -64,7 +74,13 @@ describe("ALMG adapter", () => {
       dataDesfiliacao: null,
     });
     expect(bundle.mandates[0]?.legislaturaInicio).toBe(20);
-    expect(bundle.propositions).toEqual([]);
-    expect(almgAdapter.info.coverage.propositions).toBe(false);
+    expect(bundle.propositions[0]).toMatchObject({
+      externalId: "PL 10/2026",
+      siglaTipo: "PL",
+      numero: 10,
+      ano: 2026,
+      dataApresentacao: "2026-03-01",
+    });
+    expect(almgAdapter.info.coverage.propositions).toBe(true);
   });
 });

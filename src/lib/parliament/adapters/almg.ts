@@ -1,10 +1,12 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
+import { parseCsv } from "../csv";
 import type {
   AdapterAffiliation,
   AdapterMandate,
   AdapterParliamentarian,
   AdapterProfileBundle,
+  AdapterProposition,
   StateAssemblyAdapter,
 } from "../types";
 import { createFixtureAdapter } from "./fixture-assembly";
@@ -12,6 +14,9 @@ import { ASSEMBLY_CATALOG } from "../ufs";
 
 const ALMG_BASE =
   process.env.ALMG_API_BASE ?? "https://dadosabertos.almg.gov.br/api/v2";
+
+const ALMG_CSV_BASE =
+  process.env.ALMG_CSV_BASE ?? "https://dadosabertos.almg.gov.br/arquivo";
 
 type AlmgListRow = {
   id: number;
@@ -31,6 +36,17 @@ type AlmgDetail = {
   legislaturas?: unknown;
 };
 
+type CsvCacheEntry = {
+  expiresAt: number;
+  rows: AdapterProposition[];
+};
+
+const propositionCache = new Map<string, CsvCacheEntry>();
+
+export function clearAlmgPropositionCache() {
+  propositionCache.clear();
+}
+
 function ts(value: AlmgTimestamp): string | null {
   if (!value) return null;
   if (typeof value === "string") return value.slice(0, 10);
@@ -39,7 +55,34 @@ function ts(value: AlmgTimestamp): string | null {
 }
 
 function timeoutMs() {
-  return Number(process.env.ALMG_TIMEOUT_MS ?? 20_000);
+  return Number(process.env.ALMG_TIMEOUT_MS ?? 45_000);
+}
+
+function csvCacheTtlMs() {
+  return Number(process.env.ALMG_CSV_TTL_MS ?? 6 * 60 * 60 * 1000);
+}
+
+function propositionYears(): number[] {
+  const raw = process.env.ALMG_PROP_YEARS;
+  if (raw) {
+    return raw
+      .split(",")
+      .map((y) => Number(y.trim()))
+      .filter((y) => Number.isFinite(y));
+  }
+  const current = new Date().getUTCFullYear();
+  return [current, current - 1];
+}
+
+function propositionLimit() {
+  return Number(process.env.ESTADUAL_MATTER_LIMIT ?? 60);
+}
+
+function brDateToIso(value: string | null | undefined): string | null {
+  if (!value) return null;
+  const m = value.trim().match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+  if (!m) return value.slice(0, 10);
+  return `${m[3]}-${m[2]}-${m[1]}`;
 }
 
 async function almgFetch<T>(apiPath: string): Promise<T> {
@@ -136,6 +179,119 @@ function mapMandates(legislaturas: unknown): AdapterMandate[] {
   });
 }
 
+function mapCsvRow(
+  row: Record<string, string>,
+  authorId: string,
+): AdapterProposition | null {
+  let authors: Array<{ id?: number | string }> = [];
+  try {
+    authors = JSON.parse(row.Autores || "[]") as Array<{ id?: number | string }>;
+  } catch {
+    return null;
+  }
+  if (!authors.some((a) => String(a.id) === authorId)) return null;
+
+  const numero = Number(row.Numero);
+  const ano = Number(row.Ano);
+  const sigla = row.SiglaTipoProposicao?.trim() || null;
+  const codigo = row.Codigo?.trim() || null;
+  const externalId =
+    codigo ||
+    [sigla, Number.isFinite(numero) ? numero : null, Number.isFinite(ano) ? ano : null]
+      .filter((v) => v != null && v !== "")
+      .join("-");
+  if (!externalId) return null;
+
+  return {
+    externalId,
+    siglaTipo: sigla,
+    numero: Number.isFinite(numero) ? numero : null,
+    ano: Number.isFinite(ano) ? ano : null,
+    ementa: row.Ementa?.trim() || row.Resumo?.trim() || null,
+    dataApresentacao: brDateToIso(row.DataPublicacao),
+    statusResumo: row.Situacao?.trim() || row.NomeFaseAtual?.trim() || null,
+    urlPublica: row.LinkTextos?.trim() || null,
+    authorExternalId: authorId,
+  };
+}
+
+async function loadYearPropositions(year: number): Promise<AdapterProposition[]> {
+  const cacheKey = `year:${year}`;
+  const cached = propositionCache.get(cacheKey);
+  if (cached && cached.expiresAt > Date.now()) {
+    return cached.rows;
+  }
+
+  const url = `${ALMG_CSV_BASE.replace(/\/$/, "")}/proposicoes/download?ano=${year}`;
+  const response = await fetch(url, {
+    headers: { Accept: "text/csv,application/octet-stream,*/*" },
+    signal: AbortSignal.timeout(timeoutMs()),
+  });
+  if (!response.ok) {
+    throw new Error(`ALMG CSV HTTP ${response.status} ano=${year}`);
+  }
+  const text = await response.text();
+  const parsed = parseCsv(text);
+  // Guarda todas as linhas mapeáveis sem filtro de autor — o filtro é por id na hora.
+  const rows: AdapterProposition[] = [];
+  for (const row of parsed) {
+    let authors: Array<{ id?: number | string }> = [];
+    try {
+      authors = JSON.parse(row.Autores || "[]") as Array<{
+        id?: number | string;
+      }>;
+    } catch {
+      continue;
+    }
+    for (const author of authors) {
+      const authorId = author.id != null ? String(author.id) : "";
+      if (!authorId) continue;
+      const mapped = mapCsvRow(row, authorId);
+      if (mapped) rows.push(mapped);
+    }
+  }
+
+  propositionCache.set(cacheKey, {
+    expiresAt: Date.now() + csvCacheTtlMs(),
+    rows,
+  });
+  return rows;
+}
+
+async function fetchPropositionsForAuthor(
+  authorId: string,
+): Promise<AdapterProposition[]> {
+  const years = propositionYears();
+  const limit = propositionLimit();
+  const collected: AdapterProposition[] = [];
+  const seen = new Set<string>();
+
+  for (const year of years) {
+    try {
+      const yearRows = await loadYearPropositions(year);
+      for (const row of yearRows) {
+        if (row.authorExternalId !== authorId) continue;
+        if (seen.has(row.externalId)) continue;
+        seen.add(row.externalId);
+        collected.push(row);
+      }
+    } catch (error) {
+      console.warn(
+        `[almg] CSV proposições ${year}:`,
+        error instanceof Error ? error.message : error,
+      );
+    }
+  }
+
+  collected.sort((a, b) => {
+    const ay = a.ano ?? 0;
+    const by = b.ano ?? 0;
+    if (by !== ay) return by - ay;
+    return (b.numero ?? 0) - (a.numero ?? 0);
+  });
+  return collected.slice(0, limit);
+}
+
 async function loadProfileFixture(
   externalId: string,
 ): Promise<AdapterProfileBundle | null> {
@@ -167,8 +323,8 @@ export const almgAdapter: StateAssemblyAdapter = {
     coverage: {
       search: true,
       profile: true,
-      // Pesquisa de proposições da ALMG retorna 403 neste ambiente.
-      propositions: false,
+      // API REST de proposições costuma 403; CSV anual público funciona.
+      propositions: true,
       votes: false,
       attendance: false,
     },
@@ -200,10 +356,14 @@ export const almgAdapter: StateAssemblyAdapter = {
       const data = await almgFetch<{ deputado?: AlmgDetail }>(
         `/deputados/${encodeURIComponent(externalId)}?formato=json`,
       );
-      return mapDetail(data.deputado ?? {}) ;
+      return mapDetail(data.deputado ?? {});
     } catch {
       return null;
     }
+  },
+
+  async listPropositions(authorExternalId: string) {
+    return fetchPropositionsForAuthor(String(authorExternalId));
   },
 
   async fetchProfileBundle(externalId: string) {
@@ -212,10 +372,11 @@ export const almgAdapter: StateAssemblyAdapter = {
         `/deputados/${encodeURIComponent(externalId)}?formato=json`,
       );
       const dep = data.deputado ?? {};
+      const propositions = await fetchPropositionsForAuthor(String(externalId));
       return {
         affiliations: mapAffiliations(dep.filiacoes),
         mandates: mapMandates(dep.legislaturas),
-        propositions: [],
+        propositions,
       };
     } catch (error) {
       if (process.env.ALMG_REQUIRE_LIVE === "1") throw error;
@@ -229,3 +390,5 @@ export const almgAdapter: StateAssemblyAdapter = {
     }
   },
 };
+
+export { mapCsvRow as mapAlmgCsvRowForTests };

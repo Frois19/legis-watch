@@ -153,7 +153,8 @@ Ao abrir o perfil, o app sincroniza sob demanda o que a Assembleia publica:
 | Casa | `source` | Proposições | Filiações | Mandatos |
 |---|---|---|---|---|
 | Acre, Alagoas, Amazonas, Paraíba, Piauí, Rondônia, Tocantins | `aleac`, `aleal`, `aleam`, `alepb`, `alepi`, `alero`, `aleto` | Sim (SAPL) | Sim | Sim |
-| Minas Gerais | `almg` | Não (API bloqueada) | Sim | Sim |
+| Minas Gerais | `almg` | Sim (CSV anual) | Sim | Sim |
+| São Paulo | `alesp` | Cadastro live; proposições em breve | — | — |
 | Pernambuco | `alepe` | Não | — | — |
 | Demais UFs | fixture | — | — | — |
 
@@ -211,7 +212,7 @@ Presença no Senado **não** é inferida pela API — use o tutorial oficial de 
 ## Dados e limitações
 
 - **Federal:** Dados Abertos da Câmara (API + arquivos anuais)
-- **Estadual:** 9 casas live (PE, MG, 7 SAPL); 18 UFs em fixture de cadastro — [estaduais.md](./estaduais.md)
+- **Estadual:** 10 casas live (PE, MG, SP, 7 SAPL); 17 UFs em fixture — [estaduais.md](./estaduais.md) · [fontes](./fontes-endpoints.md)
 - **Senado:** lista + perfil enriquecido (matérias e votos); presença só pelo Diário / tutorial oficial
 - Favoritos: federal, estadual e senador; só neste navegador
 - Votos/presença estaduais: ainda não (APIs sem voto nominal por parlamentar de forma utilizável)

@@ -188,7 +188,7 @@ export const ASSEMBLY_CATALOG: AssemblyCatalogEntry[] = [
     source: "alesp",
     uf: "SP",
     name: "Assembleia Legislativa de São Paulo",
-    docsUrl: "https://www.al.sp.gov.br/",
+    docsUrl: "https://www.al.sp.gov.br/dados-abertos/",
   },
   {
     source: "alese",

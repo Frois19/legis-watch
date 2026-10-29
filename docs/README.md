@@ -11,8 +11,8 @@ Para entender o que o app faz, com prints das telas.
 | Documento | Conteúdo |
 |---|---|
 | [Guia do usuário](./GUIA-DO-PRODUTO.md) | Telas e funcionalidades (federal, estadual enriquecido, senadores) — prints atualizados |
-| [Deputados estaduais por UF](./estaduais.md) | Catálogo das 27 UFs (9 live: PE/MG/SAPL), sync e limitações |
-| [Senadores](./senado.md) | Lista atual, perfil (filiações/mandatos/matérias) e disclaimer de presença |
+| [Deputados estaduais por UF](./estaduais.md) | Catálogo das 27 UFs (10 live: PE/MG/SP/SAPL), sync e limitações |
+| [Senadores](./senado.md) | Lista atual, perfil (filiações/mandatos/matérias/votos) e disclaimer de presença |
 
 ---
 
@@ -25,6 +25,7 @@ Para rodar, sincronizar dados e integrar com as APIs.
 | [APIs externas da Câmara (v1)](./apis-v1.md) | Fontes oficiais (REST + arquivos anuais) usadas no sync federal |
 | [API interna do produto](./backend-api.md) | Endpoints locais (`/api/...`) que o frontend consome |
 | [Plano de expansão + cache](./PLANO-EXPANSAO.md) | Estaduais → senadores, status E0/E1 e cache de busca |
+| [Fontes / endpoints públicos](./fontes-endpoints.md) | Pesquisa de APIs para gaps de perfil (MG CSV, ALESP XML, ALEPE, CLDF) |
 | [Estudo de viabilidade](../ESTUDO-VIABILIDADE.md) | Escopo, riscos e decisões do v1 |
 
 ---

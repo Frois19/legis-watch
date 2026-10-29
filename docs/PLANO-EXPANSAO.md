@@ -15,7 +15,7 @@ Situação: **federal completo** (Câmara) + **estadual em 27 UFs** (busca/perfi
 | Casa | Status |
 |---|---|
 | Câmara dos Deputados (federal) | Implementado (sync + UI) |
-| Assembleias Legislativas (estadual) | 27 UFs: busca + perfil (PE live ALEPE; demais fixture de cadastro) |
+| Assembleias Legislativas (estadual) | 27 UFs: busca + perfil (10 live: PE/MG/SP + 7 SAPL; 17 fixture) |
 | Senado Federal | Busca + perfil (lista, filiações, mandatos, matérias, votos); presença com disclaimer |
 
 Não existe API nacional única para deputados estaduais. Cada Assembleia publica (ou não) seus dados com formatos diferentes. Por isso a expansão estadual precisa ser **por adapter + rollout UFs**.
@@ -410,7 +410,7 @@ Produção       → C4 Redis se houver mais de uma instância
 |---|---|---|
 | 1 | Cache de busca (C1–C3) | Feito (Redis = C4 pendente) |
 | 2 | Modelo unificado + ALEPE + 27 UFs (E0–E1 base) | Feito (busca/perfil) |
-| 3 | Adapters live (ALMG, ALEP, SAPL…) + proposições | Próximo |
+| 3 | Adapters live (ALMG+CSV, ALESP cadastro, SAPL…) | Em curso (proposições SP/PE/CLDF próximos) |
 | 4 | Senadores (lista + perfil enriquecido + votos) | Feito |
 
 Continuar: [Índice](./README.md) · [Estaduais](./estaduais.md) · [APIs Câmara](./apis-v1.md) · [API interna](./backend-api.md)
