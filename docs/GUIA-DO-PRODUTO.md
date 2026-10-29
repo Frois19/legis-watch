@@ -146,6 +146,8 @@ Nome, partido, UF, e-mail (quando houver), badge da casa e tabela de cobertura.
 
 ![Perfil estadual — São Paulo (ALESP) com proposições](./screenshots/09-perfil-estadual-sp.png)
 
+![Perfil estadual — Paraná (ALEP) com proposições](./screenshots/17-perfil-estadual-pr.png)
+
 ### Casas com perfil enriquecido
 
 Ao abrir o perfil, o app sincroniza sob demanda o que a Assembleia publica:
