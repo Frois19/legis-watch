@@ -23,6 +23,7 @@ Para rodar, sincronizar dados e integrar com as APIs.
 | [APIs externas da Câmara (v1)](./apis-v1.md) | Fontes oficiais (REST + arquivos anuais) usadas no sync |
 | [API interna do produto](./backend-api.md) | Endpoints locais (`/api/...`) que o frontend consome |
 | [Estudo de viabilidade](../ESTUDO-VIABILIDADE.md) | Escopo, riscos e decisões do v1 |
+| [Plano de expansão + cache](./PLANO-EXPANSAO.md) | Deputados estaduais → senadores (endpoints) e cache nas buscas |
 
 ---
 

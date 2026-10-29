@@ -18,6 +18,7 @@ Comece pelo índice e escolha o caminho:
 
 - [**Índice da documentação**](./docs/README.md) — navega entre produto e técnica
 - [Guia do produto](./docs/GUIA-DO-PRODUTO.md) — telas e funcionalidades (com prints)
+- [Plano de expansão + cache](./docs/PLANO-EXPANSAO.md) — estaduais → senadores e cache de busca
 - [APIs externas da Câmara (v1)](./docs/apis-v1.md) — fontes oficiais do sync
 - [API interna do produto](./docs/backend-api.md) — endpoints `/api/...`
 - [Estudo de viabilidade](./ESTUDO-VIABILIDADE.md)
