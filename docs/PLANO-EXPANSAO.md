@@ -1,12 +1,12 @@
 # Plano de expansão e cache — Legis Watch
 
-> Navegação: [Índice](./README.md) · [Guia do produto](./GUIA-DO-PRODUTO.md) · [APIs Câmara](./apis-v1.md) · [API interna](./backend-api.md)
+> Navegação: [Índice](./README.md) · [Guia do produto](./GUIA-DO-PRODUTO.md) · [Estaduais](./estaduais.md) · [APIs Câmara](./apis-v1.md) · [API interna](./backend-api.md)
 
-Hoje o produto cobre **apenas deputados federais** (Câmara). Este plano define:
+Situação: **federal completo** (Câmara) + **estadual em 27 UFs** (busca/perfil; PE live via ALEPE, demais fixture até adapter live). Este plano define o que falta:
 
-1. Expansão para **deputados estaduais** (prioridade)
-2. Expansão para **senadores** (em seguida)
-3. **Cache nas buscas** (independente, pode começar já no federal)
+1. Aprofundar **deputados estaduais** (proposições/votos/presença casa a casa)
+2. Expansão para **senadores**
+3. **Cache nas buscas** (já feito em memória; Redis em multi-instância)
 
 ---
 
@@ -140,15 +140,17 @@ Cada UF SAPL recebe só a **base URL** + mapeamento de campos no adapter.
 
 ### A.3.5 Mudanças na API interna do Legis Watch
 
-| Método | Rota nova / estendida | Notas |
+| Método | Rota | Status |
 |---|---|---|
-| GET | `/api/parlamentares?esfera=estadual&uf=MG&nome=` | Busca unificada (ou estender `/api/deputados` com `esfera`) |
-| GET | `/api/parlamentares/{source}/{id}` | Perfil namespaced |
-| GET | `/api/parlamentares/{source}/{id}/proposicoes` | |
-| GET | `/api/parlamentares/{source}/{id}/votos` | Se a casa publicar |
-| GET | `/api/parlamentares/{source}/{id}/presencas` | Se a casa publicar |
-| GET | `/api/assembleias` | Catálogo de UFs suportadas + status de cobertura |
-| POST | `/api/sync` | `domain=estadual&uf=MG` |
+| GET | `/api/parlamentares?esfera=estadual_deputado&siglaUf=MG&nome=` | Feito (busca unificada + cache) |
+| GET | `/api/parlamentares/{source}/{id}` | Feito (perfil namespaced) |
+| GET | `/api/parlamentares/{source}/{id}/proposicoes` | Pendente (quando a casa publicar) |
+| GET | `/api/parlamentares/{source}/{id}/votos` | Pendente |
+| GET | `/api/parlamentares/{source}/{id}/presencas` | Pendente |
+| GET | `/api/assembleias` | Feito (27 UFs + `syncedCount`) |
+| POST | `/api/sync` | Feito (`domain=estadual`, `source=all\|alepe\|…`) |
+
+Catálogo detalhado: [estaduais.md](./estaduais.md).
 
 ## A.4 Riscos estaduais
 
@@ -390,11 +392,11 @@ Produção       → C4 Redis se houver mais de uma instância
 
 ## Resumo executivo
 
-| Prioridade | Trabalho | Dependência principal |
+| Prioridade | Trabalho | Status |
 |---|---|---|
-| 1 | Cache de busca (C1–C3) | Só código interno |
-| 2 | Modelo unificado + adapters estaduais (E0–E1) | APIs ALMG/ALEPE/… |
-| 3 | Mais UFs (E2–E3) | SAPL / gaps por casa |
-| 4 | Senadores | API Senado + disclaimer de presença |
+| 1 | Cache de busca (C1–C3) | Feito (Redis = C4 pendente) |
+| 2 | Modelo unificado + ALEPE + 27 UFs (E0–E1 base) | Feito (busca/perfil) |
+| 3 | Adapters live (ALMG, ALEP, SAPL…) + proposições | Próximo |
+| 4 | Senadores | Pendente |
 
-Continuar: [Índice](./README.md) · [APIs Câmara atuais](./apis-v1.md) · [API interna](./backend-api.md)
+Continuar: [Índice](./README.md) · [Estaduais](./estaduais.md) · [APIs Câmara](./apis-v1.md) · [API interna](./backend-api.md)

@@ -10,7 +10,8 @@ Para entender o que o app faz, com prints das telas.
 
 | Documento | Conteúdo |
 |---|---|
-| [Guia do produto](./GUIA-DO-PRODUTO.md) | Busca, favoritos, projetos, votações, presença/ata, partido |
+| [Guia do produto](./GUIA-DO-PRODUTO.md) | Busca (federal + estadual), favoritos, projetos, votações, presença/ata, partido |
+| [Deputados estaduais por UF](./estaduais.md) | Catálogo das 27 UFs, live vs fixture, sync e limitações |
 
 ---
 
@@ -20,10 +21,10 @@ Para rodar, sincronizar dados e integrar com as APIs.
 
 | Documento | Conteúdo |
 |---|---|
-| [APIs externas da Câmara (v1)](./apis-v1.md) | Fontes oficiais (REST + arquivos anuais) usadas no sync |
+| [APIs externas da Câmara (v1)](./apis-v1.md) | Fontes oficiais (REST + arquivos anuais) usadas no sync federal |
 | [API interna do produto](./backend-api.md) | Endpoints locais (`/api/...`) que o frontend consome |
+| [Plano de expansão + cache](./PLANO-EXPANSAO.md) | Estaduais → senadores, status E0/E1 e cache de busca |
 | [Estudo de viabilidade](../ESTUDO-VIABILIDADE.md) | Escopo, riscos e decisões do v1 |
-| [Plano de expansão + cache](./PLANO-EXPANSAO.md) | Deputados estaduais → senadores (endpoints) e cache nas buscas |
 
 ---
 
@@ -37,6 +38,8 @@ Para rodar, sincronizar dados e integrar com as APIs.
 docs/
 ├── README.md                 ← você está aqui (índice)
 ├── GUIA-DO-PRODUTO.md        ← produto + screenshots/
+├── estaduais.md              ← cobertura estadual (27 UFs)
+├── PLANO-EXPANSAO.md         ← roadmap estadual/Senado + cache
 ├── apis-v1.md                ← técnica: Câmara
 ├── backend-api.md            ← técnica: API interna
 └── screenshots/

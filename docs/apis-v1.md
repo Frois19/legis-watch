@@ -1,8 +1,8 @@
-# APIs externas — v1 (apenas deputados federais)
+# APIs externas — Câmara (deputados federais)
 
-> Navegação: [Índice da documentação](./README.md) · [Guia do produto](./GUIA-DO-PRODUTO.md) · [API interna](./backend-api.md) · [README](../README.md)
+> Navegação: [Índice da documentação](./README.md) · [Guia do produto](./GUIA-DO-PRODUTO.md) · [Estaduais](./estaduais.md) · [API interna](./backend-api.md) · [README](../README.md)
 
-Catálogo das fontes oficiais que o backend do **v1** vai consumir. Escopo: **Câmara dos Deputados** apenas. Senado fica fora desta versão.
+Catálogo das fontes oficiais da **Câmara dos Deputados** usadas no sync federal. Fontes estaduais (ALEPE e demais) estão em [estaduais.md](./estaduais.md) e no [plano de expansão](./PLANO-EXPANSAO.md). Senado fica fora desta versão.
 
 - **Auth:** nenhuma (dados abertos públicos)
 - **Base REST:** `https://dadosabertos.camara.leg.br/api/v2`

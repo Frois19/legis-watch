@@ -1,8 +1,8 @@
 # Legis Watch
 
-Acompanhe deputados federais (Câmara) e o piloto estadual de Pernambuco (ALEPE): perfil, partido, proposições, votações e presença quando a casa publicar.
+Acompanhe **deputados federais** (Câmara) e **deputados estaduais** das 27 UFs: busca unificada por esfera, perfil, partido, proposições, votações e presença quando a casa publicar.
 
-**Documentação:** [índice produto + técnica](./docs/README.md) · [guia do produto](./docs/GUIA-DO-PRODUTO.md)
+**Documentação:** [índice produto + técnica](./docs/README.md) · [guia do produto](./docs/GUIA-DO-PRODUTO.md) · [estaduais por UF](./docs/estaduais.md)
 
 **Monorepo (recomendado no v1):** backend (API + sync), frontend e docs no mesmo repositório. Repos separados só fazem sentido depois, se times/deploys se separarem.
 
@@ -10,7 +10,7 @@ Acompanhe deputados federais (Câmara) e o piloto estadual de Pernambuco (ALEPE)
 
 - Next.js 15 (App Router) + TypeScript
 - Prisma + SQLite (dev; troque `DATABASE_URL` para Postgres em produção)
-- Jobs CLI de sync com a Câmara
+- Jobs CLI de sync (Câmara + adapters estaduais)
 
 ## Docs
 
@@ -18,8 +18,9 @@ Comece pelo índice e escolha o caminho:
 
 - [**Índice da documentação**](./docs/README.md) — navega entre produto e técnica
 - [Guia do produto](./docs/GUIA-DO-PRODUTO.md) — telas e funcionalidades (com prints)
-- [Plano de expansão + cache](./docs/PLANO-EXPANSAO.md) — estaduais → senadores e cache de busca
-- [APIs externas da Câmara (v1)](./docs/apis-v1.md) — fontes oficiais do sync
+- [Deputados estaduais por UF](./docs/estaduais.md) — catálogo das 27 casas (live vs fixture)
+- [Plano de expansão + cache](./docs/PLANO-EXPANSAO.md) — roadmap e status E0/E1 + cache
+- [APIs externas da Câmara (v1)](./docs/apis-v1.md) — fontes oficiais do sync federal
 - [API interna do produto](./docs/backend-api.md) — endpoints `/api/...`
 - [Estudo de viabilidade](./ESTUDO-VIABILIDADE.md)
 
@@ -28,13 +29,13 @@ Comece pelo índice e escolha o caminho:
 ```bash
 cp .env.example .env
 npm install
-npx prisma migrate dev --name init
+npx prisma db push
 ```
 
 ## Sync (backend)
 
 ```bash
-# Cadastro rápido (lista sem detalhar redes de todos)
+# Cadastro rápido federal (lista sem detalhar redes de todos)
 SKIP_DEPUTY_DETAIL=1 npm run sync -- bootstrap
 
 # Ou detalhar só N deputados (redes sociais / gabinete)
@@ -47,16 +48,12 @@ npm run sync -- propositions --deputy=204379
 npm run sync -- votes --year=2026
 npm run sync -- attendance --year=2026
 
-# Detalhar redes sociais dos primeiros N deputados
-DEPUTY_DETAIL_LIMIT=50 npm run sync -- deputies
-
 # Estaduais — todas as 27 UFs (PE via ALEPE; demais via fixture de cadastro)
 npm run sync -- estadual --source=all
 
 # Só PE (ALEPE live + fallback de fixture)
 npm run sync -- estadual --source=alepe
 ```
-
 
 ## Dev server
 
@@ -71,32 +68,37 @@ App em [http://localhost:3456](http://localhost:3456) · API em `/api/health`.
 - `/` — busca por esfera (federal / estadual / todos), nome, partido, UF e mandato
 - `/favoritos` — favoritos federais no `localStorage` do navegador
 - `/deputados/[id]` — perfil federal com abas de projetos, votações, presença e partido
-- `/parlamentares/[source]/[id]` — perfil estadual mínimo (piloto ALEPE/PE)
+- `/parlamentares/[source]/[id]` — perfil estadual (27 UFs; cobertura por casa)
 
 ## Testes (backend)
 
-Meta: **≥ 90%** de cobertura unitária em `src/lib` + `src/app/api` (exceto I/O HTTP/bulk da Câmara) e **mutation testing** (Stryker) na lógica de domínio. Integração usa SQLite isolado (`prisma/test.db`) e as rotas reais.
+Meta: **≥ 90%** de cobertura unitária em `src/lib` + `src/app/api` (exceto I/O HTTP/bulk da Câmara) e **mutation testing** (Stryker) na lógica de domínio. Integração usa SQLite isolado (`prisma/test.db`) e as rotas reais — incluindo matriz das **27 UFs** estaduais.
 
 ```bash
-npm test                   # unitários
+npm test                   # unitários (inclui matriz por UF)
 npm run test:coverage      # cobertura com thresholds
-npm run test:integration   # integração API ↔ Prisma (sem rede Câmara)
+npm run test:integration   # integração API ↔ Prisma (federal + estadual)
 npm run test:all           # unitários + integração
 npm run test:mutation      # Stryker (score de mutação)
 ```
 
 Relatórios: `coverage/` e `reports/mutation/`.
 
-
 ## Endpoints principais
 
 | Método | Rota |
 |---|---|
 | GET | `/api/health` |
+| GET | `/api/parlamentares` |
+| GET | `/api/parlamentares/{source}/{id}` |
+| GET | `/api/assembleias` |
 | GET | `/api/deputados` |
 | GET | `/api/deputados/{id}` |
 | GET | `/api/deputados/{id}/proposicoes` |
 | GET | `/api/deputados/{id}/votos` |
 | GET | `/api/deputados/{id}/presencas` |
 | GET | `/api/partidos/{id}/membros` |
+| POST | `/api/cache/purge` |
 | POST | `/api/sync` |
+
+Documentação completa: [docs/backend-api.md](./docs/backend-api.md).

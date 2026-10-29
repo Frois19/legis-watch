@@ -1,10 +1,10 @@
 # Legis Watch — Guia do produto
 
-> Navegação: [Índice da documentação](./README.md) · [APIs da Câmara](./apis-v1.md) · [API interna](./backend-api.md) · [README](../README.md)
+> Navegação: [Índice da documentação](./README.md) · [Estaduais](./estaduais.md) · [APIs da Câmara](./apis-v1.md) · [API interna](./backend-api.md) · [README](../README.md)
 
 Documento para entender **o que o produto faz**, com prints das telas principais.
 
-**Legis Watch** é um app web para acompanhar deputados federais brasileiros com dados públicos da [Câmara dos Deputados](https://dadosabertos.camara.leg.br/). Você busca um parlamentar, escolhe o mandato e vê projetos, votações, presença no plenário e colegas de partido — sem precisar criar conta.
+**Legis Watch** é um app web para acompanhar parlamentares brasileiros — **deputados federais** (Câmara) e **deputados estaduais** (Assembleias / CLDF) — com dados públicos. Você busca um parlamentar, escolhe a esfera (e o mandato, no federal) e vê o que a casa já publica: projetos, votações, presença e partido no federal; cadastro e cobertura no estadual.
 
 Repositório: [github.com/Frois19/legis-watch](https://github.com/Frois19/legis-watch)
 
@@ -14,33 +14,41 @@ Repositório: [github.com/Frois19/legis-watch](https://github.com/Frois19/legis-
 
 | Funcionalidade | O que resolve |
 |---|---|
-| Busca por mandato | Encontrar deputados por nome, partido e UF em qualquer legislatura |
-| Favoritos locais | Guardar parlamentares neste navegador (sem login) |
-| Projetos propostos | Ver o que o deputado apresentou, status e link para a ficha na Câmara |
-| Histórico de votações | Ver se votou **Sim / Não / Abstenção**, o projeto e se a matéria foi aprovada |
-| Presença e faltas | Filtrar dias de falta e abrir a **ata do dia** (pauta + votações) |
-| Partido | Ver outros deputados do mesmo partido no mandato selecionado |
+| Busca por esfera | Filtrar **federais**, **estaduais** ou **todos** |
+| Busca por mandato | Encontrar deputados federais por nome, partido e UF em qualquer legislatura |
+| Busca estadual (27 UFs) | Encontrar deputados de Assembleia / CLDF por nome, partido e UF |
+| Favoritos locais | Guardar parlamentares **federais** neste navegador (sem login) |
+| Projetos propostos | (Federal) Ver o que o deputado apresentou, status e link para a ficha na Câmara |
+| Histórico de votações | (Federal) Ver se votou **Sim / Não / Abstenção**, o projeto e se a matéria foi aprovada |
+| Presença e faltas | (Federal) Filtrar dias de falta e abrir a **ata do dia** (pauta + votações) |
+| Partido | (Federal) Ver outros deputados do mesmo partido no mandato selecionado |
+| Perfil estadual | Nome, partido, UF, e-mail e o que a casa já cobre (projetos/votos/presença quando houver) |
 
 ---
 
-## 1. Busca
+## 1. Busca (federal e estadual)
 
-Tela inicial: escolha o **mandato** (ex.: 57ª legislatura), filtre por nome, UF e partido e busque.
+Tela inicial: escolha a **esfera**, depois os filtros. No federal, escolha também o **mandato** (ex.: 57ª legislatura).
 
-![Tela de busca do Legis Watch](./screenshots/01-busca.png)
+![Busca com filtro de esfera](./screenshots/07-busca-esfera.png)
 
 **Na prática**
 
-- Botões das legislaturas recentes (52ª–57ª)
-- Resultados com foto, partido e UF
-- Atalho para favoritar direto na lista
-- Entrada no perfil completo do deputado
+- Esfera: Deputados federais · Deputados estaduais · Todos
+- Federais: botões das legislaturas recentes (52ª–57ª)
+- Estaduais: após sync, resultados de qualquer UF (PE via ALEPE; demais com cadastro fixture até haver API live)
+- Resultados com foto (quando houver), partido, UF e nome da casa
+- Atalhos de exemplo: Janones (federal) e deputados estaduais de PE
+
+Busca clássica (só federal, prints anteriores):
+
+![Tela de busca do Legis Watch](./screenshots/01-busca.png)
 
 ---
 
-## 2. Perfil e projetos propostos
+## 2. Perfil federal e projetos propostos
 
-No perfil aparecem resumo do mandato, contadores (projetos, votos, presença) e abas.
+No perfil federal aparecem resumo do mandato, contadores (projetos, votos, presença) e abas.
 
 Na aba **Projetos**:
 
@@ -54,7 +62,7 @@ Na aba **Projetos**:
 
 ## 3. Votações (Sim / Não / Abstenção)
 
-Aba **Votações** mostra o histórico nominal.
+Aba **Votações** (federal) mostra o histórico nominal.
 
 - Cards rápidos: quantos **Sim**, **Não**, **Abstenção** e **Outros**
 - Filtro “Filtrar por voto do deputado” para isolar cada tipo
@@ -68,7 +76,7 @@ Aba **Votações** mostra o histórico nominal.
 
 ## 4. Presença, faltas e ata do dia
 
-Aba **Presença** cruza sessões deliberativas do plenário com o registro oficial de presença.
+Aba **Presença** (federal) cruza sessões deliberativas do plenário com o registro oficial de presença.
 
 - Filtros: todas as sessões, **só faltas** ou só presenças
 - Em cada dia: **Ver ata do dia**
@@ -86,7 +94,7 @@ Quando a pauta estruturada da Câmara está disponível, a ata fica ainda mais r
 
 ## 5. Partido
 
-Aba **Partido** lista outros deputados do mesmo partido no mandato selecionado, com link para o perfil de cada um.
+Aba **Partido** (federal) lista outros deputados do mesmo partido no mandato selecionado, com link para o perfil de cada um.
 
 ![Aba partido no perfil](./screenshots/05-partido.png)
 
@@ -94,29 +102,47 @@ Aba **Partido** lista outros deputados do mesmo partido no mandato selecionado, 
 
 ## 6. Favoritos
 
-Parlamentares salvos neste dispositivo (localStorage). Não exige conta.
+Parlamentares **federais** salvos neste dispositivo (`localStorage`). Não exige conta. Favoritos estaduais ainda não entram nesta lista.
 
 ![Lista de favoritos](./screenshots/06-favoritos.png)
 
 ---
 
+## 7. Perfil estadual
+
+URL: `/parlamentares/{source}/{id}` (ex.: ALEPE/PE, ALESP/SP, ALMG/MG).
+
+O perfil estadual mostra cadastro (nome, partido, UF, e-mail) e a **cobertura da casa** — o que já está disponível vs. o que entra quando o adapter live publicar proposições, votos e presença.
+
+![Perfil estadual — Pernambuco (ALEPE)](./screenshots/08-perfil-estadual-pe.png)
+
+![Perfil estadual — São Paulo (ALESP)](./screenshots/09-perfil-estadual-sp.png)
+
+![Perfil estadual — Minas Gerais (ALMG)](./screenshots/10-perfil-estadual-mg.png)
+
+Catálogo completo das 27 UFs: [estaduais.md](./estaduais.md).
+
+---
+
 ## Fluxo típico de uso
 
-1. Abrir a busca e escolher o mandato  
-2. Encontrar o deputado e (opcional) favoritar  
-3. No perfil, trocar o mandato se quiser comparar legislaturas  
-4. Em **Projetos**, filtrar por status e abrir a ficha na Câmara  
-5. Em **Votações**, filtrar por Sim/Não/Abstenção  
-6. Em **Presença**, filtrar faltas e abrir a ata dos dias ausentes  
+1. Abrir a busca e escolher a esfera (federal / estadual / todos)  
+2. No federal, escolher o mandato; no estadual, filtrar por UF se quiser  
+3. Encontrar o parlamentar e abrir o perfil  
+4. (Federal) Em **Projetos**, filtrar por status e abrir a ficha na Câmara  
+5. (Federal) Em **Votações**, filtrar por Sim/Não/Abstenção  
+6. (Federal) Em **Presença**, filtrar faltas e abrir a ata dos dias ausentes  
+7. (Estadual) Conferir cobertura da casa e o link de dados abertos  
 
 ---
 
 ## Dados e limitações (transparência)
 
-- Fonte: Dados Abertos da Câmara (API + arquivos anuais de votos/presença)
-- Presença considerada: sessões deliberativas no Plenário, não canceladas  
-- Autoria/status em votações podem ser completados sob demanda via API da Câmara  
-- Favoritos ficam só no navegador atual  
+- **Federal:** Dados Abertos da Câmara (API + arquivos anuais de votos/presença)
+- **Estadual:** PE via API ALEPE (com fixture se a rede falhar); demais UFs usam fixture de cadastro até haver adapter live — ver [estaduais.md](./estaduais.md)
+- Presença federal: sessões deliberativas no Plenário, não canceladas  
+- Autoria/status em votações federais podem ser completados sob demanda via API da Câmara  
+- Favoritos ficam só no navegador atual e, por enquanto, só para federais  
 
 Para rodar o projeto localmente e sincronizar dados, veja o [README](../README.md).
 
@@ -125,5 +151,7 @@ Para rodar o projeto localmente e sincronizar dados, veja o [README](../README.m
 ## Continuar navegando
 
 - [Índice da documentação](./README.md)
+- [Deputados estaduais por UF](./estaduais.md)
 - [APIs externas da Câmara](./apis-v1.md)
 - [API interna do produto](./backend-api.md)
+- [Plano de expansão + cache](./PLANO-EXPANSAO.md)
