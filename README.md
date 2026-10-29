@@ -2,7 +2,7 @@
 
 Acompanhe deputados federais: perfil, partido, proposições, votações e presença — com dados da [API de Dados Abertos da Câmara](https://dadosabertos.camara.leg.br/).
 
-**Guia do produto (telas e funcionalidades):** [docs/GUIA-DO-PRODUTO.md](./docs/GUIA-DO-PRODUTO.md)
+**Documentação:** [índice produto + técnica](./docs/README.md) · [guia do produto](./docs/GUIA-DO-PRODUTO.md)
 
 **Monorepo (recomendado no v1):** backend (API + sync), frontend e docs no mesmo repositório. Repos separados só fazem sentido depois, se times/deploys se separarem.
 
@@ -14,10 +14,13 @@ Acompanhe deputados federais: perfil, partido, proposições, votações e prese
 
 ## Docs
 
-- [**Guia do produto** (prints das telas)](./docs/GUIA-DO-PRODUTO.md)
+Comece pelo índice e escolha o caminho:
+
+- [**Índice da documentação**](./docs/README.md) — navega entre produto e técnica
+- [Guia do produto](./docs/GUIA-DO-PRODUTO.md) — telas e funcionalidades (com prints)
+- [APIs externas da Câmara (v1)](./docs/apis-v1.md) — fontes oficiais do sync
+- [API interna do produto](./docs/backend-api.md) — endpoints `/api/...`
 - [Estudo de viabilidade](./ESTUDO-VIABILIDADE.md)
-- [APIs externas da Câmara (v1)](./docs/apis-v1.md)
-- [API interna do produto](./docs/backend-api.md)
 
 ## Setup
 

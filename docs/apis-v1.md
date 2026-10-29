@@ -1,5 +1,7 @@
 # APIs externas — v1 (apenas deputados federais)
 
+> Navegação: [Índice da documentação](./README.md) · [Guia do produto](./GUIA-DO-PRODUTO.md) · [API interna](./backend-api.md) · [README](../README.md)
+
 Catálogo das fontes oficiais que o backend do **v1** vai consumir. Escopo: **Câmara dos Deputados** apenas. Senado fica fora desta versão.
 
 - **Auth:** nenhuma (dados abertos públicos)
@@ -309,3 +311,11 @@ Complemento se o bulk de eventos não cobrir bem o plenário.
 | Sob demanda / noturno | Proposições dos favoritados | `/proposicoes?idDeputadoAutor=` |
 | Sob demanda | Enriquecimento pontual | `/votacoes/{id}`, `/proposicoes/{id}` |
 | Opcional | Presença plenário legado | SOAP `ListarPresencasParlamentar` |
+
+---
+
+## Continuar navegando
+
+- [Índice da documentação](./README.md)
+- [Guia do produto](./GUIA-DO-PRODUTO.md)
+- [API interna do produto](./backend-api.md)

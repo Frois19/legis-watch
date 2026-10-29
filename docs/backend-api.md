@@ -1,5 +1,7 @@
 # API interna — v1 (backend)
 
+> Navegação: [Índice da documentação](./README.md) · [Guia do produto](./GUIA-DO-PRODUTO.md) · [APIs da Câmara](./apis-v1.md) · [README](../README.md)
+
 Base local: `http://localhost:3456`
 
 Todas as respostas são JSON. Dados vêm do banco local, alimentado pelos jobs de sync com a Câmara.
@@ -57,3 +59,11 @@ Os syncs de `votes` e `attendance` usam os arquivos anuais da Câmara (bulk) e g
 ## Variáveis de ambiente
 
 Ver [.env.example](../.env.example).
+
+---
+
+## Continuar navegando
+
+- [Índice da documentação](./README.md)
+- [Guia do produto](./GUIA-DO-PRODUTO.md)
+- [APIs externas da Câmara](./apis-v1.md)

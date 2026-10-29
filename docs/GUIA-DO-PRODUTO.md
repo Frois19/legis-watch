@@ -1,5 +1,7 @@
 # Legis Watch — Guia do produto
 
+> Navegação: [Índice da documentação](./README.md) · [APIs da Câmara](./apis-v1.md) · [API interna](./backend-api.md) · [README](../README.md)
+
 Documento para entender **o que o produto faz**, com prints das telas principais.
 
 **Legis Watch** é um app web para acompanhar deputados federais brasileiros com dados públicos da [Câmara dos Deputados](https://dadosabertos.camara.leg.br/). Você busca um parlamentar, escolhe o mandato e vê projetos, votações, presença no plenário e colegas de partido — sem precisar criar conta.
@@ -117,3 +119,11 @@ Parlamentares salvos neste dispositivo (localStorage). Não exige conta.
 - Favoritos ficam só no navegador atual  
 
 Para rodar o projeto localmente e sincronizar dados, veja o [README](../README.md).
+
+---
+
+## Continuar navegando
+
+- [Índice da documentação](./README.md)
+- [APIs externas da Câmara](./apis-v1.md)
+- [API interna do produto](./backend-api.md)
