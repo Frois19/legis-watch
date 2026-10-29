@@ -1,10 +1,10 @@
 # Legis Watch — Guia do produto
 
-> Navegação: [Índice da documentação](./README.md) · [Estaduais](./estaduais.md) · [APIs da Câmara](./apis-v1.md) · [API interna](./backend-api.md) · [README](../README.md)
+> Navegação: [Índice da documentação](./README.md) · [Estaduais](./estaduais.md) · [Senadores](./senado.md) · [APIs da Câmara](./apis-v1.md) · [API interna](./backend-api.md) · [README](../README.md)
 
 Documento para entender **o que o produto faz**, com prints das telas principais (atualizados a partir do app em `localhost:3456`).
 
-**Legis Watch** é um app web para acompanhar parlamentares brasileiros — **deputados federais** (Câmara) e **deputados estaduais** (Assembleias / CLDF) — com dados públicos. Você busca um parlamentar, escolhe a esfera (e o mandato, no federal) e vê o que a casa já publica: projetos, votações, presença e partido no federal; cadastro e cobertura no estadual.
+**Legis Watch** é um app web para acompanhar parlamentares brasileiros — **deputados federais** (Câmara), **deputados estaduais** (Assembleias / CLDF) e **senadores** (Senado Federal) — com dados públicos. Você busca um parlamentar, escolhe a esfera e vê o que a casa já publica.
 
 Repositório: [github.com/Frois19/legis-watch](https://github.com/Frois19/legis-watch)
 
@@ -26,11 +26,11 @@ Para regenerar os prints: `npm run docs:screenshots` (requer o dev server em `:3
 | Presença e faltas | (Federal) Filtrar dias de falta e abrir a **ata do dia** (pauta + votações) |
 | Partido | (Federal) Ver outros deputados do mesmo partido no mandato selecionado |
 | Perfil estadual | Nome, partido, UF, e-mail e o que a casa já cobre (projetos/votos/presença quando houver) |
-| Perfil de senador | Filiações, mandatos, matérias de autoria + disclaimer de presença |
+| Perfil de senador | Matérias de autoria, filiações, mandatos + disclaimer de presença |
 
 ---
 
-## 1. Busca (federal e estadual)
+## 1. Busca (federal, estadual e senadores)
 
 Tela inicial: escolha a **esfera**, depois os filtros. No federal, escolha também o **mandato** (ex.: 57ª legislatura).
 
@@ -38,11 +38,12 @@ Tela inicial: escolha a **esfera**, depois os filtros. No federal, escolha tamb�
 
 **Na prática**
 
-- Esfera: Deputados federais · Deputados estaduais · Todos
+- Esfera: Deputados federais · Deputados estaduais · Senadores · Todos
 - Federais: botões das legislaturas recentes (52ª–57ª)
 - Estaduais: após sync, resultados de qualquer UF (PE via ALEPE; demais com cadastro fixture até haver API live)
+- Senadores: lista em exercício do Senado (nome, partido, UF)
 - Resultados com foto (quando houver), partido, UF e nome da casa
-- Atalhos de exemplo: Janones (federal) e deputados estaduais de PE
+- Atalhos de exemplo: Janones (federal), deputados estaduais de PE e senadores do AC
 
 ### Resultados federais
 
@@ -55,6 +56,12 @@ Exemplo: busca por “Janones” na 56ª legislatura.
 Exemplo: esfera estadual + UF **PE** (8 parlamentares da ALEPE).
 
 ![Busca estadual PE](./screenshots/07b-busca-estadual-pe.png)
+
+### Resultados de senadores
+
+Exemplo: esfera **Senadores** + UF **AC**.
+
+![Busca de senadores](./screenshots/11-busca-senadores.png)
 
 ---
 
@@ -114,7 +121,7 @@ Aba **Partido** (federal) lista outros deputados do mesmo partido no mandato sel
 
 ## 6. Favoritos
 
-Parlamentares **federais** salvos neste dispositivo (`localStorage`). Não exige conta. Favoritos estaduais ainda não entram nesta lista.
+Parlamentares **federais** salvos neste dispositivo (`localStorage`). Não exige conta. Favoritos estaduais e de senadores ainda não entram nesta lista.
 
 ![Lista de favoritos](./screenshots/06-favoritos.png)
 
@@ -138,25 +145,37 @@ Catálogo completo das 27 UFs: [estaduais.md](./estaduais.md).
 
 ## 8. Senadores
 
-Esfera **Senadores** na busca; perfil em `/parlamentares/senado/{codigo}` com abas de matérias, filiações e mandatos (enriquecimento sob demanda).
+Esfera **Senadores** na busca; perfil em `/parlamentares/senado/{codigo}`.
 
-![Busca de senadores](./screenshots/11-busca-senadores.png)
+Ao abrir o perfil, o app enriquece sob demanda (filiações, mandatos e matérias de autoria via Dados Abertos do Senado). Abas:
 
-![Perfil de senador com matérias e disclaimer de presença](./screenshots/12-perfil-senador.png)
+| Aba | Conteúdo |
+|---|---|
+| **Matérias** | Autorias (até o limite configurado), com ementa, data e link no Senado |
+| **Filiações** | Histórico partidário (entrada → saída / atual) |
+| **Mandatos** | UF, participação e legislaturas |
+| **Cobertura** | O que já está disponível + disclaimer de presença |
 
-Detalhes: [senado.md](./senado.md).
+![Perfil de senador — matérias de autoria](./screenshots/12-perfil-senador.png)
+
+![Perfil de senador — filiações partidárias](./screenshots/13-perfil-senador-filiacoes.png)
+
+![Perfil de senador — cobertura e disclaimer de presença](./screenshots/14-perfil-senador-cobertura.png)
+
+Detalhes técnicos e sync: [senado.md](./senado.md).
 
 ---
 
 ## Fluxo típico de uso
 
-1. Abrir a busca e escolher a esfera (federal / estadual / todos)  
-2. No federal, escolher o mandato; no estadual, filtrar por UF se quiser  
+1. Abrir a busca e escolher a esfera (federal / estadual / senador / todos)  
+2. No federal, escolher o mandato; no estadual ou senador, filtrar por UF se quiser  
 3. Encontrar o parlamentar e abrir o perfil  
 4. (Federal) Em **Projetos**, filtrar por status e abrir a ficha na Câmara  
 5. (Federal) Em **Votações**, filtrar por Sim/Não/Abstenção  
 6. (Federal) Em **Presença**, filtrar faltas e abrir a ata dos dias ausentes  
 7. (Estadual) Conferir cobertura da casa e o link de dados abertos  
+8. (Senador) Ver matérias, filiações e mandatos; presença só pelo tutorial oficial do Senado  
 
 ---
 
@@ -164,7 +183,7 @@ Detalhes: [senado.md](./senado.md).
 
 - **Federal:** Dados Abertos da Câmara (API + arquivos anuais de votos/presença)
 - **Estadual:** PE via API ALEPE (com fixture se a rede falhar); demais UFs usam fixture de cadastro até haver adapter live — ver [estaduais.md](./estaduais.md)
-- **Senado:** lista atual via Dados Abertos; presença **não** é inferida — ver [senado.md](./senado.md)
+- **Senado:** lista atual + perfil enriquecido (filiações, mandatos, autorias); presença **não** é inferida — ver [senado.md](./senado.md)
 - Presença federal: sessões deliberativas no Plenário, não canceladas  
 - Autoria/status em votações federais podem ser completados sob demanda via API da Câmara  
 - Favoritos ficam só no navegador atual e, por enquanto, só para federais  
@@ -177,6 +196,6 @@ Para rodar o projeto localmente e sincronizar dados, veja o [README](../README.m
 
 - [Índice da documentação](./README.md)
 - [Deputados estaduais por UF](./estaduais.md)
+- [Senadores](./senado.md)
 - [APIs externas da Câmara](./apis-v1.md)
 - [API interna do produto](./backend-api.md)
-- [Plano de expansão + cache](./PLANO-EXPANSAO.md)

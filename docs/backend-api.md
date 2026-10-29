@@ -124,7 +124,8 @@ x-sync-secret: <SYNC_SECRET se definido>
 - `source` omitido ou `"all"` → sincroniza as **27 UFs**
 - `source=alepe` (ou outra casa) → só aquela Assembleia
 
-`domain=senadores` → lista atual do Senado (`/senador/lista/atual.json`).
+`domain=senadores` → lista atual do Senado (`/senador/lista/atual.json`).  
+Perfil enriquecido (filiações/mandatos/autorias) roda sob demanda no `GET /api/parlamentares/senado/{codigo}` ou via CLI `npm run sync -- senador-perfil --codigo=5672`.
 
 Preferível via CLI:
 

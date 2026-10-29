@@ -208,7 +208,7 @@ async function main() {
   await page.waitForTimeout(800);
   await shot(page, "11-busca-senadores.png");
 
-  // 12 — perfil senador (matérias / filiações / mandatos)
+  // 12 — perfil senador (matérias)
   await page.goto(`${BASE}/parlamentares/senado/5672`, {
     waitUntil: "domcontentloaded",
   });
@@ -216,6 +216,16 @@ async function main() {
   await page.getByRole("tab", { name: /Matérias/ }).waitFor({ timeout: 20000 });
   await page.waitForTimeout(800);
   await shot(page, "12-perfil-senador.png");
+
+  // 13 — filiações do senador
+  await page.getByRole("tab", { name: /Filiações/ }).click();
+  await page.waitForTimeout(600);
+  await shot(page, "13-perfil-senador-filiacoes.png");
+
+  // 14 — cobertura + disclaimer de presença
+  await page.getByRole("tab", { name: /Cobertura/ }).click();
+  await page.waitForTimeout(600);
+  await shot(page, "14-perfil-senador-cobertura.png");
 
   await browser.close();
   console.log("done");

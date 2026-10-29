@@ -38,6 +38,8 @@ Resposta do perfil inclui `affiliations`, `mandates`, `matters`, `profileSyncedA
 
 UI: esfera **Senadores** na home · perfil `/parlamentares/senado/{codigo}` com abas Matérias / Filiações / Mandatos / Cobertura.
 
+Prints no [guia do produto](./GUIA-DO-PRODUTO.md#8-senadores): busca, matérias, filiações e cobertura.
+
 ## Cobertura
 
 | Recurso | Status |

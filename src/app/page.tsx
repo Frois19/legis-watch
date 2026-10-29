@@ -20,7 +20,7 @@ export default async function HomePage() {
           Legis Watch
         </p>
         <h1 className="text-lg text-foreground sm:text-xl">
-          Acompanhe parlamentares federais e estaduais
+          Acompanhe parlamentares federais, estaduais e senadores
         </h1>
         <p className="max-w-xl text-sm leading-relaxed text-muted-foreground sm:text-base">
           Busque deputados federais, estaduais (27 UFs) ou senadores, favorite

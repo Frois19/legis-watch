@@ -409,6 +409,6 @@ Produção       → C4 Redis se houver mais de uma instância
 | 1 | Cache de busca (C1–C3) | Feito (Redis = C4 pendente) |
 | 2 | Modelo unificado + ALEPE + 27 UFs (E0–E1 base) | Feito (busca/perfil) |
 | 3 | Adapters live (ALMG, ALEP, SAPL…) + proposições | Próximo |
-| 4 | Senadores | Pendente |
+| 4 | Senadores (lista + perfil enriquecido) | Feito (votos ainda pendentes) |
 
 Continuar: [Índice](./README.md) · [Estaduais](./estaduais.md) · [APIs Câmara](./apis-v1.md) · [API interna](./backend-api.md)
