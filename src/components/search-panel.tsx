@@ -105,80 +105,89 @@ export function SearchPanel({
 
       <form
         onSubmit={onSubmit}
-        className="grid gap-3 border border-border bg-card p-4 sm:grid-cols-[1fr_7.5rem_6.5rem_6.5rem_auto]"
+        className="space-y-3 border border-border bg-card p-4"
         aria-describedby={statusId}
       >
-        <div className="space-y-1.5">
-          <label htmlFor={`${formId}-nome`} className="text-sm font-medium">
-            Nome
-          </label>
-          <Input
-            id={`${formId}-nome`}
-            value={nome}
-            onChange={(e) => setNome(e.target.value)}
-            placeholder="Ex.: Janones"
-            autoComplete="off"
-          />
-        </div>
-        <div className="space-y-1.5">
-          <label
-            htmlFor={`${formId}-legislatura`}
-            className="text-sm font-medium"
+        <fieldset className="space-y-1.5">
+          <legend className="text-sm font-medium">Mandato</legend>
+          <div
+            className="flex flex-wrap gap-2"
+            role="group"
+            aria-label="Legislatura"
           >
-            Mandato
-          </label>
-          <select
-            id={`${formId}-legislatura`}
-            className="flex h-11 w-full rounded-md border border-input bg-background px-2 text-sm"
-            value={legislaturaId}
-            onChange={(e) =>
-              setLegislaturaId(
-                e.target.value === "" ? "" : Number(e.target.value),
-              )
-            }
-          >
-            {legislatures.map((leg) => (
-              <option key={leg.id} value={leg.id}>
-                {leg.label}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="space-y-1.5">
-          <label htmlFor={`${formId}-uf`} className="text-sm font-medium">
-            UF
-          </label>
-          <select
-            id={`${formId}-uf`}
-            className="flex h-11 w-full rounded-md border border-input bg-background px-3 text-sm"
-            value={siglaUf}
-            onChange={(e) => setSiglaUf(e.target.value)}
-          >
-            <option value="">Todas</option>
-            {UFS.map((uf) => (
-              <option key={uf} value={uf}>
-                {uf}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="space-y-1.5">
-          <label htmlFor={`${formId}-partido`} className="text-sm font-medium">
-            Partido
-          </label>
-          <Input
-            id={`${formId}-partido`}
-            value={siglaPartido}
-            onChange={(e) => setSiglaPartido(e.target.value)}
-            placeholder="PT, PL…"
-            autoComplete="off"
-          />
-        </div>
-        <div className="flex items-end">
-          <Button type="submit" className="w-full" disabled={pending}>
-            <Search aria-hidden="true" />
-            {pending ? "Buscando…" : "Buscar"}
-          </Button>
+            {legislatures.map((leg) => {
+              const selected = legislaturaId === leg.id;
+              return (
+                <button
+                  key={leg.id}
+                  type="button"
+                  aria-pressed={selected}
+                  onClick={() => setLegislaturaId(leg.id)}
+                  className={
+                    selected
+                      ? "border border-primary bg-primary px-3 py-2 text-sm font-medium text-primary-foreground"
+                      : "border border-border bg-background px-3 py-2 text-sm text-foreground hover:bg-secondary"
+                  }
+                >
+                  {leg.label}
+                </button>
+              );
+            })}
+          </div>
+        </fieldset>
+
+        <div className="grid gap-3 sm:grid-cols-[1fr_6.5rem_6.5rem_auto]">
+          <div className="space-y-1.5">
+            <label htmlFor={`${formId}-nome`} className="text-sm font-medium">
+              Nome
+            </label>
+            <Input
+              id={`${formId}-nome`}
+              value={nome}
+              onChange={(e) => setNome(e.target.value)}
+              placeholder="Ex.: Janones"
+              autoComplete="off"
+            />
+          </div>
+          <div className="space-y-1.5">
+            <label htmlFor={`${formId}-uf`} className="text-sm font-medium">
+              UF
+            </label>
+            <select
+              id={`${formId}-uf`}
+              className="flex h-11 w-full rounded-md border border-input bg-background px-3 text-sm"
+              value={siglaUf}
+              onChange={(e) => setSiglaUf(e.target.value)}
+            >
+              <option value="">Todas</option>
+              {UFS.map((uf) => (
+                <option key={uf} value={uf}>
+                  {uf}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="space-y-1.5">
+            <label
+              htmlFor={`${formId}-partido`}
+              className="text-sm font-medium"
+            >
+              Partido
+            </label>
+            <Input
+              id={`${formId}-partido`}
+              value={siglaPartido}
+              onChange={(e) => setSiglaPartido(e.target.value)}
+              placeholder="PT, PL…"
+              autoComplete="off"
+            />
+          </div>
+          <div className="flex items-end">
+            <Button type="submit" className="w-full" disabled={pending}>
+              <Search aria-hidden="true" />
+              {pending ? "Buscando…" : "Buscar"}
+            </Button>
+          </div>
         </div>
       </form>
 
@@ -187,16 +196,28 @@ export function SearchPanel({
         <button
           type="button"
           className="font-medium text-primary underline underline-offset-2"
-          onClick={() => void runSearch({ nome: "Janones" })}
+          onClick={() =>
+            void runSearch({ nome: "Janones", legislaturaId: 56 })
+          }
         >
-          buscar Janones
+          Janones no mandato 56
+        </button>
+        ,{" "}
+        <button
+          type="button"
+          className="font-medium text-primary underline underline-offset-2"
+          onClick={() =>
+            void runSearch({ nome: "Nikolas", legislaturaId: 57 })
+          }
+        >
+          Nikolas no mandato 57
         </button>{" "}
         ou{" "}
         <Link
-          href="/deputados/204515"
+          href="/deputados/204515?legislaturaId=56"
           className="font-medium text-primary underline underline-offset-2"
         >
-          abrir o perfil
+          perfil de Janones (56ª)
         </Link>
         .
       </p>

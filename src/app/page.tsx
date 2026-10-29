@@ -2,8 +2,12 @@ import { SearchPanel } from "@/components/search-panel";
 import { listLegislatures } from "@/lib/api/server";
 import { defaultLegislaturaId } from "@/lib/legislatures";
 
+export const dynamic = "force-dynamic";
+
 export default async function HomePage() {
-  const legislatures = await listLegislatures();
+  const all = await listLegislatures();
+  // Busca foca nas legislaturas recentes; o perfil lista todos os mandatos do parlamentar.
+  const legislatures = all.filter((l) => l.id >= 52);
   const initialLegislaturaId =
     legislatures.find((l) => l.id === defaultLegislaturaId())?.id ??
     legislatures[0]?.id ??
