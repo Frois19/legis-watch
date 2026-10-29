@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/db/prisma";
+import { isApprovedPropositionStatus } from "@/lib/propositions/status";
 import { NextRequest, NextResponse } from "next/server";
 
 type Params = { params: Promise<{ id: string }> };
@@ -22,7 +23,7 @@ export async function GET(request: NextRequest, { params }: Params) {
     ...(siglaTipo ? { siglaTipo } : {}),
   };
 
-  const [total, items] = await Promise.all([
+  const [total, items, statusRows] = await Promise.all([
     prisma.proposition.count({ where }),
     prisma.proposition.findMany({
       where,
@@ -36,12 +37,24 @@ export async function GET(request: NextRequest, { params }: Params) {
         },
       },
     }),
+    prisma.proposition.findMany({
+      where,
+      select: { statusResumo: true },
+    }),
   ]);
+
+  const aprovados = statusRows.filter((p) =>
+    isApprovedPropositionStatus(p.statusResumo),
+  ).length;
 
   return NextResponse.json({
     page,
     pageSize,
     total,
+    stats: {
+      apresentados: total,
+      aprovados,
+    },
     items: items.map((p) => ({
       id: p.id,
       uri: p.uri,

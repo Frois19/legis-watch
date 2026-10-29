@@ -25,6 +25,7 @@ export async function syncPropositionsForDeputy(deputyId: number) {
     ).split(",");
     const maxPages = Number(process.env.PROPOSITION_MAX_PAGES ?? 2);
     const enrichAuthors = process.env.PROPOSITION_ENRICH_AUTHORS === "1";
+    const enrichStatus = process.env.PROPOSITION_SKIP_STATUS !== "1";
 
     const list: Awaited<ReturnType<typeof listPropositionsByAuthor>> = [];
     for (const siglaTipo of types) {
@@ -41,8 +42,25 @@ export async function syncPropositionsForDeputy(deputyId: number) {
     const byId = new Map(list.map((p) => [p.id, p]));
     let propositions = 0;
     let authors = 0;
+    let statuses = 0;
 
     for (const item of byId.values()) {
+      let statusResumo: string | null = null;
+
+      if (enrichStatus) {
+        try {
+          const detail = await getProposition(item.id);
+          statusResumo =
+            detail.statusProposicao?.descricaoSituacao ??
+            detail.statusProposicao?.descricaoTramitacao ??
+            null;
+          if (statusResumo) statuses += 1;
+          await sleep(Number(process.env.CAMARA_REQUEST_DELAY_MS ?? 300));
+        } catch {
+          // keep null status
+        }
+      }
+
       await prisma.proposition.upsert({
         where: { id: item.id },
         create: {
@@ -53,6 +71,7 @@ export async function syncPropositionsForDeputy(deputyId: number) {
           ano: item.ano,
           ementa: item.ementa,
           dataApresentacao: item.dataApresentacao,
+          statusResumo,
           syncedAt: new Date(),
         },
         update: {
@@ -62,6 +81,7 @@ export async function syncPropositionsForDeputy(deputyId: number) {
           ano: item.ano,
           ementa: item.ementa,
           dataApresentacao: item.dataApresentacao,
+          ...(statusResumo ? { statusResumo } : {}),
           syncedAt: new Date(),
         },
       });
@@ -85,16 +105,6 @@ export async function syncPropositionsForDeputy(deputyId: number) {
 
       if (enrichAuthors) {
         try {
-          const detail = await getProposition(item.id);
-          await prisma.proposition.update({
-            where: { id: item.id },
-            data: {
-              statusResumo:
-                detail.statusProposicao?.descricaoSituacao ??
-                detail.statusProposicao?.descricaoTramitacao ??
-                null,
-            },
-          });
           const authorList = await listPropositionAuthors(item.id);
           for (const author of authorList) {
             const id = deputyIdFromAuthorUri(author.uri);
@@ -121,13 +131,13 @@ export async function syncPropositionsForDeputy(deputyId: number) {
             });
             authors += 1;
           }
-          await sleep(Number(process.env.CAMARA_REQUEST_DELAY_MS ?? 400));
+          await sleep(Number(process.env.CAMARA_REQUEST_DELAY_MS ?? 300));
         } catch {
           // optional enrichment
         }
       }
     }
 
-    return { propositions, authors };
+    return { propositions, authors, statuses };
   });
 }

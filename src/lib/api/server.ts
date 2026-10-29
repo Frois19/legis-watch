@@ -1,10 +1,12 @@
 import { resolveDeputyPhotoUrl } from "@/lib/camara/photo";
 import { prisma } from "@/lib/db/prisma";
+import { isApprovedPropositionStatus } from "@/lib/propositions/status";
 import type {
   AttendanceResponse,
   DeputyDetail,
   Paginated,
   PropositionItem,
+  PropositionStats,
   VoteItem,
 } from "./types";
 
@@ -80,9 +82,9 @@ export async function getDeputy(id: number): Promise<DeputyDetail> {
 export async function getDeputyPropositions(
   deputyId: number,
   pageSize = 20,
-): Promise<Paginated<PropositionItem>> {
+): Promise<Paginated<PropositionItem> & { stats: PropositionStats }> {
   const where = { authors: { some: { deputyId } } };
-  const [total, items] = await Promise.all([
+  const [total, items, statusRows] = await Promise.all([
     prisma.proposition.count({ where }),
     prisma.proposition.findMany({
       where,
@@ -95,12 +97,24 @@ export async function getDeputyPropositions(
         },
       },
     }),
+    prisma.proposition.findMany({
+      where,
+      select: { statusResumo: true },
+    }),
   ]);
+
+  const aprovados = statusRows.filter((p) =>
+    isApprovedPropositionStatus(p.statusResumo),
+  ).length;
 
   return {
     page: 1,
     pageSize,
     total,
+    stats: {
+      apresentados: total,
+      aprovados,
+    },
     items: items.map((p) => ({
       id: p.id,
       uri: p.uri,

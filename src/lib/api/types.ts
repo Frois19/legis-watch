@@ -43,6 +43,11 @@ export type Paginated<T> = {
   items: T[];
 };
 
+export type PropositionStats = {
+  apresentados: number;
+  aprovados: number;
+};
+
 export type PropositionItem = {
   id: number;
   uri: string | null;

@@ -9,6 +9,7 @@ import type {
   DeputyDetail,
   Paginated,
   PropositionItem,
+  PropositionStats,
   VoteItem,
 } from "@/lib/api/types";
 import { formatDate, formatDateTime, propositionLabel, socialLabel } from "@/lib/format";
@@ -30,7 +31,7 @@ export function DeputyProfile({
   attendance,
 }: {
   deputy: DeputyDetail;
-  propositions: Paginated<PropositionItem>;
+  propositions: Paginated<PropositionItem> & { stats: PropositionStats };
   votes: Paginated<VoteItem>;
   attendance: AttendanceResponse;
 }) {
@@ -38,6 +39,7 @@ export function DeputyProfile({
   const meta = [deputy.siglaPartido, deputy.siglaUf, deputy.situacao]
     .filter(Boolean)
     .join(" · ");
+  const { aprovados, apresentados } = propositions.stats;
 
   return (
     <article className="space-y-8">
@@ -109,11 +111,13 @@ export function DeputyProfile({
 
         <dl className="mt-5 grid gap-3 border-t border-border pt-4 text-sm sm:grid-cols-3">
           <div>
-            <dt className="text-muted-foreground">Projetos sync.</dt>
-            <dd className="font-medium">{propositions.total}</dd>
+            <dt className="text-muted-foreground">Projetos (aprovados/apresentados)</dt>
+            <dd className="font-medium">
+              {aprovados}/{apresentados}
+            </dd>
           </div>
           <div>
-            <dt className="text-muted-foreground">Votos sync.</dt>
+            <dt className="text-muted-foreground">Votos nominais</dt>
             <dd className="font-medium">{votes.total}</dd>
           </div>
           <div>
