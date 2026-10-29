@@ -88,44 +88,55 @@ export function PropositionsPanel({
         <ul className="divide-y divide-border border border-border bg-card">
           {filtered.map((item) => {
             const statusHelp = explainPropositionStatus(item.statusResumo);
+            const label =
+              propositionLabel(item) || `Proposição ${item.id}`;
             return (
-              <li key={item.id} className="p-4">
-                <div className="flex flex-wrap items-center gap-2">
-                  <Badge variant="secondary">{propositionLabel(item)}</Badge>
-                  {item.statusResumo ? (
-                    <span
-                      className="text-xs text-muted-foreground"
-                      title={statusHelp}
-                    >
-                      {item.statusResumo}
-                    </span>
-                  ) : (
-                    <span className="text-xs text-muted-foreground">
-                      Sem status
-                    </span>
-                  )}
+              <li key={item.id} className="space-y-2 p-4">
+                <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
                   <a
                     href={item.urlCamara}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 text-xs font-medium text-primary underline underline-offset-2"
+                    className="inline-flex items-center gap-1.5 text-base font-semibold text-primary underline underline-offset-2"
                   >
-                    Ler na Câmara
-                    <ExternalLink className="size-3.5" aria-hidden="true" />
-                    <span className="sr-only">(abre em nova aba)</span>
+                    {label}
+                    <ExternalLink
+                      className="size-3.5 shrink-0"
+                      aria-hidden="true"
+                    />
+                    <span className="sr-only">
+                      — ler ficha completa na Câmara (abre em nova aba)
+                    </span>
                   </a>
+                  {item.proponente ? (
+                    <Badge variant="secondary">Proponente</Badge>
+                  ) : null}
                 </div>
-                <p className="mt-2 text-sm leading-relaxed">
+                <p className="text-sm leading-relaxed text-foreground">
+                  <span className="font-medium">Do que se trata: </span>
                   {item.ementa || "Sem ementa disponível."}
                 </p>
-                <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
+                <dl className="grid gap-1.5 text-sm text-muted-foreground sm:grid-cols-2">
+                  <div>
+                    <dt className="inline font-medium text-foreground">
+                      Quando foi apresentado:{" "}
+                    </dt>
+                    <dd className="inline">
+                      {formatDate(item.dataApresentacao)}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="inline font-medium text-foreground">
+                      Status do projeto:{" "}
+                    </dt>
+                    <dd className="inline">
+                      {item.statusResumo || "Não informado"}
+                    </dd>
+                  </div>
+                </dl>
+                <p className="text-xs leading-relaxed text-muted-foreground">
                   {statusHelp}
                 </p>
-                {item.dataApresentacao ? (
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    Apresentado em {formatDate(item.dataApresentacao)}
-                  </p>
-                ) : null}
               </li>
             );
           })}
