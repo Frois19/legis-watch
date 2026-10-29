@@ -34,8 +34,11 @@ export function DeputyPhoto({
   priority?: boolean;
   className?: string;
 }) {
-  const [failed, setFailed] = useState(false);
-  const src = resolveDeputyPhotoUrl(id, urlFoto);
+  const trimmed = urlFoto?.trim() || null;
+  // id <= 0: placeholder (ex.: deputado estadual sem foto na API)
+  const src =
+    trimmed || (id > 0 ? resolveDeputyPhotoUrl(id, null) : null);
+  const [failed, setFailed] = useState(!src);
   const initial = name.trim().slice(0, 1).toUpperCase() || "?";
 
   return (
@@ -46,7 +49,7 @@ export function DeputyPhoto({
         className,
       )}
     >
-      {failed ? (
+      {failed || !src ? (
         <span
           className="flex h-full w-full items-center justify-center text-muted-foreground"
           aria-hidden="true"

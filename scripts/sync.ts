@@ -22,6 +22,7 @@ import {
   syncMandatesForDeputy,
   syncParties,
   syncPropositionsForDeputy,
+  syncStateAssembly,
   syncVotesForYear,
 } from "../src/lib/sync";
 import { currentLegislatura } from "../src/lib/camara/client";
@@ -37,6 +38,7 @@ async function main() {
   const year = Number(arg("year") ?? new Date().getFullYear());
   const deputyId = Number(arg("deputy") ?? 0);
   const legislaturaId = Number(arg("legislatura") ?? currentLegislatura());
+  const source = arg("source") ?? "alepe";
 
   switch (command) {
     case "legislatures":
@@ -71,10 +73,13 @@ async function main() {
       console.log("parties", await syncParties());
       console.log("deputies", await syncDeputies());
       break;
+    case "estadual":
+      console.log(await syncStateAssembly(source));
+      break;
     default:
       console.error(`Unknown command: ${command ?? "(none)"}`);
       console.error(
-        "Commands: legislatures | parties | deputies | mandates | propositions | votes | attendance | bootstrap",
+        "Commands: legislatures | parties | deputies | mandates | propositions | votes | attendance | bootstrap | estadual",
       );
       process.exit(1);
   }

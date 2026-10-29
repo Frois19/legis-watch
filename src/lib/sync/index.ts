@@ -1,5 +1,6 @@
 export { syncAttendanceForYear } from "./attendance";
 export { syncDeputies, syncParties } from "./deputies";
+export { syncStateAssembly } from "./estadual";
 export {
   syncDeputiesForLegislature,
   syncLegislatures,

@@ -39,6 +39,50 @@ export type DeputyListItem = {
   party: Party | null;
 };
 
+/** Item unificado de busca (federal ou estadual). */
+export type ParliamentarianListItem = {
+  key: string;
+  sphere: "federal_deputado" | "estadual_deputado";
+  source: string;
+  /** Id numérico (federal) ou namespaced string (estadual). */
+  id: number | string;
+  nome: string;
+  nomeEleitoral: string | null;
+  siglaPartido: string | null;
+  siglaUf: string | null;
+  legislaturaId: number | null;
+  urlFoto: string | null;
+  email: string | null;
+  situacao: string | null;
+  href: string;
+  assemblyName?: string | null;
+};
+
+export type StateDeputyDetail = {
+  key: string;
+  sphere: "estadual_deputado";
+  source: string;
+  id: string;
+  externalId: string;
+  nome: string;
+  nomeEleitoral: string | null;
+  siglaPartido: string | null;
+  siglaUf: string;
+  urlFoto: string | null;
+  email: string | null;
+  situacao: string | null;
+  assemblyName: string;
+  coverage: {
+    search: boolean;
+    profile: boolean;
+    propositions: boolean;
+    votes: boolean;
+    attendance: boolean;
+  };
+  syncedAt: string | null;
+  href: string;
+};
+
 export type DeputyDetail = DeputyListItem & {
   nomeCivil: string | null;
   condicaoEleitoral: string | null;

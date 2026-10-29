@@ -1,6 +1,6 @@
 # Legis Watch
 
-Acompanhe deputados federais: perfil, partido, proposições, votações e presença — com dados da [API de Dados Abertos da Câmara](https://dadosabertos.camara.leg.br/).
+Acompanhe deputados federais (Câmara) e o piloto estadual de Pernambuco (ALEPE): perfil, partido, proposições, votações e presença quando a casa publicar.
 
 **Documentação:** [índice produto + técnica](./docs/README.md) · [guia do produto](./docs/GUIA-DO-PRODUTO.md)
 
@@ -49,6 +49,9 @@ npm run sync -- attendance --year=2026
 
 # Detalhar redes sociais dos primeiros N deputados
 DEPUTY_DETAIL_LIMIT=50 npm run sync -- deputies
+
+# Piloto estadual (PE / ALEPE) — usa fixture se a API falhar
+npm run sync -- estadual --source=alepe
 ```
 
 
@@ -62,9 +65,10 @@ App em [http://localhost:3456](http://localhost:3456) · API em `/api/health`.
 
 ### UI (v1)
 
-- `/` — busca por nome, partido, UF e mandato (legislatura)
-- `/favoritos` — favoritos no `localStorage` do navegador
-- `/deputados/[id]` — perfil com abas de projetos, votações, presença e partido (filtro por mandato)
+- `/` — busca por esfera (federal / estadual / todos), nome, partido, UF e mandato
+- `/favoritos` — favoritos federais no `localStorage` do navegador
+- `/deputados/[id]` — perfil federal com abas de projetos, votações, presença e partido
+- `/parlamentares/[source]/[id]` — perfil estadual mínimo (piloto ALEPE/PE)
 
 ## Testes (backend)
 

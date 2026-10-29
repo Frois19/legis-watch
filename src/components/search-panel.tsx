@@ -1,11 +1,14 @@
 "use client";
 
-import { DeputyRow } from "@/components/deputy-row";
+import { ParliamentarianRow } from "@/components/parliamentarian-row";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
-import { searchDeputies } from "@/lib/api/client";
-import type { DeputyListItem, LegislatureItem } from "@/lib/api/types";
+import { searchParliamentarians } from "@/lib/api/client";
+import type {
+  LegislatureItem,
+  ParliamentarianListItem,
+} from "@/lib/api/types";
 import { Search } from "lucide-react";
 import Link from "next/link";
 import { FormEvent, useEffect, useId, useRef, useState } from "react";
@@ -14,6 +17,8 @@ const UFS = [
   "AC","AL","AP","AM","BA","CE","DF","ES","GO","MA","MT","MS","MG","PA","PB",
   "PR","PE","PI","RJ","RN","RS","RO","RR","SC","SP","SE","TO",
 ];
+
+type SphereFilter = "federal_deputado" | "estadual_deputado" | "todos";
 
 export function SearchPanel({
   legislatures,
@@ -24,13 +29,14 @@ export function SearchPanel({
 }) {
   const formId = useId();
   const statusId = `${formId}-status`;
+  const [esfera, setEsfera] = useState<SphereFilter>("federal_deputado");
   const [nome, setNome] = useState("");
   const [siglaUf, setSiglaUf] = useState("");
   const [siglaPartido, setSiglaPartido] = useState("");
   const [legislaturaId, setLegislaturaId] = useState<number | "">(
     initialLegislaturaId ?? "",
   );
-  const [items, setItems] = useState<DeputyListItem[] | null>(null);
+  const [items, setItems] = useState<ParliamentarianListItem[] | null>(null);
   const [total, setTotal] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
@@ -39,20 +45,24 @@ export function SearchPanel({
 
   const debouncedNome = useDebouncedValue(nome, 300);
   const debouncedPartido = useDebouncedValue(siglaPartido, 300);
+  const isFederal = esfera === "federal_deputado" || esfera === "todos";
 
   async function runSearch(next?: {
+    esfera?: SphereFilter;
     nome?: string;
     siglaUf?: string;
     siglaPartido?: string;
     legislaturaId?: number | "";
   }) {
     const query = {
+      esfera: next?.esfera ?? esfera,
       nome: (next?.nome ?? nome).trim(),
       siglaUf: next?.siglaUf ?? siglaUf,
       siglaPartido: (next?.siglaPartido ?? siglaPartido).trim().toUpperCase(),
       legislaturaId: next?.legislaturaId ?? legislaturaId,
     };
 
+    setEsfera(query.esfera);
     setNome(query.nome);
     setSiglaUf(query.siglaUf);
     setSiglaPartido(query.siglaPartido);
@@ -62,12 +72,15 @@ export function SearchPanel({
     setPending(true);
 
     try {
-      const result = await searchDeputies({
+      const result = await searchParliamentarians({
+        esfera: query.esfera,
         nome: query.nome || undefined,
         siglaUf: query.siglaUf || undefined,
         siglaPartido: query.siglaPartido || undefined,
         legislaturaId:
-          query.legislaturaId === "" ? undefined : Number(query.legislaturaId),
+          query.esfera === "estadual_deputado" || query.legislaturaId === ""
+            ? undefined
+            : Number(query.legislaturaId),
         pageSize: 30,
       });
       setItems(result.items);
@@ -78,14 +91,13 @@ export function SearchPanel({
       setError(
         err instanceof Error
           ? err.message
-          : "Não foi possível buscar deputados agora.",
+          : "Não foi possível buscar parlamentares agora.",
       );
     } finally {
       setPending(false);
     }
   }
 
-  // Busca automática após pausa na digitação (nome/partido) ou troca de UF/mandato
   useEffect(() => {
     if (!searched) return;
     if (skipDebounceRef.current) {
@@ -97,9 +109,10 @@ export function SearchPanel({
       siglaPartido: debouncedPartido,
       siglaUf,
       legislaturaId,
+      esfera,
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- intencional: só reage a filtros debounced/UF/mandato
-  }, [debouncedNome, debouncedPartido, siglaUf, legislaturaId]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debouncedNome, debouncedPartido, siglaUf, legislaturaId, esfera]);
 
   function onSubmit(event: FormEvent) {
     event.preventDefault();
@@ -108,21 +121,18 @@ export function SearchPanel({
   }
 
   let statusText = "Digite um nome, partido ou UF para buscar.";
-  if (pending) statusText = "Buscando deputados…";
+  if (pending) statusText = "Buscando parlamentares…";
   else if (error) statusText = error;
   else if (searched && items)
     statusText =
       total === 0
-        ? "Nenhum deputado encontrado com esses filtros."
+        ? "Nenhum parlamentar encontrado com esses filtros."
         : `${total} resultado${total === 1 ? "" : "s"} encontrado${total === 1 ? "" : "s"}.`;
-
-  const selectedLegislatura =
-    legislaturaId === "" ? null : Number(legislaturaId);
 
   return (
     <section aria-labelledby={`${formId}-title`} className="space-y-5">
       <h2 id={`${formId}-title`} className="sr-only">
-        Busca de deputados
+        Busca de parlamentares
       </h2>
 
       <form
@@ -131,32 +141,70 @@ export function SearchPanel({
         aria-describedby={statusId}
       >
         <fieldset className="space-y-1.5">
-          <legend className="text-sm font-medium">Mandato</legend>
-          <div
-            className="flex flex-wrap gap-2"
-            role="group"
-            aria-label="Legislatura"
-          >
-            {legislatures.map((leg) => {
-              const selected = legislaturaId === leg.id;
+          <legend className="text-sm font-medium">Esfera</legend>
+          <div className="flex flex-wrap gap-2" role="group" aria-label="Esfera">
+            {(
+              [
+                ["federal_deputado", "Deputados federais"],
+                ["estadual_deputado", "Deputados estaduais"],
+                ["todos", "Todos"],
+              ] as const
+            ).map(([value, label]) => {
+              const selected = esfera === value;
               return (
                 <button
-                  key={leg.id}
+                  key={value}
                   type="button"
                   aria-pressed={selected}
-                  onClick={() => setLegislaturaId(leg.id)}
+                  onClick={() => setEsfera(value)}
                   className={
                     selected
                       ? "border border-primary bg-primary px-3 py-2 text-sm font-medium text-primary-foreground"
                       : "border border-border bg-background px-3 py-2 text-sm text-foreground hover:bg-secondary"
                   }
                 >
-                  {leg.label}
+                  {label}
                 </button>
               );
             })}
           </div>
         </fieldset>
+
+        {isFederal ? (
+          <fieldset className="space-y-1.5">
+            <legend className="text-sm font-medium">Mandato federal</legend>
+            <div
+              className="flex flex-wrap gap-2"
+              role="group"
+              aria-label="Legislatura"
+            >
+              {legislatures.map((leg) => {
+                const selected = legislaturaId === leg.id;
+                return (
+                  <button
+                    key={leg.id}
+                    type="button"
+                    aria-pressed={selected}
+                    onClick={() => setLegislaturaId(leg.id)}
+                    className={
+                      selected
+                        ? "border border-primary bg-primary px-3 py-2 text-sm font-medium text-primary-foreground"
+                        : "border border-border bg-background px-3 py-2 text-sm text-foreground hover:bg-secondary"
+                    }
+                  >
+                    {leg.label}
+                  </button>
+                );
+              })}
+            </div>
+          </fieldset>
+        ) : (
+          <p className="text-xs text-muted-foreground">
+            Piloto estadual: sincronize PE com{" "}
+            <code className="rounded bg-muted px-1">npm run sync -- estadual --source=alepe</code>
+            .
+          </p>
+        )}
 
         <div className="grid gap-3 sm:grid-cols-[1fr_6.5rem_6.5rem_auto]">
           <div className="space-y-1.5">
@@ -167,7 +215,7 @@ export function SearchPanel({
               id={`${formId}-nome`}
               value={nome}
               onChange={(e) => setNome(e.target.value)}
-              placeholder="Ex.: Janones"
+              placeholder="Ex.: Janones ou Gleide"
               autoComplete="off"
             />
           </div>
@@ -220,10 +268,14 @@ export function SearchPanel({
           className="font-medium text-primary underline underline-offset-2"
           onClick={() => {
             skipDebounceRef.current = true;
-            void runSearch({ nome: "Janones", legislaturaId: 56 });
+            void runSearch({
+              esfera: "federal_deputado",
+              nome: "Janones",
+              legislaturaId: 56,
+            });
           }}
         >
-          Janones no mandato 56
+          Janones (federal)
         </button>
         ,{" "}
         <button
@@ -231,17 +283,22 @@ export function SearchPanel({
           className="font-medium text-primary underline underline-offset-2"
           onClick={() => {
             skipDebounceRef.current = true;
-            void runSearch({ nome: "Nikolas", legislaturaId: 57 });
+            void runSearch({
+              esfera: "estadual_deputado",
+              nome: "",
+              siglaUf: "PE",
+              legislaturaId: "",
+            });
           }}
         >
-          Nikolas no mandato 57
+          deputados estaduais de PE
         </button>{" "}
         ou{" "}
         <Link
           href="/deputados/204515?legislaturaId=56"
           className="font-medium text-primary underline underline-offset-2"
         >
-          perfil de Janones (56ª)
+          perfil de Janones
         </Link>
         .
       </p>
@@ -263,12 +320,8 @@ export function SearchPanel({
 
       {!pending && items && items.length > 0 ? (
         <ul className="border border-border bg-card px-4" aria-label="Resultados">
-          {items.map((deputy) => (
-            <DeputyRow
-              key={`${deputy.id}-${deputy.legislaturaId ?? "x"}`}
-              deputy={deputy}
-              legislaturaId={selectedLegislatura}
-            />
+          {items.map((item) => (
+            <ParliamentarianRow key={item.key} item={item} />
           ))}
         </ul>
       ) : null}

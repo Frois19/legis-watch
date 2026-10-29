@@ -201,7 +201,7 @@ model Attendance {
 
 model SyncRun {
   id         Int      @id @default(autoincrement())
-  domain     String // deputies | parties | propositions | votes | attendance
+  domain     String // deputies | parties | propositions | votes | attendance | estadual:alepe
   status     String // running | success | error
   startedAt  DateTime @default(now())
   finishedAt DateTime?
@@ -209,4 +209,53 @@ model SyncRun {
   countsJson String? // JSON with counters
 
   @@index([domain, startedAt])
+}
+
+/** Deputado estadual (Assembleias). ID namespaced: "alepe:slug". */
+model StateDeputy {
+  id            String   @id
+  source        String
+  externalId    String
+  uf            String
+  nome          String
+  nomeEleitoral String?
+  siglaPartido  String?
+  email         String?
+  urlFoto       String?
+  situacao      String?
+  rawJson       String?
+  syncedAt      DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  propositions  StateProposition[]
+
+  @@unique([source, externalId])
+  @@index([source])
+  @@index([uf])
+  @@index([nome])
+  @@index([siglaPartido])
+  @@index([uf, nome])
+}
+
+model StateProposition {
+  id               String      @id
+  source           String
+  externalId       String
+  stateDeputyId    String?
+  stateDeputy      StateDeputy? @relation(fields: [stateDeputyId], references: [id], onDelete: SetNull)
+  siglaTipo        String?
+  numero           Int?
+  ano              Int?
+  ementa           String?
+  dataApresentacao String?
+  statusResumo     String?
+  urlPublica       String?
+  syncedAt         DateTime?
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+
+  @@unique([source, externalId])
+  @@index([stateDeputyId])
+  @@index([source])
 }

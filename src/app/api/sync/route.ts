@@ -4,6 +4,7 @@ import {
   syncDeputies,
   syncParties,
   syncPropositionsForDeputy,
+  syncStateAssembly,
   syncVotesForYear,
 } from "@/lib/sync";
 import { NextRequest, NextResponse } from "next/server";
@@ -13,6 +14,7 @@ const SEARCH_INVALIDATING_DOMAINS = new Set([
   "parties",
   "deputies",
   "bootstrap",
+  "estadual",
 ]);
 
 const bodySchema = z.object({
@@ -23,9 +25,11 @@ const bodySchema = z.object({
     "votes",
     "attendance",
     "bootstrap",
+    "estadual",
   ]),
   deputyId: z.number().int().positive().optional(),
   year: z.number().int().min(2000).max(2100).optional(),
+  source: z.string().min(2).optional(),
 });
 
 /**
@@ -56,7 +60,7 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const { domain, deputyId, year } = parsed.data;
+  const { domain, deputyId, year, source } = parsed.data;
   const y = year ?? new Date().getFullYear();
 
   try {
@@ -89,6 +93,9 @@ export async function POST(request: NextRequest) {
           parties: await syncParties(),
           deputies: await syncDeputies(),
         };
+        break;
+      case "estadual":
+        result = await syncStateAssembly(source ?? "alepe");
         break;
       default:
         return NextResponse.json({ error: "domain inválido" }, { status: 400 });

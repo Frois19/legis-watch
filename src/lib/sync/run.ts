@@ -1,7 +1,7 @@
 import { invalidateSearchCache } from "@/lib/cache/memory-cache";
 import { prisma } from "@/lib/db/prisma";
 
-const SEARCH_CACHE_DOMAINS = ["parties", "deputies", "mandates"];
+const SEARCH_CACHE_DOMAINS = ["parties", "deputies", "mandates", "estadual"];
 
 export async function startSyncRun(domain: string) {
   return prisma.syncRun.create({

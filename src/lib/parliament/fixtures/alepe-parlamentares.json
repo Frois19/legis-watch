@@ -1,0 +1,42 @@
+[
+  {
+    "nomeParlamentar": "Delegado Gleide Angelo",
+    "partido": "PSB",
+    "email": "gleideangelo@alepe.pe.gov.br"
+  },
+  {
+    "nomeParlamentar": "João Paulo",
+    "partido": "PT",
+    "email": "joaopaulo@alepe.pe.gov.br"
+  },
+  {
+    "nomeParlamentar": "Romário Dias",
+    "partido": "PSD",
+    "email": "romariodias@alepe.pe.gov.br"
+  },
+  {
+    "nomeParlamentar": "Simone Santana",
+    "partido": "PSB",
+    "email": "simonesantana@alepe.pe.gov.br"
+  },
+  {
+    "nomeParlamentar": "Antonio Coelho",
+    "partido": "DEM",
+    "email": "antoniocoelho@alepe.pe.gov.br"
+  },
+  {
+    "nomeParlamentar": "Álvaro Porto",
+    "partido": "PSDB",
+    "email": "alvaroporto@alepe.pe.gov.br"
+  },
+  {
+    "nomeParlamentar": "Odacy Amorim",
+    "partido": "PT",
+    "email": "odacyamorim@alepe.pe.gov.br"
+  },
+  {
+    "nomeParlamentar": "Clarissa Tércio",
+    "partido": "PP",
+    "email": "clarissatercio@alepe.pe.gov.br"
+  }
+]

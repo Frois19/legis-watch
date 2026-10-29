@@ -4,6 +4,7 @@ import type {
   DeputyListItem,
   LegislatureItem,
   Paginated,
+  ParliamentarianListItem,
   PropositionItem,
   VoteItem,
 } from "./types";
@@ -37,6 +38,26 @@ export function searchDeputies(params: {
   q.set("page", String(params.page ?? 1));
   q.set("pageSize", String(params.pageSize ?? 20));
   return getJson(`/api/deputados?${q}`);
+}
+
+export function searchParliamentarians(params: {
+  esfera?: "federal_deputado" | "estadual_deputado" | "todos";
+  nome?: string;
+  siglaPartido?: string;
+  siglaUf?: string;
+  legislaturaId?: number;
+  page?: number;
+  pageSize?: number;
+}): Promise<Paginated<ParliamentarianListItem> & { esfera: string }> {
+  const q = new URLSearchParams();
+  if (params.esfera) q.set("esfera", params.esfera);
+  if (params.nome) q.set("nome", params.nome);
+  if (params.siglaPartido) q.set("siglaPartido", params.siglaPartido);
+  if (params.siglaUf) q.set("siglaUf", params.siglaUf);
+  if (params.legislaturaId) q.set("legislaturaId", String(params.legislaturaId));
+  q.set("page", String(params.page ?? 1));
+  q.set("pageSize", String(params.pageSize ?? 20));
+  return getJson(`/api/parlamentares?${q}`);
 }
 
 export function getDeputy(id: number): Promise<DeputyDetail> {

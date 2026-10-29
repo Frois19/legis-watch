@@ -15,7 +15,7 @@ Hoje o produto cobre **apenas deputados federais** (Câmara). Este plano define:
 | Casa | Status |
 |---|---|
 | Câmara dos Deputados (federal) | Implementado (sync + UI) |
-| Assembleias Legislativas (estadual) | Fora do escopo |
+| Assembleias Legislativas (estadual) | Piloto PE (ALEPE): busca + perfil mínimo |
 | Senado Federal | Previsto no estudo; ainda não implementado |
 
 Não existe API nacional única para deputados estaduais. Cada Assembleia publica (ou não) seus dados com formatos diferentes. Por isso a expansão estadual precisa ser **por adapter + rollout UFs**.
@@ -160,11 +160,24 @@ Cada UF SAPL recebe só a **base URL** + mapeamento de campos no adapter.
 
 ## A.5 Critérios de pronto (estadual piloto)
 
-- [ ] Modelo `sphere/source` no Prisma
-- [ ] Busca federal + estadual (filtro UF/esfera)
-- [ ] Perfil MG e/ou PE com foto/nome/partido e proposições
-- [ ] Doc por UF: endpoints usados + o que falta
-- [ ] Testes de adapter com fixtures (sem rede)
+- [x] Modelo `sphere/source` no Prisma (`StateDeputy` / `StateProposition`)
+- [x] Busca federal + estadual (filtro UF/esfera) via `/api/parlamentares`
+- [x] Perfil PE (ALEPE) com nome/partido/e-mail; proposições ainda não (API)
+- [x] Doc por UF: endpoints ALEPE + cobertura no catálogo `/api/assembleias`
+- [x] Testes de adapter com fixtures (sem rede)
+- [ ] Perfil MG (ALMG) + proposições
+- [ ] Votos/presença estadual quando a casa publicar
+
+### A.6 Status E0 / E1
+
+| Item | Status |
+|---|---|
+| E0 tipos `sphere` / `source` + IDs namespaced | Feito (`src/lib/parliament/`) |
+| E0 `StateAssemblyAdapter` | Feito |
+| E1 adapter ALEPE (PE) + fixture fallback | Feito |
+| E1 sync `npm run sync -- estadual --source=alepe` | Feito |
+| E1 UI filtro de esfera + perfil `/parlamentares/[source]/[id]` | Feito |
+| E1 ALMG (MG) | Pendente |
 
 ---
 
@@ -345,11 +358,11 @@ return NextResponse.json(result);
 
 ## C.7 Critérios de pronto (cache)
 
-- [ ] TTL configurável e LRU com teto de memória
-- [ ] Invalidação após sync de cadastro
-- [ ] Testes: hit devolve o mesmo payload; purge limpa
-- [ ] Busca com debounce no front
-- [ ] Doc no README: envs de cache
+- [x] TTL configurável e LRU com teto de memória
+- [x] Invalidação após sync de cadastro (inclui `estadual:*`)
+- [x] Testes: hit devolve o mesmo payload; purge limpa
+- [x] Busca com debounce no front
+- [x] Doc no README: envs de cache
 
 ## C.8 Ordem sugerida vs expansão
 
@@ -369,6 +382,7 @@ Produção       → C4 Redis se houver mais de uma instância
 | C2 Invalidação pós-sync + `POST /api/cache/purge` | Feito |
 | C3 Índices Prisma de busca | Feito |
 | Debounce na UI (300 ms) | Feito |
+| Cache em `/api/parlamentares` (esfera na chave) | Feito |
 | C4 Redis | Pendente (multi-instância) |
 
 ---
