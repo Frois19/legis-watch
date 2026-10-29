@@ -1,4 +1,7 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { mkdtemp, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import path from "node:path";
 import {
   alepAdapter,
   authorMatchesDeputy,
@@ -8,11 +11,21 @@ import {
 import { clearHttpCache } from "@/lib/cache/http-cache";
 
 describe("ALEP adapter", () => {
-  beforeEach(() => {
+  let cacheDir: string;
+
+  beforeEach(async () => {
     vi.unstubAllGlobals();
     clearAlepCaches();
-    clearHttpCache("alep:");
+    clearHttpCache();
+    cacheDir = await mkdtemp(path.join(tmpdir(), "alep-cache-"));
+    process.env.PARLIAMENT_CACHE_DIR = cacheDir;
     delete process.env.ALEP_REQUIRE_LIVE;
+  });
+
+  afterEach(async () => {
+    clearHttpCache();
+    delete process.env.PARLIAMENT_CACHE_DIR;
+    await rm(cacheDir, { recursive: true, force: true });
   });
 
   it("authorMatchesDeputy reconhece autor parlamentar vs nome civil", () => {
