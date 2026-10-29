@@ -192,11 +192,48 @@ async function main() {
   await waitReady(page);
   await shot(page, "09-perfil-estadual-sp.png");
 
-  await page.goto(`${BASE}/parlamentares/almg/larissa-belo-horizonte`, {
+  // MG live (ALMG) — pega o primeiro id sincronizado via API
+  let almgId = "12193";
+  try {
+    const almgRes = await page.request.get(
+      `${BASE}/api/parlamentares?esfera=estadual_deputado&siglaUf=MG&pageSize=1`,
+    );
+    const almgJson = await almgRes.json();
+    const href = almgJson?.items?.[0]?.href;
+    if (typeof href === "string" && href.includes("/")) {
+      almgId = href.split("/").pop();
+    }
+  } catch {
+    /* usa fallback */
+  }
+  await page.goto(`${BASE}/parlamentares/almg/${almgId}`, {
     waitUntil: "domcontentloaded",
   });
   await waitReady(page);
+  await page.waitForTimeout(1200);
   await shot(page, "10-perfil-estadual-mg.png");
+
+  // AC live (SAPL) — proposições
+  let acId = "248";
+  try {
+    const acRes = await page.request.get(
+      `${BASE}/api/parlamentares?esfera=estadual_deputado&siglaUf=AC&pageSize=1`,
+    );
+    const acJson = await acRes.json();
+    const href = acJson?.items?.[0]?.href;
+    if (typeof href === "string" && href.includes("/")) {
+      acId = href.split("/").pop();
+    }
+  } catch {
+    /* usa fallback */
+  }
+  await page.goto(`${BASE}/parlamentares/aleac/${acId}`, {
+    waitUntil: "domcontentloaded",
+  });
+  await waitReady(page);
+  await page.getByRole("tab", { name: /Proposições|Filiações|Cobertura/ }).first().waitFor({ timeout: 30000 }).catch(() => {});
+  await page.waitForTimeout(1000);
+  await shot(page, "15-perfil-estadual-ac-proposicoes.png");
 
   // 11 — busca senadores
   await page.goto(`${BASE}/`, { waitUntil: "domcontentloaded" });

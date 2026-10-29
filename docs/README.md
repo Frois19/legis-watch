@@ -11,7 +11,7 @@ Para entender o que o app faz, com prints das telas.
 | Documento | Conteúdo |
 |---|---|
 | [Guia do produto](./GUIA-DO-PRODUTO.md) | Busca (federal + estadual + senadores), favoritos, projetos, votações, presença/ata, partido, perfil do Senado — prints atualizados |
-| [Deputados estaduais por UF](./estaduais.md) | Catálogo das 27 UFs, live vs fixture, sync e limitações |
+| [Deputados estaduais por UF](./estaduais.md) | Catálogo das 27 UFs (9 live: PE/MG/SAPL), sync e limitações |
 | [Senadores](./senado.md) | Lista atual, perfil (filiações/mandatos/matérias) e disclaimer de presença |
 
 ---

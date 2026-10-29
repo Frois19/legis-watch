@@ -25,7 +25,7 @@ Para regenerar os prints: `npm run docs:screenshots` (requer o dev server em `:3
 | Histórico de votações | (Federal) Ver se votou **Sim / Não / Abstenção**, o projeto e se a matéria foi aprovada |
 | Presença e faltas | (Federal) Filtrar dias de falta e abrir a **ata do dia** (pauta + votações) |
 | Partido | (Federal) Ver outros deputados do mesmo partido no mandato selecionado |
-| Perfil estadual | Nome, partido, UF, e-mail e o que a casa já cobre (projetos/votos/presença quando houver) |
+| Perfil estadual | Cadastro em 27 UFs; proposições/filiações/mandatos nas casas com API (SAPL/ALMG) |
 | Perfil de senador | Matérias de autoria, filiações, mandatos + disclaimer de presença |
 
 ---
@@ -129,15 +129,17 @@ Parlamentares **federais** salvos neste dispositivo (`localStorage`). Não exige
 
 ## 7. Perfil estadual
 
-URL: `/parlamentares/{source}/{id}` (ex.: ALEPE/PE, ALESP/SP, ALMG/MG).
+URL: `/parlamentares/{source}/{id}` (ex.: ALEPE/PE, ALESP/SP, ALMG/MG, SAPL/AC).
 
-O perfil estadual mostra cadastro (nome, partido, UF, e-mail) e a **cobertura da casa** — o que já está disponível vs. o que entra quando o adapter live publicar proposições, votos e presença.
+O perfil mostra cadastro (nome, partido, UF, e-mail) e a **cobertura da casa**. Nas Assembleias com API madura (SAPL e ALMG), o perfil é enriquecido sob demanda com **proposições**, **filiações** e **mandatos**.
 
-![Perfil estadual — Pernambuco (ALEPE)](./screenshots/08-perfil-estadual-pe.png)
+![Perfil estadual — Pernambuco (ALEPE, cadastro live)](./screenshots/08-perfil-estadual-pe.png)
 
-![Perfil estadual — São Paulo (ALESP)](./screenshots/09-perfil-estadual-sp.png)
+![Perfil estadual — São Paulo (ALESP, fixture)](./screenshots/09-perfil-estadual-sp.png)
 
-![Perfil estadual — Minas Gerais (ALMG)](./screenshots/10-perfil-estadual-mg.png)
+![Perfil estadual — Minas Gerais (ALMG, filiações/mandatos)](./screenshots/10-perfil-estadual-mg.png)
+
+![Perfil estadual — Acre (SAPL, proposições)](./screenshots/15-perfil-estadual-ac-proposicoes.png)
 
 Catálogo completo das 27 UFs: [estaduais.md](./estaduais.md).
 

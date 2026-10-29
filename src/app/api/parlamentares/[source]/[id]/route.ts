@@ -1,7 +1,6 @@
-import { prisma } from "@/lib/db/prisma";
-import { getAssembly } from "@/lib/parliament/assemblies";
-import { parliamentarianId } from "@/lib/parliament/types";
+import { serializeStateDeputyDetail } from "@/lib/parliament/serialize";
 import { serializeSenatorDetail } from "@/lib/senado/serialize";
+import { ensureStateDeputyProfile } from "@/lib/sync/estadual";
 import { ensureSenatorProfile } from "@/lib/sync/senado";
 import { NextResponse } from "next/server";
 
@@ -12,8 +11,6 @@ export async function GET(_request: Request, { params }: Params) {
   if (!source || !externalId) {
     return NextResponse.json({ error: "parâmetros inválidos" }, { status: 400 });
   }
-
-  const key = parliamentarianId(source, externalId);
 
   if (source === "senado") {
     const row = await ensureSenatorProfile(externalId);
@@ -26,7 +23,7 @@ export async function GET(_request: Request, { params }: Params) {
     return NextResponse.json(serializeSenatorDetail(row));
   }
 
-  const row = await prisma.stateDeputy.findUnique({ where: { id: key } });
+  const row = await ensureStateDeputyProfile(source, externalId);
   if (!row) {
     return NextResponse.json(
       { error: "Parlamentar estadual não encontrado" },
@@ -34,29 +31,5 @@ export async function GET(_request: Request, { params }: Params) {
     );
   }
 
-  const assembly = getAssembly(row.source);
-  return NextResponse.json({
-    key: row.id,
-    sphere: "estadual_deputado",
-    source: row.source,
-    id: row.id,
-    externalId: row.externalId,
-    nome: row.nome,
-    nomeEleitoral: row.nomeEleitoral,
-    siglaPartido: row.siglaPartido,
-    siglaUf: row.uf,
-    urlFoto: row.urlFoto,
-    email: row.email,
-    situacao: row.situacao,
-    assemblyName: assembly?.name ?? row.source,
-    coverage: assembly?.coverage ?? {
-      search: true,
-      profile: true,
-      propositions: false,
-      votes: false,
-      attendance: false,
-    },
-    syncedAt: row.syncedAt?.toISOString() ?? null,
-    href: `/parlamentares/${row.source}/${row.externalId}`,
-  });
+  return NextResponse.json(serializeStateDeputyDetail(row));
 }

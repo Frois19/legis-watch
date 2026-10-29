@@ -1,0 +1,64 @@
+{
+  "aleac": {
+    "default": {
+      "affiliations": [
+        {
+          "codigoPartido": "57",
+          "siglaPartido": "UNIÃO",
+          "nomePartido": "União Brasil",
+          "dataFiliacao": "2022-04-01",
+          "dataDesfiliacao": null
+        }
+      ],
+      "mandates": [
+        {
+          "codigoMandato": "426",
+          "siglaUf": "AC",
+          "participacao": "Titular",
+          "legislaturaInicio": 17,
+          "legislaturaFim": 17,
+          "dataInicio": "2023-02-01",
+          "dataFim": "2027-01-31"
+        }
+      ],
+      "propositions": [
+        {
+          "externalId": "13914",
+          "siglaTipo": "IND",
+          "numero": 144,
+          "ano": 2023,
+          "ementa": "Indicação sobre reforço do policiamento ostensivo.",
+          "dataApresentacao": "2023-05-30",
+          "statusResumo": "Em tramitação",
+          "urlPublica": "https://sapl.al.ac.leg.br/materia/13914",
+          "authorExternalId": "248"
+        }
+      ]
+    }
+  },
+  "almg": {
+    "default": {
+      "affiliations": [
+        {
+          "codigoPartido": "43",
+          "siglaPartido": "PV",
+          "nomePartido": "Partido Verde",
+          "dataFiliacao": "2026-03-19",
+          "dataDesfiliacao": null
+        }
+      ],
+      "mandates": [
+        {
+          "codigoMandato": "20",
+          "siglaUf": "MG",
+          "participacao": "Efetivo",
+          "legislaturaInicio": 20,
+          "legislaturaFim": 20,
+          "dataInicio": "2023-02-01",
+          "dataFim": "2027-01-31"
+        }
+      ],
+      "propositions": []
+    }
+  }
+}

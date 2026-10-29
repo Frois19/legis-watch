@@ -1,6 +1,12 @@
 export { syncAttendanceForYear } from "./attendance";
 export { syncDeputies, syncParties } from "./deputies";
-export { syncAllStateAssemblies, syncStateAssembly } from "./estadual";
+export {
+  ensureStateDeputyProfile,
+  syncAllStateAssemblies,
+  syncStateAssembly,
+  syncStateDeputyProfile,
+} from "./estadual";
+export type { StateDeputyWithProfile } from "./estadual";
 export {
   syncDeputiesForLegislature,
   syncLegislatures,

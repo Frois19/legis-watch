@@ -35,7 +35,11 @@ function seedStateDeputies() {
         urlFoto: null,
         email: `teste.${uf.toLowerCase()}.${n}@fixture.legis.watch`,
         situacao: "Exercício",
+        profileSyncedAt: new Date(),
         syncedAt: new Date(),
+        affiliations: [],
+        mandates: [],
+        propositions: [],
       };
     });
   });

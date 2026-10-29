@@ -60,7 +60,9 @@ Resposta inclui `items[]` com `sphere`, `source`, `href`, `assemblyName`, etc. C
 
 ### Perfil estadual / senador
 
-`GET /api/parlamentares/{source}/{id}` — ex.: `/api/parlamentares/alepe/joao-paulo` ou `/api/parlamentares/senado/5672`
+`GET /api/parlamentares/{source}/{id}` — ex.: `/api/parlamentares/aleac/248`, `/api/parlamentares/almg/12193`, `/api/parlamentares/alepe/joao-paulo` ou `/api/parlamentares/senado/5672`
+
+Perfil estadual enriquecido (quando a casa tem adapter) inclui `affiliations`, `mandates`, `propositions` e `profileSyncedAt`.
 
 Campos: nome, partido, UF, e-mail, `coverage` (search/profile/propositions/votes/attendance), `syncedAt`.
 

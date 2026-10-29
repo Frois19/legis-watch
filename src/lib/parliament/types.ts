@@ -51,6 +51,30 @@ export type AdapterProposition = {
   authorExternalId?: string | null;
 };
 
+export type AdapterAffiliation = {
+  codigoPartido: string | null;
+  siglaPartido: string | null;
+  nomePartido: string | null;
+  dataFiliacao: string | null;
+  dataDesfiliacao: string | null;
+};
+
+export type AdapterMandate = {
+  codigoMandato: string | null;
+  siglaUf: string | null;
+  participacao: string | null;
+  legislaturaInicio: number | null;
+  legislaturaFim: number | null;
+  dataInicio: string | null;
+  dataFim: string | null;
+};
+
+export type AdapterProfileBundle = {
+  affiliations: AdapterAffiliation[];
+  mandates: AdapterMandate[];
+  propositions: AdapterProposition[];
+};
+
 export interface StateAssemblyAdapter {
   readonly info: AssemblyInfo;
   listParliamentarians(): Promise<AdapterParliamentarian[]>;
@@ -60,6 +84,10 @@ export interface StateAssemblyAdapter {
   listPropositions?(
     authorExternalId: string,
   ): Promise<AdapterProposition[]>;
+  /** Filiações + mandatos + matérias sob demanda (quando a casa publica). */
+  fetchProfileBundle?(
+    externalId: string,
+  ): Promise<AdapterProfileBundle>;
 }
 
 export function parliamentarianId(

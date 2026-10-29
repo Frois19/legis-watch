@@ -15,9 +15,16 @@ O Legis Watch busca e exibe **deputados estaduais** (e do DF) em todas as **27 U
 # Todas as 27 UFs
 npm run sync -- estadual --source=all
 
-# Só uma casa (ex.: PE)
+# Só uma casa (ex.: PE, MG, AC)
 npm run sync -- estadual --source=alepe
+npm run sync -- estadual --source=almg
+npm run sync -- estadual --source=aleac
+
+# Perfil enriquecido (filiações / mandatos / proposições) de um parlamentar
+npm run sync -- estadual-perfil --source=aleac --codigo=248
 ```
+
+O perfil também é enriquecido **ao abrir** `/parlamentares/{source}/{id}` quando a casa expõe `fetchProfileBundle` (TTL `ESTADUAL_PROFILE_TTL_MS`).
 
 Catálogo em runtime: `GET /api/assembleias` (inclui `syncedCount` e flags de cobertura).
 
@@ -25,10 +32,10 @@ Catálogo em runtime: `GET /api/assembleias` (inclui `syncedCount` e flags de co
 
 | UF | `source` | Casa | Dados hoje |
 |---|---|---|---|
-| AC | `aleac` | Assembleia Legislativa do Acre | Fixture |
-| AL | `aleal` | Assembleia Legislativa de Alagoas | Fixture |
+| AC | `aleac` | Assembleia Legislativa do Acre | **Live SAPL** — cadastro + filiações + mandatos + matérias |
+| AL | `aleal` | Assembleia Legislativa de Alagoas | **Live SAPL** — cadastro + filiações + mandatos + matérias |
 | AP | `aleap` | Assembleia Legislativa do Amapá | Fixture |
-| AM | `aleam` | Assembleia Legislativa do Amazonas | Fixture |
+| AM | `aleam` | Assembleia Legislativa do Amazonas | **Live SAPL** — cadastro + filiações + mandatos + matérias |
 | BA | `alba` | Assembleia Legislativa da Bahia | Fixture |
 | CE | `alce` | Assembleia Legislativa do Ceará | Fixture |
 | DF | `cldf` | Câmara Legislativa do Distrito Federal | Fixture |
@@ -37,68 +44,72 @@ Catálogo em runtime: `GET /api/assembleias` (inclui `syncedCount` e flags de co
 | MA | `alema` | Assembleia Legislativa do Maranhão | Fixture |
 | MT | `almt` | Assembleia Legislativa de Mato Grosso | Fixture |
 | MS | `alems` | Assembleia Legislativa de Mato Grosso do Sul | Fixture |
-| MG | `almg` | Assembleia Legislativa de Minas Gerais | Fixture (API live planejada) |
+| MG | `almg` | Assembleia Legislativa de Minas Gerais | **Live ALMG** — cadastro + filiações + mandatos (proposições API 403) |
 | PA | `alepa` | Assembleia Legislativa do Pará | Fixture |
-| PB | `alepb` | Assembleia Legislativa da Paraíba | Fixture |
-| PR | `alep` | Assembleia Legislativa do Paraná | Fixture (API live planejada) |
-| PE | `alepe` | Assembleia Legislativa de Pernambuco | **Live** (ALEPE) + fixture fallback |
-| PI | `alepi` | Assembleia Legislativa do Piauí | Fixture |
+| PB | `alepb` | Assembleia Legislativa da Paraíba | **Live SAPL** — cadastro + filiações + mandatos + matérias |
+| PR | `alep` | Assembleia Legislativa do Paraná | Fixture (metadados ALEP ok; listagem de proposições indisponível/401) |
+| PE | `alepe` | Assembleia Legislativa de Pernambuco | **Live ALEPE** — cadastro (sem proposições na API usada) |
+| PI | `alepi` | Assembleia Legislativa do Piauí | **Live SAPL** — cadastro + filiações + mandatos + matérias |
 | RJ | `alerj` | Assembleia Legislativa do Rio de Janeiro | Fixture |
 | RN | `alern` | Assembleia Legislativa do Rio Grande do Norte | Fixture |
 | RS | `alers` | Assembleia Legislativa do Rio Grande do Sul | Fixture |
-| RO | `alero` | Assembleia Legislativa de Rondônia | Fixture |
+| RO | `alero` | Assembleia Legislativa de Rondônia | **Live SAPL** — cadastro + filiações + mandatos + matérias |
 | RR | `alerr` | Assembleia Legislativa de Roraima | Fixture |
 | SC | `alesc` | Assembleia Legislativa de Santa Catarina | Fixture |
 | SP | `alesp` | Assembleia Legislativa de São Paulo | Fixture |
 | SE | `alese` | Assembleia Legislativa de Sergipe | Fixture |
-| TO | `aleto` | Assembleia Legislativa do Tocantins | Fixture |
+| TO | `aleto` | Assembleia Legislativa do Tocantins | **Live SAPL** — cadastro + filiações + mandatos + matérias |
+
+**Resumo:** 9 casas live (PE + MG + 7 SAPL). Demais 18 UFs em fixture de cadastro.
 
 Código de referência:
 
 - Catálogo: `src/lib/parliament/ufs.ts`
-- Adapters: `src/lib/parliament/adapters/`
-- Fixtures: `src/lib/parliament/fixtures/estaduais-por-uf.json`
+- Adapters: `src/lib/parliament/adapters/` (`alepe`, `almg`, `sapl`, `fixture-assembly`)
+- Fixtures: `src/lib/parliament/fixtures/`
 - Sync: `src/lib/sync/estadual.ts`
 
-## O que cada perfil estadual mostra hoje
+## O que cada perfil estadual mostra
 
-Disponível em todas as UFs (após sync):
+Disponível em todas as UFs (após sync de cadastro):
 
 - Nome, partido, UF, e-mail (quando houver)
 - Badge da casa + link para dados abertos / portal
-- Tabela de cobertura (busca/perfil vs proposições/votos/presença)
+- Tabela de cobertura
 
-Ainda **não** disponível no estadual (aguardam adapter live da casa):
+Nas casas **SAPL** (e ALMG para filiações/mandatos), o perfil ganha abas:
 
-- Proposições / projetos
-- Votações nominais
+| Aba | Conteúdo |
+|---|---|
+| **Proposições** | Autorias / matérias (SAPL; limite `ESTADUAL_MATTER_LIMIT`) |
+| **Filiações** | Histórico partidário |
+| **Mandatos** | Legislaturas / período |
+| **Cobertura** | Flags da casa |
+
+Ainda **não** disponível no estadual (APIs sem voto nominal por parlamentar ou portal HTML):
+
+- Votações nominais individuais
 - Presença / faltas
 - Favoritos (hoje só federais)
 
 URL do perfil: `/parlamentares/{source}/{externalId}`  
-Ex.: `/parlamentares/alepe/joao-paulo`, `/parlamentares/alesp/gabriela-sao-paulo`
+Ex.: `/parlamentares/aleac/248`, `/parlamentares/almg/12193`, `/parlamentares/alepe/joao-paulo`
 
 ## Testes
 
 ```bash
-npm test                   # inclui matriz unitária por UF
-npm run test:integration   # sync all + busca/perfil nas 27 UFs
+npm test                   # inclui matriz unitária por UF + adapters SAPL/ALMG
+npm run test:integration   # sync + busca/perfil nas 27 UFs
 ```
 
-Arquivos principais:
+## Próximos adapters live
 
-- `src/app/api/parlamentares/ufs-matrix.test.ts`
-- `src/test/integration/estadual-ufs.integration.test.ts`
-- `src/lib/parliament/ufs.test.ts`
-
-## Próximos adapters live (plano)
-
-Ordem sugerida no [plano de expansão](./PLANO-EXPANSAO.md): **ALMG (MG)** → **ALEP (PR)** → SAPL multi-UF → demais casas.
+Ordem sugerida: ALEP (PR) quando a listagem pública voltar · outros SAPL se a base URL estabilizar · CLDF/ALMT com APIs próprias.
 
 ---
 
 ## Continuar navegando
 
-- [Índice da documentação](./README.md)
+- [Índice](./README.md)
 - [API interna](./backend-api.md)
 - [Plano de expansão + cache](./PLANO-EXPANSAO.md)

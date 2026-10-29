@@ -167,8 +167,9 @@ Catálogo detalhado: [estaduais.md](./estaduais.md).
 - [x] Perfil PE (ALEPE) com nome/partido/e-mail; proposições ainda não (API)
 - [x] Doc por UF: endpoints ALEPE + cobertura no catálogo `/api/assembleias`
 - [x] Testes de adapter com fixtures (sem rede)
-- [ ] Perfil MG (ALMG) + proposições
-- [ ] Votos/presença estadual quando a casa publicar
+- [x] Perfil MG (ALMG) live + filiações/mandatos (proposições API 403)
+- [x] Adapter SAPL multi-UF (AC/AL/AM/PB/PI/RO/TO) com matérias
+- [ ] Votos/presença estadual quando a casa publicar voto nominal por parlamentar
 
 ### A.6 Status E0 / E1
 
@@ -180,7 +181,8 @@ Catálogo detalhado: [estaduais.md](./estaduais.md).
 | E1 sync `npm run sync -- estadual --source=alepe` | Feito |
 | E1 UI filtro de esfera + perfil `/parlamentares/[source]/[id]` | Feito |
 | E1 cobertura 27 UFs (fixture + matriz de testes) | Feito |
-| E1 ALMG (MG) live + proposições | Pendente |
+| E1 ALMG (MG) live + filiações/mandatos | Feito (proposições bloqueadas na API) |
+| E2 SAPL multi-UF (7 casas) + matérias | Feito |
 
 ---
 

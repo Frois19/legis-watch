@@ -26,6 +26,7 @@ import {
   syncSenatorProfile,
   syncSenadores,
   syncStateAssembly,
+  syncStateDeputyProfile,
   syncVotesForYear,
 } from "../src/lib/sync";
 import { currentLegislatura } from "../src/lib/camara/client";
@@ -85,6 +86,17 @@ async function main() {
         console.log(await syncStateAssembly(source));
       }
       break;
+    case "estadual-perfil": {
+      if (!codigo) {
+        throw new Error(
+          "Use --source=<casa> --codigo=<id> (ex.: --source=aleac --codigo=248)",
+        );
+      }
+      const house = source === "all" ? "" : source;
+      if (!house) throw new Error("Use --source=<casa> (ex.: aleac, almg)");
+      console.log(await syncStateDeputyProfile(house, codigo));
+      break;
+    }
     case "senadores":
     case "senado":
       console.log(await syncSenadores());
@@ -124,10 +136,13 @@ async function main() {
     default:
       console.error(`Unknown command: ${command ?? "(none)"}`);
       console.error(
-        "Commands: legislatures | parties | deputies | mandates | propositions | votes | attendance | bootstrap | estadual | senadores | senador-perfil",
+        "Commands: legislatures | parties | deputies | mandates | propositions | votes | attendance | bootstrap | estadual | estadual-perfil | senadores | senador-perfil",
       );
       console.error(
         "estadual: npm run sync -- estadual --source=all | --source=alepe",
+      );
+      console.error(
+        "estadual-perfil: npm run sync -- estadual-perfil --source=aleac --codigo=248",
       );
       console.error(
         "senador-perfil: npm run sync -- senador-perfil --codigo=5672",

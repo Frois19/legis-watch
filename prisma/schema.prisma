@@ -297,7 +297,7 @@ model SenatorMatter {
   @@index([siglaTipo, numero, ano])
 }
 
-/** Deputado estadual (Assembleias). ID namespaced: "alepe:slug". */
+/** Deputado estadual (Assembleias). ID namespaced: "alepe:slug" | "aleac:248". */
 model StateDeputy {
   id            String   @id
   source        String
@@ -310,10 +310,13 @@ model StateDeputy {
   urlFoto       String?
   situacao      String?
   rawJson       String?
+  profileSyncedAt DateTime?
   syncedAt      DateTime?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
+  affiliations  StateDeputyAffiliation[]
+  mandates      StateDeputyMandate[]
   propositions  StateProposition[]
 
   @@unique([source, externalId])
@@ -322,6 +325,35 @@ model StateDeputy {
   @@index([nome])
   @@index([siglaPartido])
   @@index([uf, nome])
+}
+
+model StateDeputyAffiliation {
+  id               Int      @id @default(autoincrement())
+  stateDeputyId    String
+  stateDeputy      StateDeputy @relation(fields: [stateDeputyId], references: [id], onDelete: Cascade)
+  codigoPartido    String?
+  siglaPartido     String?
+  nomePartido      String?
+  dataFiliacao     String?
+  dataDesfiliacao  String?
+
+  @@index([stateDeputyId])
+  @@index([siglaPartido])
+}
+
+model StateDeputyMandate {
+  id                 Int      @id @default(autoincrement())
+  stateDeputyId      String
+  stateDeputy        StateDeputy @relation(fields: [stateDeputyId], references: [id], onDelete: Cascade)
+  codigoMandato      String?
+  siglaUf            String?
+  participacao       String?
+  legislaturaInicio  Int?
+  legislaturaFim     Int?
+  dataInicio         String?
+  dataFim            String?
+
+  @@index([stateDeputyId])
 }
 
 model StateProposition {

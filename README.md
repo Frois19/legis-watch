@@ -54,6 +54,13 @@ npm run sync -- estadual --source=all
 # Só PE (ALEPE live + fallback de fixture)
 npm run sync -- estadual --source=alepe
 
+# Casas live adicionais: MG (ALMG) e SAPL (AC/AL/AM/PB/PI/RO/TO)
+npm run sync -- estadual --source=almg
+npm run sync -- estadual --source=aleac
+
+# Perfil estadual enriquecido (filiações/mandatos/proposições quando a casa publicar)
+npm run sync -- estadual-perfil --source=aleac --codigo=248
+
 # Senadores em exercício (Dados Abertos do Senado)
 npm run sync -- senadores
 
