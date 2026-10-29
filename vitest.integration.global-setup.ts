@@ -8,7 +8,6 @@ export default async function globalSetup() {
 
   process.env.DATABASE_URL = `file:${testDbPath}`;
   process.env.LEGISLATURA_ATUAL = "57";
-  process.env.NODE_ENV = "test";
   delete process.env.SYNC_SECRET;
 
   for (const file of [testDbPath, testDbJournal]) {

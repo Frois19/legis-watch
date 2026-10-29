@@ -2,6 +2,7 @@
 
 import { DeputyPhoto } from "@/components/deputy-photo";
 import { FavoriteButton } from "@/components/favorite-button";
+import { PropositionsPanel } from "@/components/propositions-panel";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type {
@@ -12,7 +13,7 @@ import type {
   PropositionStats,
   VoteItem,
 } from "@/lib/api/types";
-import { formatDate, formatDateTime, propositionLabel, socialLabel } from "@/lib/format";
+import { formatDateTime, propositionLabel, socialLabel } from "@/lib/format";
 import { ExternalLink } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -189,34 +190,12 @@ export function DeputyProfile({
         <TabsContent value="proposicoes">
           <SectionTitle
             title="Projetos propostos"
-            description="Proposições sincronizadas em que este deputado figura como autor."
+            description="Proposições sincronizadas em que este deputado figura como autor. Filtre por status para entender a fase de cada projeto."
           />
-          {propositions.items.length === 0 ? (
-            <EmptyState message="Ainda não há projetos sincronizados para este perfil." />
-          ) : (
-            <ul className="divide-y divide-border border border-border bg-card">
-              {propositions.items.map((item) => (
-                <li key={item.id} className="p-4">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <Badge variant="secondary">{propositionLabel(item)}</Badge>
-                    {item.statusResumo ? (
-                      <span className="text-xs text-muted-foreground">
-                        {item.statusResumo}
-                      </span>
-                    ) : null}
-                  </div>
-                  <p className="mt-2 text-sm leading-relaxed">
-                    {item.ementa || "Sem ementa disponível."}
-                  </p>
-                  {item.dataApresentacao ? (
-                    <p className="mt-1 text-xs text-muted-foreground">
-                      Apresentado em {formatDate(item.dataApresentacao)}
-                    </p>
-                  ) : null}
-                </li>
-              ))}
-            </ul>
-          )}
+          <PropositionsPanel
+            items={propositions.items}
+            total={propositions.total}
+          />
         </TabsContent>
 
         <TabsContent value="votos">

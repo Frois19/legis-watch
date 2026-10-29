@@ -424,7 +424,7 @@ export async function getDeputyProfileBundle(
   const deputy = await getDeputy(id, legislaturaId);
   const selected = deputy.selectedLegislaturaId;
   const [propositions, votes, attendance] = await Promise.all([
-    getDeputyPropositions(id, 20, selected),
+    getDeputyPropositions(id, 100, selected),
     getDeputyVotes(id, 20, selected),
     getDeputyAttendance(id, selected),
   ]);
