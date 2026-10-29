@@ -23,9 +23,9 @@ export default async function HomePage() {
           Acompanhe parlamentares federais e estaduais
         </h1>
         <p className="max-w-xl text-sm leading-relaxed text-muted-foreground sm:text-base">
-          Busque deputados federais por mandato ou estaduais nas 27 UFs,
-          favorite perfis federais e veja projetos, votações e presença — com
-          dados públicos.
+          Busque deputados federais, estaduais (27 UFs) ou senadores, favorite
+          perfis federais e veja projetos, votações e presença — com dados
+          públicos.
         </p>
       </header>
       <SearchPanel

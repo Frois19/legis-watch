@@ -5,6 +5,7 @@ import {
   syncParties,
   syncPropositionsForDeputy,
   syncAllStateAssemblies,
+  syncSenadores,
   syncStateAssembly,
   syncVotesForYear,
 } from "@/lib/sync";
@@ -16,6 +17,7 @@ const SEARCH_INVALIDATING_DOMAINS = new Set([
   "deputies",
   "bootstrap",
   "estadual",
+  "senadores",
 ]);
 
 const bodySchema = z.object({
@@ -27,6 +29,7 @@ const bodySchema = z.object({
     "attendance",
     "bootstrap",
     "estadual",
+    "senadores",
   ]),
   deputyId: z.number().int().positive().optional(),
   year: z.number().int().min(2000).max(2100).optional(),
@@ -100,6 +103,9 @@ export async function POST(request: NextRequest) {
           !source || source === "all"
             ? await syncAllStateAssemblies()
             : await syncStateAssembly(source);
+        break;
+      case "senadores":
+        result = await syncSenadores();
         break;
       default:
         return NextResponse.json({ error: "domain inválido" }, { status: 400 });

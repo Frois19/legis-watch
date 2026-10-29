@@ -1,6 +1,6 @@
 # Legis Watch
 
-Acompanhe **deputados federais** (Câmara) e **deputados estaduais** das 27 UFs: busca unificada por esfera, perfil, partido, proposições, votações e presença quando a casa publicar.
+Acompanhe **deputados federais** (Câmara), **deputados estaduais** (27 UFs) e **senadores**: busca unificada por esfera, perfil, partido, proposições, votações e presença quando a casa publicar.
 
 **Documentação:** [índice produto + técnica](./docs/README.md) · [guia do produto](./docs/GUIA-DO-PRODUTO.md) · [estaduais por UF](./docs/estaduais.md)
 
@@ -53,6 +53,9 @@ npm run sync -- estadual --source=all
 
 # Só PE (ALEPE live + fallback de fixture)
 npm run sync -- estadual --source=alepe
+
+# Senadores em exercício (Dados Abertos do Senado)
+npm run sync -- senadores
 ```
 
 ## Dev server
@@ -65,10 +68,10 @@ App em [http://localhost:3456](http://localhost:3456) · API em `/api/health`.
 
 ### UI (v1)
 
-- `/` — busca por esfera (federal / estadual / todos), nome, partido, UF e mandato
+- `/` — busca por esfera (federal / estadual / senador / todos), nome, partido, UF e mandato
 - `/favoritos` — favoritos federais no `localStorage` do navegador
 - `/deputados/[id]` — perfil federal com abas de projetos, votações, presença e partido
-- `/parlamentares/[source]/[id]` — perfil estadual (27 UFs; cobertura por casa)
+- `/parlamentares/[source]/[id]` — perfil estadual (27 UFs) ou senador (`senado/{codigo}`)
 
 ## Testes (backend)
 

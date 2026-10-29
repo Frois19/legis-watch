@@ -6,13 +6,19 @@ import { getAssembly } from "@/lib/parliament/assemblies";
 import type { ParliamentarianListItem } from "@/lib/api/types";
 import { NextRequest, NextResponse } from "next/server";
 
-type SphereFilter = "federal_deputado" | "estadual_deputado" | "todos";
+type SphereFilter =
+  | "federal_deputado"
+  | "estadual_deputado"
+  | "senador"
+  | "todos";
 
 export async function GET(request: NextRequest) {
   const { searchParams } = request.nextUrl;
   const esferaRaw = (searchParams.get("esfera") ?? "federal_deputado").trim();
   const esfera = (
-    ["federal_deputado", "estadual_deputado", "todos"].includes(esferaRaw)
+    ["federal_deputado", "estadual_deputado", "senador", "todos"].includes(
+      esferaRaw,
+    )
       ? esferaRaw
       : "federal_deputado"
   ) as SphereFilter;
@@ -61,6 +67,9 @@ export async function GET(request: NextRequest) {
     items = items.concat(
       await listEstadual({ nome, siglaPartido, siglaUf }),
     );
+  }
+  if (esfera === "senador" || esfera === "todos") {
+    items = items.concat(await listSenadores({ nome, siglaPartido, siglaUf }));
   }
 
   items.sort((a, b) =>
@@ -210,4 +219,48 @@ async function listEstadual(opts: {
       assemblyName: assembly?.name ?? d.source,
     };
   });
+}
+
+async function listSenadores(opts: {
+  nome?: string;
+  siglaPartido?: string;
+  siglaUf?: string;
+}): Promise<ParliamentarianListItem[]> {
+  const { nome, siglaPartido, siglaUf } = opts;
+  const rows = await prisma.senator.findMany({
+    where: {
+      AND: [
+        nome
+          ? {
+              OR: [
+                { nome: { contains: nome } },
+                { nomeEleitoral: { contains: nome } },
+                { nomeCivil: { contains: nome } },
+              ],
+            }
+          : {},
+        siglaPartido ? { siglaPartido } : {},
+        siglaUf ? { siglaUf } : {},
+      ],
+    },
+    orderBy: { nome: "asc" },
+    take: 500,
+  });
+
+  return rows.map((d) => ({
+    key: d.id,
+    sphere: "senador" as const,
+    source: d.source,
+    id: d.id,
+    nome: d.nome,
+    nomeEleitoral: d.nomeEleitoral,
+    siglaPartido: d.siglaPartido,
+    siglaUf: d.siglaUf,
+    legislaturaId: null,
+    urlFoto: d.urlFoto,
+    email: d.email,
+    situacao: d.situacao,
+    href: `/parlamentares/senado/${d.externalId}`,
+    assemblyName: "Senado Federal",
+  }));
 }

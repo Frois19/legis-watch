@@ -201,7 +201,7 @@ model Attendance {
 
 model SyncRun {
   id         Int      @id @default(autoincrement())
-  domain     String // deputies | parties | propositions | votes | attendance | estadual:alepe
+  domain     String // deputies | parties | propositions | votes | attendance | estadual:alepe | senadores
   status     String // running | success | error
   startedAt  DateTime @default(now())
   finishedAt DateTime?
@@ -209,6 +209,34 @@ model SyncRun {
   countsJson String? // JSON with counters
 
   @@index([domain, startedAt])
+}
+
+/** Senador (Senado Federal). ID namespaced: "senado:5672". */
+model Senator {
+  id            String   @id
+  source        String   @default("senado")
+  externalId    String
+  nome          String
+  nomeCivil     String?
+  nomeEleitoral String?
+  siglaPartido  String?
+  siglaUf       String?
+  email         String?
+  urlFoto       String?
+  urlPagina     String?
+  situacao      String?
+  participacao  String?
+  rawJson       String?
+  syncedAt      DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@unique([source, externalId])
+  @@index([source])
+  @@index([nome])
+  @@index([siglaPartido])
+  @@index([siglaUf])
+  @@index([siglaUf, nome])
 }
 
 /** Deputado estadual (Assembleias). ID namespaced: "alepe:slug". */

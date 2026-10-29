@@ -11,6 +11,18 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "camara.leg.br",
       },
+      {
+        protocol: "https",
+        hostname: "www.senado.leg.br",
+      },
+      {
+        protocol: "https",
+        hostname: "www25.senado.leg.br",
+      },
+      {
+        protocol: "https",
+        hostname: "legis.senado.leg.br",
+      },
     ],
   },
 };

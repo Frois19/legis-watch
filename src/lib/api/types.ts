@@ -39,12 +39,12 @@ export type DeputyListItem = {
   party: Party | null;
 };
 
-/** Item unificado de busca (federal ou estadual). */
+/** Item unificado de busca (federal, estadual ou senador). */
 export type ParliamentarianListItem = {
   key: string;
-  sphere: "federal_deputado" | "estadual_deputado";
+  sphere: "federal_deputado" | "estadual_deputado" | "senador";
   source: string;
-  /** Id numérico (federal) ou namespaced string (estadual). */
+  /** Id numérico (federal) ou namespaced string (estadual/senado). */
   id: number | string;
   nome: string;
   nomeEleitoral: string | null;
@@ -79,6 +79,35 @@ export type StateDeputyDetail = {
     votes: boolean;
     attendance: boolean;
   };
+  syncedAt: string | null;
+  href: string;
+};
+
+export type SenatorDetail = {
+  key: string;
+  sphere: "senador";
+  source: "senado";
+  id: string;
+  externalId: string;
+  nome: string;
+  nomeCivil: string | null;
+  nomeEleitoral: string | null;
+  siglaPartido: string | null;
+  siglaUf: string | null;
+  urlFoto: string | null;
+  urlPagina: string | null;
+  email: string | null;
+  situacao: string | null;
+  participacao: string | null;
+  assemblyName: string;
+  coverage: {
+    search: boolean;
+    profile: boolean;
+    propositions: boolean;
+    votes: boolean;
+    attendance: boolean;
+  };
+  attendanceDisclaimer: string;
   syncedAt: string | null;
   href: string;
 };

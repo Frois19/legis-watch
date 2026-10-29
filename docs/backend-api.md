@@ -40,7 +40,7 @@ Headers de cache na listagem: `X-Cache: HIT|MISS`.
 ## Parlamentares (busca unificada)
 
 ```http
-GET /api/parlamentares?esfera=federal_deputado|estadual_deputado|todos&nome=&siglaPartido=&siglaUf=&legislaturaId=&page=1&pageSize=20
+GET /api/parlamentares?esfera=federal_deputado|estadual_deputado|senador|todos&nome=&siglaPartido=&siglaUf=&legislaturaId=&page=1&pageSize=20
 GET /api/parlamentares/{source}/{id}
 GET /api/assembleias
 ```
@@ -49,7 +49,7 @@ GET /api/assembleias
 
 | Param | Default | Notas |
 |---|---|---|
-| `esfera` | `federal_deputado` | `federal_deputado`, `estadual_deputado` ou `todos` |
+| `esfera` | `federal_deputado` | `federal_deputado`, `estadual_deputado`, `senador` ou `todos` |
 | `nome` | — | contains (case-insensitive via SQLite) |
 | `siglaPartido` | — | ex.: `PT`, `PL` |
 | `siglaUf` | — | UF do mandato (federal) ou da casa (estadual) |
@@ -58,11 +58,13 @@ GET /api/assembleias
 
 Resposta inclui `items[]` com `sphere`, `source`, `href`, `assemblyName`, etc. Cache em memória (`X-Cache`).
 
-### Perfil estadual
+### Perfil estadual / senador
 
-`GET /api/parlamentares/{source}/{id}` — ex.: `/api/parlamentares/alepe/joao-paulo`
+`GET /api/parlamentares/{source}/{id}` — ex.: `/api/parlamentares/alepe/joao-paulo` ou `/api/parlamentares/senado/5672`
 
 Campos: nome, partido, UF, e-mail, `coverage` (search/profile/propositions/votes/attendance), `syncedAt`.
+
+Perfil do Senado inclui `attendanceDisclaimer` (a API não publica presença equivalente à da Câmara).
 
 ### Catálogo de assembleias
 
@@ -110,7 +112,7 @@ Content-Type: application/json
 x-sync-secret: <SYNC_SECRET se definido>
 
 {
-  "domain": "bootstrap" | "parties" | "deputies" | "propositions" | "votes" | "attendance" | "estadual",
+  "domain": "bootstrap" | "parties" | "deputies" | "propositions" | "votes" | "attendance" | "estadual" | "senadores",
   "deputyId": 204379,
   "year": 2026,
   "source": "all"
@@ -121,6 +123,8 @@ x-sync-secret: <SYNC_SECRET se definido>
 
 - `source` omitido ou `"all"` → sincroniza as **27 UFs**
 - `source=alepe` (ou outra casa) → só aquela Assembleia
+
+`domain=senadores` → lista atual do Senado (`/senador/lista/atual.json`).
 
 Preferível via CLI:
 
@@ -133,11 +137,12 @@ npm run sync -- attendance --year=2026
 npm run sync -- bootstrap
 npm run sync -- estadual --source=all
 npm run sync -- estadual --source=alepe
+npm run sync -- senadores
 ```
 
 Os syncs de `votes` e `attendance` usam os arquivos anuais da Câmara (bulk) e gravam em lote no SQLite. Presença na API federal considera só **Sessões Deliberativas** não canceladas no Plenário da Câmara.
 
-O sync estadual usa adapters (`src/lib/parliament/adapters/`): PE via ALEPE (fallback fixture); demais UFs via fixture de cadastro até existir adapter live.
+O sync estadual usa adapters (`src/lib/parliament/adapters/`): PE via ALEPE (fallback fixture); demais UFs via fixture de cadastro até existir adapter live. O sync `senadores` usa Dados Abertos do Senado (fallback fixture).
 
 ---
 

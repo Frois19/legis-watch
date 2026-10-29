@@ -16,7 +16,8 @@ Para regenerar os prints: `npm run docs:screenshots` (requer o dev server em `:3
 
 | Funcionalidade | O que resolve |
 |---|---|
-| Busca por esfera | Filtrar **federais**, **estaduais** ou **todos** |
+| Busca por esfera | Filtrar **federais**, **estaduais**, **senadores** ou **todos** |
+| Busca de senadores | Encontrar senadores em exercício por nome, partido e UF |
 | Busca por mandato | Encontrar deputados federais por nome, partido e UF em qualquer legislatura |
 | Busca estadual (27 UFs) | Encontrar deputados de Assembleia / CLDF por nome, partido e UF |
 | Favoritos locais | Guardar parlamentares **federais** neste navegador (sem login) |
@@ -25,6 +26,7 @@ Para regenerar os prints: `npm run docs:screenshots` (requer o dev server em `:3
 | Presença e faltas | (Federal) Filtrar dias de falta e abrir a **ata do dia** (pauta + votações) |
 | Partido | (Federal) Ver outros deputados do mesmo partido no mandato selecionado |
 | Perfil estadual | Nome, partido, UF, e-mail e o que a casa já cobre (projetos/votos/presença quando houver) |
+| Perfil de senador | Cadastro + disclaimer de presença (API do Senado não equivale à da Câmara) |
 
 ---
 
@@ -134,6 +136,18 @@ Catálogo completo das 27 UFs: [estaduais.md](./estaduais.md).
 
 ---
 
+## 8. Senadores
+
+Esfera **Senadores** na busca; perfil em `/parlamentares/senado/{codigo}`.
+
+![Busca de senadores](./screenshots/11-busca-senadores.png)
+
+![Perfil de senador com disclaimer de presença](./screenshots/12-perfil-senador.png)
+
+Detalhes: [senado.md](./senado.md).
+
+---
+
 ## Fluxo típico de uso
 
 1. Abrir a busca e escolher a esfera (federal / estadual / todos)  
@@ -150,6 +164,7 @@ Catálogo completo das 27 UFs: [estaduais.md](./estaduais.md).
 
 - **Federal:** Dados Abertos da Câmara (API + arquivos anuais de votos/presença)
 - **Estadual:** PE via API ALEPE (com fixture se a rede falhar); demais UFs usam fixture de cadastro até haver adapter live — ver [estaduais.md](./estaduais.md)
+- **Senado:** lista atual via Dados Abertos; presença **não** é inferida — ver [senado.md](./senado.md)
 - Presença federal: sessões deliberativas no Plenário, não canceladas  
 - Autoria/status em votações federais podem ser completados sob demanda via API da Câmara  
 - Favoritos ficam só no navegador atual e, por enquanto, só para federais  

@@ -8,16 +8,22 @@ export function ParliamentarianRow({
   item: ParliamentarianListItem;
 }) {
   const name = item.nomeEleitoral || item.nome;
-  const meta = [
-    item.sphere === "estadual_deputado" ? "Estadual" : "Federal",
-    item.siglaPartido,
-    item.siglaUf,
-    item.situacao,
-  ]
+  const sphereLabel =
+    item.sphere === "senador"
+      ? "Senado"
+      : item.sphere === "estadual_deputado"
+        ? "Estadual"
+        : "Federal";
+  const meta = [sphereLabel, item.siglaPartido, item.siglaUf, item.situacao]
     .filter(Boolean)
     .join(" · ");
 
-  const photoId = typeof item.id === "number" ? item.id : -1;
+  const photoId =
+    typeof item.id === "number"
+      ? item.id
+      : item.sphere === "senador" && item.source === "senado"
+        ? Number(String(item.id).split(":")[1]) || -1
+        : -1;
 
   return (
     <li className="border-b border-border last:border-b-0">

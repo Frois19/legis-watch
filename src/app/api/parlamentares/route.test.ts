@@ -6,6 +6,7 @@ const { prisma } = vi.hoisted(() => ({
     deputyMandate: { findMany: vi.fn() },
     deputy: { findMany: vi.fn() },
     stateDeputy: { findMany: vi.fn() },
+    senator: { findMany: vi.fn() },
   },
 }));
 
@@ -21,6 +22,7 @@ describe("GET /api/parlamentares", () => {
     prisma.deputy.findMany.mockResolvedValue([]);
     prisma.deputyMandate.findMany.mockResolvedValue([]);
     prisma.stateDeputy.findMany.mockResolvedValue([]);
+    prisma.senator.findMany.mockResolvedValue([]);
   });
 
   it("lista estaduais com esfera=estadual_deputado", async () => {
@@ -64,7 +66,7 @@ describe("GET /api/parlamentares", () => {
     expect(prisma.stateDeputy.findMany).toHaveBeenCalledTimes(1);
   });
 
-  it("mistura federal e estadual em esfera=todos", async () => {
+  it("mistura federal, estadual e senador em esfera=todos", async () => {
     prisma.deputy.findMany.mockResolvedValue([
       {
         id: 1,
@@ -92,15 +94,30 @@ describe("GET /api/parlamentares", () => {
         situacao: null,
       },
     ]);
+    prisma.senator.findMany.mockResolvedValue([
+      {
+        id: "senado:5672",
+        source: "senado",
+        externalId: "5672",
+        nome: "Senador C",
+        nomeEleitoral: null,
+        siglaPartido: "PT",
+        siglaUf: "AC",
+        urlFoto: null,
+        email: null,
+        situacao: "Exercício",
+      },
+    ]);
 
     const res = await GET(
       new NextRequest("http://localhost/api/parlamentares?esfera=todos"),
     );
     const body = await res.json();
-    expect(body.total).toBe(2);
+    expect(body.total).toBe(3);
     expect(body.items.map((i: { sphere: string }) => i.sphere).sort()).toEqual([
       "estadual_deputado",
       "federal_deputado",
+      "senador",
     ]);
   });
 });

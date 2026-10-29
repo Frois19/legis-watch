@@ -23,6 +23,7 @@ import {
   syncParties,
   syncPropositionsForDeputy,
   syncAllStateAssemblies,
+  syncSenadores,
   syncStateAssembly,
   syncVotesForYear,
 } from "../src/lib/sync";
@@ -81,10 +82,14 @@ async function main() {
         console.log(await syncStateAssembly(source));
       }
       break;
+    case "senadores":
+    case "senado":
+      console.log(await syncSenadores());
+      break;
     default:
       console.error(`Unknown command: ${command ?? "(none)"}`);
       console.error(
-        "Commands: legislatures | parties | deputies | mandates | propositions | votes | attendance | bootstrap | estadual",
+        "Commands: legislatures | parties | deputies | mandates | propositions | votes | attendance | bootstrap | estadual | senadores",
       );
       console.error(
         "estadual: npm run sync -- estadual --source=all | --source=alepe",

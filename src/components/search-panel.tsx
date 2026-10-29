@@ -18,7 +18,11 @@ const UFS = [
   "PR","PE","PI","RJ","RN","RS","RO","RR","SC","SP","SE","TO",
 ];
 
-type SphereFilter = "federal_deputado" | "estadual_deputado" | "todos";
+type SphereFilter =
+  | "federal_deputado"
+  | "estadual_deputado"
+  | "senador"
+  | "todos";
 
 export function SearchPanel({
   legislatures,
@@ -46,6 +50,8 @@ export function SearchPanel({
   const debouncedNome = useDebouncedValue(nome, 300);
   const debouncedPartido = useDebouncedValue(siglaPartido, 300);
   const isFederal = esfera === "federal_deputado" || esfera === "todos";
+  const isSenador = esfera === "senador";
+  const isEstadual = esfera === "estadual_deputado";
 
   async function runSearch(next?: {
     esfera?: SphereFilter;
@@ -78,7 +84,9 @@ export function SearchPanel({
         siglaUf: query.siglaUf || undefined,
         siglaPartido: query.siglaPartido || undefined,
         legislaturaId:
-          query.esfera === "estadual_deputado" || query.legislaturaId === ""
+          query.esfera === "estadual_deputado" ||
+          query.esfera === "senador" ||
+          query.legislaturaId === ""
             ? undefined
             : Number(query.legislaturaId),
         pageSize: 30,
@@ -147,6 +155,7 @@ export function SearchPanel({
               [
                 ["federal_deputado", "Deputados federais"],
                 ["estadual_deputado", "Deputados estaduais"],
+                ["senador", "Senadores"],
                 ["todos", "Todos"],
               ] as const
             ).map(([value, label]) => {
@@ -198,7 +207,7 @@ export function SearchPanel({
               })}
             </div>
           </fieldset>
-        ) : (
+        ) : isEstadual ? (
           <p className="text-xs text-muted-foreground">
             Cobertura estadual: 27 UFs (PE via ALEPE; demais com fixture de
             cadastro). Sync:{" "}
@@ -206,6 +215,19 @@ export function SearchPanel({
               npm run sync -- estadual --source=all
             </code>
             .
+          </p>
+        ) : isSenador ? (
+          <p className="text-xs text-muted-foreground">
+            Senadores em exercício (Dados Abertos do Senado). Sync:{" "}
+            <code className="rounded bg-muted px-1">
+              npm run sync -- senadores
+            </code>
+            . Presença oficial não vem pela API — ver disclaimer no perfil.
+          </p>
+        ) : (
+          <p className="text-xs text-muted-foreground">
+            Busca em federais, estaduais e senadores. Mandato federal só se
+            aplica aos deputados da Câmara.
           </p>
         )}
 
@@ -218,7 +240,7 @@ export function SearchPanel({
               id={`${formId}-nome`}
               value={nome}
               onChange={(e) => setNome(e.target.value)}
-              placeholder="Ex.: Janones ou Gleide"
+              placeholder="Ex.: Janones, Gleide ou Alan Rick"
               autoComplete="off"
             />
           </div>
@@ -295,6 +317,22 @@ export function SearchPanel({
           }}
         >
           deputados estaduais de PE
+        </button>
+        ,{" "}
+        <button
+          type="button"
+          className="font-medium text-primary underline underline-offset-2"
+          onClick={() => {
+            skipDebounceRef.current = true;
+            void runSearch({
+              esfera: "senador",
+              nome: "",
+              siglaUf: "AC",
+              legislaturaId: "",
+            });
+          }}
+        >
+          senadores do AC
         </button>{" "}
         ou{" "}
         <Link

@@ -41,7 +41,7 @@ export function searchDeputies(params: {
 }
 
 export function searchParliamentarians(params: {
-  esfera?: "federal_deputado" | "estadual_deputado" | "todos";
+  esfera?: "federal_deputado" | "estadual_deputado" | "senador" | "todos";
   nome?: string;
   siglaPartido?: string;
   siglaUf?: string;
