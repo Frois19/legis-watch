@@ -153,3 +153,36 @@ export type AttendanceResponse = {
     status: string;
   }>;
 };
+
+export type EventAtaPautaItem = {
+  ordem: number | null;
+  titulo: string | null;
+  topico: string | null;
+  regime: string | null;
+  situacaoItem: string | null;
+  ementa: string | null;
+  proposicaoId: number | null;
+  urlCamara: string | null;
+  uriVotacao: string | null;
+};
+
+export type EventAtaVotacao = {
+  id: string;
+  descricao: string | null;
+  dataHoraRegistro: string | null;
+  aprovacao: boolean | null;
+  proposicaoId: number | null;
+  proposicaoLabel: string | null;
+  urlCamara: string | null;
+};
+
+export type EventAta = {
+  eventId: number;
+  descricao: string | null;
+  dataHoraInicio: string | null;
+  situacao: string | null;
+  urlEvento: string;
+  urlRegistro: string | null;
+  pauta: EventAtaPautaItem[];
+  votacoes: EventAtaVotacao[];
+};

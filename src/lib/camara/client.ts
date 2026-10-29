@@ -8,6 +8,8 @@ import type {
   CamaraDeputyDetail,
   CamaraDeputyHistorico,
   CamaraDeputyListItem,
+  CamaraEventDetail,
+  CamaraEventPautaItem,
   CamaraLegislature,
   CamaraListResponse,
   CamaraParty,
@@ -219,6 +221,22 @@ export async function listPropositionAuthors(
 ): Promise<CamaraPropositionAuthor[]> {
   const payload = await fetchJson<CamaraListResponse<CamaraPropositionAuthor>>(
     `${API_BASE}/proposicoes/${id}/autores`,
+  );
+  return payload.dados ?? [];
+}
+
+export async function getEvent(id: number): Promise<CamaraEventDetail> {
+  const payload = await fetchJson<{ dados: CamaraEventDetail }>(
+    `${API_BASE}/eventos/${id}`,
+  );
+  return payload.dados;
+}
+
+export async function listEventPauta(
+  id: number,
+): Promise<CamaraEventPautaItem[]> {
+  const payload = await fetchJson<CamaraListResponse<CamaraEventPautaItem>>(
+    `${API_BASE}/eventos/${id}/pauta`,
   );
   return payload.dados ?? [];
 }

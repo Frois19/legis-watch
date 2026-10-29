@@ -144,6 +144,42 @@ export type CamaraBulkEvent = {
   localCamara?: { nome?: string } | string;
 };
 
+export type CamaraEventDetail = {
+  id: number;
+  dataHoraInicio?: string;
+  dataHoraFim?: string;
+  situacao?: string;
+  descricaoTipo?: string;
+  descricao?: string;
+  localCamara?: { nome?: string } | string;
+  urlRegistro?: string | null;
+};
+
+export type CamaraEventPautaItem = {
+  ordem?: number;
+  topico?: string | null;
+  regime?: string | null;
+  titulo?: string | null;
+  situacaoItem?: string | null;
+  uriVotacao?: string | null;
+  proposicao_?: {
+    id?: number;
+    uri?: string;
+    siglaTipo?: string;
+    numero?: number;
+    ano?: number;
+    ementa?: string;
+  } | null;
+  proposicaoRelacionada_?: {
+    id?: number;
+    uri?: string;
+    siglaTipo?: string;
+    numero?: number;
+    ano?: number;
+    ementa?: string;
+  } | null;
+};
+
 export type CamaraBulkAttendance = {
   idEvento?: number;
   idDeputado?: number;

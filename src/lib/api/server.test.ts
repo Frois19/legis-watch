@@ -29,11 +29,24 @@ const { prisma } = vi.hoisted(() => ({
     },
     event: {
       findMany: vi.fn(),
+      findUnique: vi.fn(),
+    },
+    voteSession: {
+      findMany: vi.fn(),
     },
   },
 }));
 
+const { getEvent, listEventPauta } = vi.hoisted(() => ({
+  getEvent: vi.fn(),
+  listEventPauta: vi.fn(),
+}));
+
 vi.mock("@/lib/db/prisma", () => ({ prisma }));
+vi.mock("@/lib/camara/client", () => ({
+  getEvent: (...args: unknown[]) => getEvent(...args),
+  listEventPauta: (...args: unknown[]) => listEventPauta(...args),
+}));
 
 import {
   getDeputy,
@@ -41,6 +54,7 @@ import {
   getDeputyProfileBundle,
   getDeputyPropositions,
   getDeputyVotes,
+  getEventAta,
   listLegislatures,
 } from "./server";
 
@@ -346,6 +360,62 @@ describe("api/server", () => {
     prisma.event.findMany.mockResolvedValue([]);
     const attendance = await getDeputyAttendance(1);
     expect(attendance.years).toEqual([new Date().getFullYear()]);
+  });
+
+  it("getEventAta monta pauta e votações do dia", async () => {
+    prisma.event.findUnique.mockResolvedValue({
+      id: 10,
+      dataHoraInicio: "2026-05-21T10:41:00",
+      descricao: "Sessão local",
+      situacao: "Encerrada",
+    });
+    getEvent.mockResolvedValue({
+      id: 10,
+      descricao: "Sessão remota",
+      urlRegistro: "https://www.youtube.com/watch?v=x",
+    });
+    listEventPauta.mockResolvedValue([
+      {
+        ordem: 1,
+        titulo: "PL 1/2026",
+        topico: "Ordem do Dia",
+        situacaoItem: "Aprovado",
+        proposicao_: {
+          id: 99,
+          ementa: "Ementa",
+          siglaTipo: "PL",
+          numero: 1,
+          ano: 2026,
+        },
+      },
+    ]);
+    prisma.voteSession.findMany.mockResolvedValue([
+      {
+        id: "v-1",
+        descricao: "Aprovado o projeto",
+        dataHoraRegistro: "2026-05-21T15:00:00",
+        aprovacao: true,
+        proposition: {
+          id: 99,
+          siglaTipo: "PL",
+          numero: 1,
+          ano: 2026,
+        },
+      },
+    ]);
+
+    const ata = await getEventAta(10);
+    expect(ata.urlEvento).toContain("/evento-legislativo/10");
+    expect(ata.urlRegistro).toContain("youtube");
+    expect(ata.pauta[0]?.titulo).toBe("PL 1/2026");
+    expect(ata.pauta[0]?.urlCamara).toContain("idProposicao=99");
+    expect(ata.votacoes).toHaveLength(1);
+    expect(ata.votacoes[0]?.aprovacao).toBe(true);
+  });
+
+  it("getEventAta lança se evento não existe", async () => {
+    prisma.event.findUnique.mockResolvedValue(null);
+    await expect(getEventAta(404)).rejects.toThrow("event_not_found");
   });
 
   it("getDeputy usa fallbacks de mandato e JSON inválido em redes", async () => {

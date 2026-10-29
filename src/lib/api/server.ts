@@ -1,6 +1,10 @@
+import { getEvent, listEventPauta } from "@/lib/camara/client";
 import { resolveDeputyPhotoUrl } from "@/lib/camara/photo";
 import { prisma } from "@/lib/db/prisma";
-import { camaraPropositionUrl } from "@/lib/format";
+import {
+  camaraPropositionUrl,
+  propositionLabel,
+} from "@/lib/format";
 import {
   defaultLegislaturaId,
   formatLegislaturaLabel,
@@ -10,6 +14,7 @@ import { isApprovedPropositionStatus } from "@/lib/propositions/status";
 import type {
   AttendanceResponse,
   DeputyDetail,
+  EventAta,
   LegislatureItem,
   MandateItem,
   Paginated,
@@ -453,6 +458,103 @@ export async function getDeputyAttendance(
         "Apenas Sessões Deliberativas não canceladas no Plenário da Câmara, cruzadas com o registro oficial de presença. Ausência no arquivo = falta candidata.",
     },
     items,
+  };
+}
+
+/** Ata/pauta do dia: itens oficiais da Câmara + votações nominais do mesmo dia no SQLite. */
+export async function getEventAta(eventId: number): Promise<EventAta> {
+  const local = await prisma.event.findUnique({ where: { id: eventId } });
+  if (!local) {
+    throw new Error("event_not_found");
+  }
+
+  let urlRegistro: string | null = null;
+  let remoteDescricao: string | null = null;
+  try {
+    const remote = await getEvent(eventId);
+    urlRegistro = remote.urlRegistro ?? null;
+    remoteDescricao = remote.descricao ?? null;
+  } catch {
+    // segue com dados locais
+  }
+
+  let pautaRaw: Awaited<ReturnType<typeof listEventPauta>> = [];
+  try {
+    pautaRaw = await listEventPauta(eventId);
+  } catch {
+    pautaRaw = [];
+  }
+
+  const day = (local.dataHoraInicio ?? "").slice(0, 10);
+  const votacoesLocais =
+    day.length === 10
+      ? await prisma.voteSession.findMany({
+          where: {
+            dataHoraRegistro: { startsWith: day },
+            OR: [{ siglaOrgao: "PLEN" }, { siglaOrgao: null }],
+          },
+          orderBy: { dataHoraRegistro: "asc" },
+          take: 40,
+          include: {
+            proposition: {
+              select: {
+                id: true,
+                siglaTipo: true,
+                numero: true,
+                ano: true,
+              },
+            },
+          },
+        })
+      : [];
+
+  const pauta = pautaRaw.map((item) => {
+    const related = item.proposicaoRelacionada_ || item.proposicao_;
+    const propId = related?.id ?? item.proposicao_?.id ?? null;
+    const ementa =
+      related?.ementa || item.proposicao_?.ementa || null;
+    const titulo =
+      item.titulo ||
+      propositionLabel({
+        siglaTipo: related?.siglaTipo ?? item.proposicao_?.siglaTipo,
+        numero: related?.numero ?? item.proposicao_?.numero,
+        ano: related?.ano ?? item.proposicao_?.ano,
+      }) ||
+      null;
+    return {
+      ordem: item.ordem ?? null,
+      titulo,
+      topico: item.topico ?? null,
+      regime: item.regime ?? null,
+      situacaoItem: item.situacaoItem ?? null,
+      ementa,
+      proposicaoId: propId ?? null,
+      urlCamara: propId ? camaraPropositionUrl(propId) : null,
+      uriVotacao: item.uriVotacao || null,
+    };
+  });
+
+  return {
+    eventId,
+    descricao: remoteDescricao || local.descricao,
+    dataHoraInicio: local.dataHoraInicio,
+    situacao: local.situacao,
+    urlEvento: `https://www.camara.leg.br/evento-legislativo/${eventId}`,
+    urlRegistro,
+    pauta,
+    votacoes: votacoesLocais.map((v) => ({
+      id: v.id,
+      descricao: v.descricao,
+      dataHoraRegistro: v.dataHoraRegistro,
+      aprovacao: v.aprovacao,
+      proposicaoId: v.proposition?.id ?? null,
+      proposicaoLabel: v.proposition
+        ? propositionLabel(v.proposition) || null
+        : null,
+      urlCamara: v.proposition
+        ? camaraPropositionUrl(v.proposition.id)
+        : null,
+    })),
   };
 }
 
