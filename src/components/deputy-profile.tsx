@@ -1,5 +1,6 @@
 "use client";
 
+import { AttendancePanel } from "@/components/attendance-panel";
 import { DeputyPhoto } from "@/components/deputy-photo";
 import { FavoriteButton } from "@/components/favorite-button";
 import { PropositionsPanel } from "@/components/propositions-panel";
@@ -14,7 +15,7 @@ import type {
   PropositionStats,
   VoteItem,
 } from "@/lib/api/types";
-import { formatDateTime, socialLabel } from "@/lib/format";
+import { socialLabel } from "@/lib/format";
 import { ExternalLink } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -204,43 +205,7 @@ export function DeputyProfile({
             title="Presença no Plenário"
             description={attendance.summary.metodologia}
           />
-          <div
-            className="mb-4 grid grid-cols-3 gap-2"
-            role="group"
-            aria-label="Resumo de presença"
-          >
-            <Stat
-              label="Sessões"
-              value={attendance.summary.eventosConsiderados}
-            />
-            <Stat label="Presente" value={attendance.summary.presentes} />
-            <Stat label="Faltas" value={attendance.summary.faltas} />
-          </div>
-          {attendance.items.length === 0 ? (
-            <EmptyState message="Ainda não há sessões de plenário sincronizadas." />
-          ) : (
-            <ul className="divide-y divide-border border border-border bg-card">
-              {attendance.items.slice(0, 40).map((row) => (
-                <li
-                  key={row.eventId}
-                  className="flex items-start justify-between gap-3 p-3 text-sm"
-                >
-                  <div>
-                    <p className="font-medium">
-                      {row.descricaoTipo || "Sessão"}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      {formatDateTime(row.dataHoraInicio)}
-                      {row.situacao ? ` · ${row.situacao}` : ""}
-                    </p>
-                  </div>
-                  <Badge variant={row.presente ? "success" : "danger"}>
-                    {row.presente ? "Presente" : "Falta"}
-                  </Badge>
-                </li>
-              ))}
-            </ul>
-          )}
+          <AttendancePanel attendance={attendance} />
         </TabsContent>
 
         <TabsContent value="partido">
@@ -316,11 +281,3 @@ function EmptyState({ message }: { message: string }) {
   );
 }
 
-function Stat({ label, value }: { label: string; value: number }) {
-  return (
-    <div className="border border-border bg-card px-3 py-3 text-center">
-      <p className="font-display text-2xl font-semibold text-primary">{value}</p>
-      <p className="text-xs text-muted-foreground">{label}</p>
-    </div>
-  );
-}
