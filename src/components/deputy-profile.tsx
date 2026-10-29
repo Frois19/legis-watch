@@ -1,5 +1,6 @@
 "use client";
 
+import { DeputyPhoto } from "@/components/deputy-photo";
 import { FavoriteButton } from "@/components/favorite-button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -12,7 +13,6 @@ import type {
 } from "@/lib/api/types";
 import { formatDate, formatDateTime, propositionLabel, socialLabel } from "@/lib/format";
 import { ExternalLink } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
 
 function voteVariant(tipo: string) {
@@ -44,23 +44,13 @@ export function DeputyProfile({
       <header className="border border-border bg-card p-5 sm:p-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div className="flex gap-4">
-            <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-full bg-muted sm:h-24 sm:w-24">
-              {deputy.urlFoto ? (
-                <Image
-                  src={deputy.urlFoto}
-                  alt={`Foto oficial de ${name}`}
-                  fill
-                  className="object-cover"
-                  sizes="96px"
-                  unoptimized
-                  priority
-                />
-              ) : (
-                <span className="flex h-full w-full items-center justify-center text-lg text-muted-foreground">
-                  {name.slice(0, 1)}
-                </span>
-              )}
-            </div>
+            <DeputyPhoto
+              id={deputy.id}
+              name={name}
+              urlFoto={deputy.urlFoto}
+              size="lg"
+              priority
+            />
             <div>
               <h1 className="font-display text-3xl font-semibold tracking-tight text-foreground">
                 {name}
@@ -290,18 +280,12 @@ export function DeputyProfile({
                     href={`/deputados/${member.id}`}
                     className="flex items-center gap-3 border border-border bg-card px-3 py-2 hover:bg-secondary"
                   >
-                    <div className="relative h-9 w-9 overflow-hidden rounded-full bg-muted">
-                      {member.urlFoto ? (
-                        <Image
-                          src={member.urlFoto}
-                          alt=""
-                          fill
-                          className="object-cover"
-                          sizes="36px"
-                          unoptimized
-                        />
-                      ) : null}
-                    </div>
+                    <DeputyPhoto
+                      id={member.id}
+                      name={member.nome}
+                      urlFoto={member.urlFoto}
+                      size="sm"
+                    />
                     <div className="min-w-0">
                       <p className="truncate text-sm font-medium">
                         {member.nome}

@@ -1,3 +1,4 @@
+import { resolveDeputyPhotoUrl } from "@/lib/camara/photo";
 import { prisma } from "@/lib/db/prisma";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -69,7 +70,7 @@ function serializeDeputy(d: {
     siglaPartido: d.siglaPartido,
     siglaUf: d.siglaUf,
     legislaturaId: d.legislaturaId,
-    urlFoto: d.urlFoto,
+    urlFoto: resolveDeputyPhotoUrl(d.id, d.urlFoto),
     email: d.email,
     situacao: d.situacao,
     redesSociais: parseJsonArray(d.redesSociais),

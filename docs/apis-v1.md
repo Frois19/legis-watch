@@ -53,6 +53,10 @@ https://dadosabertos.camara.leg.br/api/v2/deputados?nome=favacho&idLegislatura=5
 
 **Campos típicos da listagem:** `id`, `uri`, `nome`, `siglaPartido`, `uriPartido`, `siglaUf`, `idLegislatura`, `urlFoto`, `email`.
 
+**Foto:** `urlFoto` aponta para o CDN da Câmara  
+(`https://www.camara.leg.br/internet/deputado/bandep/{id}.jpg`).  
+Se vier vazio, o backend/front montam essa URL pelo `id`.
+
 **Uso no produto:** tela de busca e seed de cadastro.
 
 ---

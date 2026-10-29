@@ -1,3 +1,4 @@
+import { resolveDeputyPhotoUrl } from "@/lib/camara/photo";
 import { prisma } from "@/lib/db/prisma";
 import type {
   AttendanceResponse,
@@ -58,7 +59,7 @@ export async function getDeputy(id: number): Promise<DeputyDetail> {
     siglaPartido: deputy.siglaPartido,
     siglaUf: deputy.siglaUf,
     legislaturaId: deputy.legislaturaId,
-    urlFoto: deputy.urlFoto,
+    urlFoto: resolveDeputyPhotoUrl(deputy.id, deputy.urlFoto),
     email: deputy.email,
     situacao: deputy.situacao,
     condicaoEleitoral: deputy.condicaoEleitoral,
@@ -68,7 +69,10 @@ export async function getDeputy(id: number): Promise<DeputyDetail> {
     redesSociais: parseJsonArray(deputy.redesSociais),
     gabinete: parseJsonObject(deputy.gabineteJson),
     party: deputy.party,
-    partyMembers,
+    partyMembers: partyMembers.map((m) => ({
+      ...m,
+      urlFoto: resolveDeputyPhotoUrl(m.id, m.urlFoto),
+    })),
     syncedAt: deputy.syncedAt?.toISOString() ?? null,
   };
 }

@@ -1,3 +1,4 @@
+import { resolveDeputyPhotoUrl } from "@/lib/camara/photo";
 import { prisma } from "@/lib/db/prisma";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -46,7 +47,7 @@ export async function GET(_request: NextRequest, { params }: Params) {
     siglaPartido: deputy.siglaPartido,
     siglaUf: deputy.siglaUf,
     legislaturaId: deputy.legislaturaId,
-    urlFoto: deputy.urlFoto,
+    urlFoto: resolveDeputyPhotoUrl(deputy.id, deputy.urlFoto),
     email: deputy.email,
     situacao: deputy.situacao,
     condicaoEleitoral: deputy.condicaoEleitoral,
@@ -56,7 +57,10 @@ export async function GET(_request: NextRequest, { params }: Params) {
     redesSociais: parseJsonArray(deputy.redesSociais),
     gabinete: parseJsonObject(deputy.gabineteJson),
     party: deputy.party,
-    partyMembers,
+    partyMembers: partyMembers.map((m) => ({
+      ...m,
+      urlFoto: resolveDeputyPhotoUrl(m.id, m.urlFoto),
+    })),
     syncedAt: deputy.syncedAt,
   });
 }

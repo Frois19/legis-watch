@@ -1,6 +1,6 @@
+import { DeputyPhoto } from "@/components/deputy-photo";
 import { FavoriteButton } from "@/components/favorite-button";
 import type { DeputyListItem } from "@/lib/api/types";
-import Image from "next/image";
 import Link from "next/link";
 
 export function DeputyRow({ deputy }: { deputy: DeputyListItem }) {
@@ -16,22 +16,7 @@ export function DeputyRow({ deputy }: { deputy: DeputyListItem }) {
           href={`/deputados/${deputy.id}`}
           className="flex min-w-0 flex-1 items-center gap-3 rounded-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
         >
-          <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-full bg-muted">
-            {deputy.urlFoto ? (
-              <Image
-                src={deputy.urlFoto}
-                alt={`Foto de ${name}`}
-                fill
-                className="object-cover"
-                sizes="44px"
-                unoptimized
-              />
-            ) : (
-              <span className="flex h-full w-full items-center justify-center text-xs text-muted-foreground">
-                {name.slice(0, 1)}
-              </span>
-            )}
-          </div>
+          <DeputyPhoto id={deputy.id} name={name} urlFoto={deputy.urlFoto} />
           <div className="min-w-0">
             <p className="truncate font-medium text-foreground">{name}</p>
             {meta ? (

@@ -5,6 +5,7 @@ import {
   listParties,
   partyIdFromUri,
 } from "@/lib/camara/client";
+import { resolveDeputyPhotoUrl } from "@/lib/camara/photo";
 import { prisma } from "@/lib/db/prisma";
 import { withSyncRun } from "./run";
 
@@ -71,7 +72,7 @@ export async function syncDeputies(legislaturaId = currentLegislatura()) {
           partyId: partyId ?? undefined,
           siglaUf: item.siglaUf,
           legislaturaId: item.idLegislatura ?? legislaturaId,
-          urlFoto: item.urlFoto,
+          urlFoto: resolveDeputyPhotoUrl(item.id, item.urlFoto),
           email: item.email,
           syncedAt: new Date(),
         },
@@ -82,7 +83,7 @@ export async function syncDeputies(legislaturaId = currentLegislatura()) {
           partyId: partyId ?? undefined,
           siglaUf: item.siglaUf,
           legislaturaId: item.idLegislatura ?? legislaturaId,
-          urlFoto: item.urlFoto,
+          urlFoto: resolveDeputyPhotoUrl(item.id, item.urlFoto),
           email: item.email,
           syncedAt: new Date(),
         },
@@ -126,7 +127,10 @@ export async function syncDeputies(legislaturaId = currentLegislatura()) {
               partyId: detailedPartyId ?? undefined,
               siglaUf: status?.siglaUf ?? item.siglaUf,
               legislaturaId: status?.idLegislatura ?? legislaturaId,
-              urlFoto: status?.urlFoto ?? item.urlFoto,
+              urlFoto: resolveDeputyPhotoUrl(
+                item.id,
+                status?.urlFoto ?? item.urlFoto,
+              ),
               email: status?.email ?? gabineteEmail ?? item.email,
               situacao: status?.situacao,
               condicaoEleitoral: status?.condicaoEleitoral,
