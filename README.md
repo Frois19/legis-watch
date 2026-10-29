@@ -61,12 +61,14 @@ App em [http://localhost:3456](http://localhost:3456) · API em `/api/health`.
 
 ## Testes (backend)
 
-Meta: **≥ 90%** de cobertura unitária em `src/lib` + `src/app/api` (exceto I/O HTTP/bulk da Câmara) e **mutation testing** (Stryker) na lógica de domínio.
+Meta: **≥ 90%** de cobertura unitária em `src/lib` + `src/app/api` (exceto I/O HTTP/bulk da Câmara) e **mutation testing** (Stryker) na lógica de domínio. Integração usa SQLite isolado (`prisma/test.db`) e as rotas reais.
 
 ```bash
-npm test                 # unitários
-npm run test:coverage    # cobertura com thresholds
-npm run test:mutation    # Stryker (score de mutação)
+npm test                   # unitários
+npm run test:coverage      # cobertura com thresholds
+npm run test:integration   # integração API ↔ Prisma (sem rede Câmara)
+npm run test:all           # unitários + integração
+npm run test:mutation      # Stryker (score de mutação)
 ```
 
 Relatórios: `coverage/` e `reports/mutation/`.
