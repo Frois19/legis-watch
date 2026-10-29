@@ -8,11 +8,12 @@ export default function HomePage() {
           Legis Watch
         </p>
         <h1 className="text-lg text-foreground sm:text-xl">
-          Acompanhe o mandato dos deputados federais
+          Acompanhe deputados federais por mandato
         </h1>
         <p className="max-w-xl text-sm leading-relaxed text-muted-foreground sm:text-base">
-          Busque um parlamentar, favorite o perfil e veja projetos, votações,
-          presença no plenário e partido — com dados públicos da Câmara.
+          Busque um parlamentar em qualquer legislatura, favorite o perfil e
+          veja projetos, votações, presença no plenário e partido — com dados
+          públicos da Câmara.
         </p>
       </header>
       <SearchPanel />

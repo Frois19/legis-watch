@@ -15,6 +15,7 @@ import type {
 import { formatDate, formatDateTime, propositionLabel, socialLabel } from "@/lib/format";
 import { ExternalLink } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 function voteVariant(tipo: string) {
   const t = tipo.toLowerCase();
@@ -35,7 +36,11 @@ export function DeputyProfile({
   votes: Paginated<VoteItem>;
   attendance: AttendanceResponse;
 }) {
+  const router = useRouter();
   const name = deputy.nomeEleitoral || deputy.nome;
+  const selectedMandate = deputy.mandates.find(
+    (m) => m.legislaturaId === deputy.selectedLegislaturaId,
+  );
   const meta = [deputy.siglaPartido, deputy.siglaUf, deputy.situacao]
     .filter(Boolean)
     .join(" · ");
@@ -78,6 +83,46 @@ export function DeputyProfile({
                   </a>
                 ) : null}
               </div>
+              {deputy.mandates.length > 0 ? (
+                <div className="mt-4 space-y-1.5">
+                  <label
+                    htmlFor={`mandato-${deputy.id}`}
+                    className="text-sm font-medium text-foreground"
+                  >
+                    Mandato
+                  </label>
+                  <select
+                    id={`mandato-${deputy.id}`}
+                    className="flex h-10 w-full max-w-xs rounded-md border border-input bg-background px-3 text-sm"
+                    value={deputy.selectedLegislaturaId ?? ""}
+                    onChange={(event) => {
+                      const next = event.target.value;
+                      router.push(
+                        `/deputados/${deputy.id}?legislaturaId=${next}`,
+                      );
+                    }}
+                  >
+                    {deputy.mandates.map((mandate) => (
+                      <option
+                        key={mandate.legislaturaId}
+                        value={mandate.legislaturaId}
+                      >
+                        {mandate.label}
+                        {mandate.siglaPartido
+                          ? ` · ${mandate.siglaPartido}`
+                          : ""}
+                      </option>
+                    ))}
+                  </select>
+                  {selectedMandate ? (
+                    <p className="text-xs text-muted-foreground">
+                      Período {selectedMandate.dataInicio.slice(0, 10)} a{" "}
+                      {selectedMandate.dataFim.slice(0, 10)}. Projetos, votos e
+                      presença filtrados por este mandato.
+                    </p>
+                  ) : null}
+                </div>
+              ) : null}
             </div>
           </div>
           <FavoriteButton
@@ -272,7 +317,11 @@ export function DeputyProfile({
         <TabsContent value="partido">
           <SectionTitle
             title={deputy.party?.nome || deputy.siglaPartido || "Partido"}
-            description="Outros deputados do mesmo partido na legislatura atual."
+            description={
+              selectedMandate
+                ? `Outros deputados do mesmo partido na ${selectedMandate.label}.`
+                : "Outros deputados do mesmo partido neste mandato."
+            }
           />
           {deputy.partyMembers.length === 0 ? (
             <EmptyState message="Nenhum outro membro encontrado." />
@@ -281,7 +330,11 @@ export function DeputyProfile({
               {deputy.partyMembers.map((member) => (
                 <li key={member.id}>
                   <Link
-                    href={`/deputados/${member.id}`}
+                    href={
+                      deputy.selectedLegislaturaId
+                        ? `/deputados/${member.id}?legislaturaId=${deputy.selectedLegislaturaId}`
+                        : `/deputados/${member.id}`
+                    }
                     className="flex items-center gap-3 border border-border bg-card px-3 py-2 hover:bg-secondary"
                   >
                     <DeputyPhoto

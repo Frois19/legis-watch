@@ -54,6 +54,28 @@ export type CamaraParty = {
   idLegislatura?: number;
 };
 
+export type CamaraLegislature = {
+  id: number;
+  uri?: string;
+  dataInicio: string;
+  dataFim: string;
+};
+
+export type CamaraDeputyHistorico = {
+  id?: number;
+  uri?: string;
+  nome?: string;
+  nomeEleitoral?: string;
+  siglaPartido?: string;
+  uriPartido?: string;
+  siglaUf?: string;
+  idLegislatura?: number;
+  situacao?: string;
+  condicaoEleitoral?: string;
+  dataHora?: string;
+  urlFoto?: string;
+};
+
 export type CamaraProposition = {
   id: number;
   uri?: string;

@@ -7,6 +7,18 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Legislature {
+  id         Int      @id
+  uri        String?
+  dataInicio String
+  dataFim    String
+  syncedAt   DateTime?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  mandates   DeputyMandate[]
+}
+
 model Party {
   id            Int      @id
   sigla         String
@@ -15,8 +27,10 @@ model Party {
   legislaturaId Int?
   updatedAt     DateTime @updatedAt
   members       Deputy[]
+  mandates      DeputyMandate[]
 
   @@index([sigla])
+  @@index([legislaturaId, sigla])
 }
 
 model Deputy {
@@ -46,11 +60,35 @@ model Deputy {
   propositions      PropositionAuthor[]
   votes             Vote[]
   attendances       Attendance[]
+  mandates          DeputyMandate[]
 
   @@index([nome])
   @@index([siglaPartido])
   @@index([siglaUf])
   @@index([legislaturaId])
+}
+
+model DeputyMandate {
+  id                Int         @id @default(autoincrement())
+  deputyId          Int
+  deputy            Deputy      @relation(fields: [deputyId], references: [id], onDelete: Cascade)
+  legislaturaId     Int
+  legislature       Legislature @relation(fields: [legislaturaId], references: [id], onDelete: Cascade)
+  siglaPartido      String?
+  partyId           Int?
+  party             Party?      @relation(fields: [partyId], references: [id])
+  siglaUf           String?
+  situacao          String?
+  condicaoEleitoral String?
+  nomeEleitoral     String?
+  syncedAt          DateTime?
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+
+  @@unique([deputyId, legislaturaId])
+  @@index([legislaturaId])
+  @@index([siglaPartido])
+  @@index([siglaUf])
 }
 
 model Proposition {

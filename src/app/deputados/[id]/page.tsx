@@ -4,7 +4,10 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-type Props = { params: Promise<{ id: string }> };
+type Props = {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ legislaturaId?: string }>;
+};
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const id = Number((await params).id);
@@ -20,13 +23,19 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 }
 
-export default async function DeputyPage({ params }: Props) {
+export default async function DeputyPage({ params, searchParams }: Props) {
   const id = Number((await params).id);
   if (!Number.isFinite(id)) notFound();
 
+  const legislaturaRaw = (await searchParams).legislaturaId;
+  const legislaturaId = legislaturaRaw ? Number(legislaturaRaw) : null;
+
   let bundle;
   try {
-    bundle = await getDeputyProfileBundle(id);
+    bundle = await getDeputyProfileBundle(
+      id,
+      legislaturaId && Number.isFinite(legislaturaId) ? legislaturaId : null,
+    );
   } catch {
     notFound();
   }

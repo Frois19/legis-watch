@@ -2,6 +2,7 @@ import type {
   AttendanceResponse,
   DeputyDetail,
   DeputyListItem,
+  LegislatureItem,
   Paginated,
   PropositionItem,
   VoteItem,
@@ -16,10 +17,15 @@ async function getJson<T>(path: string): Promise<T> {
   return (await res.json()) as T;
 }
 
+export function listLegislatures(): Promise<{ items: LegislatureItem[] }> {
+  return getJson("/api/legislaturas");
+}
+
 export function searchDeputies(params: {
   nome?: string;
   siglaPartido?: string;
   siglaUf?: string;
+  legislaturaId?: number;
   page?: number;
   pageSize?: number;
 }): Promise<Paginated<DeputyListItem>> {
@@ -27,6 +33,7 @@ export function searchDeputies(params: {
   if (params.nome) q.set("nome", params.nome);
   if (params.siglaPartido) q.set("siglaPartido", params.siglaPartido);
   if (params.siglaUf) q.set("siglaUf", params.siglaUf);
+  if (params.legislaturaId) q.set("legislaturaId", String(params.legislaturaId));
   q.set("page", String(params.page ?? 1));
   q.set("pageSize", String(params.pageSize ?? 20));
   return getJson(`/api/deputados?${q}`);

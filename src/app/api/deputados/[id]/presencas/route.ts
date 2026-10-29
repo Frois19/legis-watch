@@ -1,12 +1,8 @@
-import { prisma } from "@/lib/db/prisma";
+import { getDeputyAttendance } from "@/lib/api/server";
 import { NextRequest, NextResponse } from "next/server";
 
 type Params = { params: Promise<{ id: string }> };
 
-/**
- * Presenças em sessões deliberativas do Plenário.
- * Falta = sessão deliberativa encerrada/realizada sem registro de presença do deputado.
- */
 export async function GET(request: NextRequest, { params }: Params) {
   const deputyId = Number((await params).id);
   if (!Number.isFinite(deputyId)) {
@@ -14,67 +10,47 @@ export async function GET(request: NextRequest, { params }: Params) {
   }
 
   const { searchParams } = request.nextUrl;
-  const year = Number(searchParams.get("year") ?? new Date().getFullYear());
-  const page = Math.max(1, Number(searchParams.get("page") ?? 1));
-  const pageSize = Math.min(
-    100,
-    Math.max(1, Number(searchParams.get("pageSize") ?? 30)),
-  );
-  const onlyAbsences = searchParams.get("faltas") === "1";
+  const legislaturaRaw = searchParams.get("legislaturaId");
+  const legislaturaId = legislaturaRaw ? Number(legislaturaRaw) : null;
+  const year = searchParams.get("year");
 
-  const presentEventIds = new Set(
-    (
-      await prisma.attendance.findMany({
-        where: { deputyId, year },
-        select: { eventId: true },
-      })
-    ).map((a) => a.eventId),
-  );
+  try {
+    if (year && !legislaturaId) {
+      // Compat: filtrar um único ano quando legislatura não for informada.
+      const result = await getDeputyAttendance(deputyId, null);
+      const filteredItems = result.items.filter(
+        (item) => (item.dataHoraInicio ?? "").startsWith(String(year)),
+      );
+      const presentes = filteredItems.filter((r) => r.presente).length;
+      return NextResponse.json({
+        ...result,
+        year: Number(year),
+        years: [Number(year)],
+        total: filteredItems.length,
+        pageSize: filteredItems.length,
+        summary: {
+          ...result.summary,
+          eventosConsiderados: filteredItems.length,
+          presentes,
+          faltas: filteredItems.length - presentes,
+        },
+        items: filteredItems,
+      });
+    }
 
-  const events = await prisma.event.findMany({
-    where: {
-      year,
-      descricaoTipo: "Sessão Deliberativa",
-      situacao: { not: "Cancelada" },
-      localCamara: { contains: "Plenário da Câmara" },
-    },
-    orderBy: { dataHoraInicio: "desc" },
-  });
-
-  const rows = events.map((event) => {
-    const presente = presentEventIds.has(event.id);
-    return {
-      eventId: event.id,
-      dataHoraInicio: event.dataHoraInicio,
-      dataHoraFim: event.dataHoraFim,
-      descricaoTipo: event.descricaoTipo,
-      descricao: event.descricao,
-      localCamara: event.localCamara,
-      situacao: event.situacao,
-      presente,
-      status: presente ? "presente" : "falta",
-    };
-  });
-
-  const filtered = onlyAbsences ? rows.filter((r) => !r.presente) : rows;
-  const total = filtered.length;
-  const items = filtered.slice((page - 1) * pageSize, page * pageSize);
-
-  const presentes = rows.filter((r) => r.presente).length;
-  const faltas = rows.length - presentes;
-
-  return NextResponse.json({
-    year,
-    page,
-    pageSize,
-    total,
-    summary: {
-      eventosConsiderados: rows.length,
-      presentes,
-      faltas,
-      metodologia:
-        "Apenas Sessões Deliberativas não canceladas no Plenário da Câmara, cruzadas com eventosPresencaDeputados. Ausência no arquivo = falta candidata — não substitui a lista oficial de faltas remuneradas.",
-    },
-    items,
-  });
+    const result = await getDeputyAttendance(
+      deputyId,
+      legislaturaId && Number.isFinite(legislaturaId) ? legislaturaId : null,
+    );
+    return NextResponse.json(result);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "erro";
+    if (message === "legislature_not_found") {
+      return NextResponse.json(
+        { error: "Legislatura não encontrada" },
+        { status: 404 },
+      );
+    }
+    throw error;
+  }
 }

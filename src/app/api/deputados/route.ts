@@ -7,12 +7,72 @@ export async function GET(request: NextRequest) {
   const nome = searchParams.get("nome")?.trim();
   const siglaPartido = searchParams.get("siglaPartido")?.trim();
   const siglaUf = searchParams.get("siglaUf")?.trim();
-  const legislaturaId = searchParams.get("legislaturaId");
+  const legislaturaIdParam = searchParams.get("legislaturaId");
+  const legislaturaId = legislaturaIdParam
+    ? Number(legislaturaIdParam)
+    : null;
   const page = Math.max(1, Number(searchParams.get("page") ?? 1));
   const pageSize = Math.min(
     100,
     Math.max(1, Number(searchParams.get("pageSize") ?? 20)),
   );
+
+  if (legislaturaId && Number.isFinite(legislaturaId)) {
+    const mandateWhere = {
+      legislaturaId,
+      ...(siglaPartido ? { siglaPartido } : {}),
+      ...(siglaUf ? { siglaUf } : {}),
+      ...(nome
+        ? {
+            OR: [
+              { nomeEleitoral: { contains: nome } },
+              {
+                deputy: {
+                  OR: [
+                    { nome: { contains: nome } },
+                    { nomeEleitoral: { contains: nome } },
+                    { nomeCivil: { contains: nome } },
+                  ],
+                },
+              },
+            ],
+          }
+        : {}),
+    };
+
+    const [total, mandates] = await Promise.all([
+      prisma.deputyMandate.count({ where: mandateWhere }),
+      prisma.deputyMandate.findMany({
+        where: mandateWhere,
+        orderBy: [{ nomeEleitoral: "asc" }, { deputyId: "asc" }],
+        skip: (page - 1) * pageSize,
+        take: pageSize,
+        include: {
+          deputy: { include: { party: true } },
+          party: true,
+        },
+      }),
+    ]);
+
+    return NextResponse.json({
+      page,
+      pageSize,
+      total,
+      items: mandates.map((m) => ({
+        id: m.deputy.id,
+        nome: m.deputy.nome,
+        nomeEleitoral: m.nomeEleitoral ?? m.deputy.nomeEleitoral,
+        siglaPartido: m.siglaPartido ?? m.deputy.siglaPartido,
+        siglaUf: m.siglaUf ?? m.deputy.siglaUf,
+        legislaturaId: m.legislaturaId,
+        urlFoto: resolveDeputyPhotoUrl(m.deputy.id, m.deputy.urlFoto),
+        email: m.deputy.email,
+        situacao: m.situacao ?? m.deputy.situacao,
+        redesSociais: parseJsonArray(m.deputy.redesSociais),
+        party: m.party ?? m.deputy.party,
+      })),
+    });
+  }
 
   const where = {
     AND: [
@@ -27,7 +87,6 @@ export async function GET(request: NextRequest) {
         : {},
       siglaPartido ? { siglaPartido } : {},
       siglaUf ? { siglaUf } : {},
-      legislaturaId ? { legislaturaId: Number(legislaturaId) } : {},
     ],
   };
 
@@ -46,36 +105,20 @@ export async function GET(request: NextRequest) {
     page,
     pageSize,
     total,
-    items: items.map(serializeDeputy),
+    items: items.map((d) => ({
+      id: d.id,
+      nome: d.nome,
+      nomeEleitoral: d.nomeEleitoral,
+      siglaPartido: d.siglaPartido,
+      siglaUf: d.siglaUf,
+      legislaturaId: d.legislaturaId,
+      urlFoto: resolveDeputyPhotoUrl(d.id, d.urlFoto),
+      email: d.email,
+      situacao: d.situacao,
+      redesSociais: parseJsonArray(d.redesSociais),
+      party: d.party,
+    })),
   });
-}
-
-function serializeDeputy(d: {
-  id: number;
-  nome: string;
-  nomeEleitoral: string | null;
-  siglaPartido: string | null;
-  siglaUf: string | null;
-  legislaturaId: number | null;
-  urlFoto: string | null;
-  email: string | null;
-  situacao: string | null;
-  redesSociais: string | null;
-  party: { id: number; sigla: string; nome: string | null } | null;
-}) {
-  return {
-    id: d.id,
-    nome: d.nome,
-    nomeEleitoral: d.nomeEleitoral,
-    siglaPartido: d.siglaPartido,
-    siglaUf: d.siglaUf,
-    legislaturaId: d.legislaturaId,
-    urlFoto: resolveDeputyPhotoUrl(d.id, d.urlFoto),
-    email: d.email,
-    situacao: d.situacao,
-    redesSociais: parseJsonArray(d.redesSociais),
-    party: d.party,
-  };
 }
 
 function parseJsonArray(value: string | null): string[] {

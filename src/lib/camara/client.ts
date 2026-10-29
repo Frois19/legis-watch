@@ -6,7 +6,9 @@ import type {
   CamaraBulkVoteProposition,
   CamaraBulkVoteSession,
   CamaraDeputyDetail,
+  CamaraDeputyHistorico,
   CamaraDeputyListItem,
+  CamaraLegislature,
   CamaraListResponse,
   CamaraParty,
   CamaraProposition,
@@ -128,6 +130,30 @@ export async function getDeputy(id: number): Promise<CamaraDeputyDetail> {
     `${API_BASE}/deputados/${id}`,
   );
   return payload.dados;
+}
+
+export async function listLegislatures(opts?: {
+  itens?: number;
+  maxPages?: number;
+}): Promise<CamaraLegislature[]> {
+  const search = new URLSearchParams({
+    itens: String(opts?.itens ?? 100),
+    ordem: "DESC",
+    ordenarPor: "id",
+  });
+  return fetchAllPages<CamaraLegislature>(
+    `${API_BASE}/legislaturas?${search.toString()}`,
+    opts?.maxPages ?? 5,
+  );
+}
+
+export async function getDeputyHistorico(
+  id: number,
+): Promise<CamaraDeputyHistorico[]> {
+  const payload = await fetchJson<CamaraListResponse<CamaraDeputyHistorico>>(
+    `${API_BASE}/deputados/${id}/historico`,
+  );
+  return payload.dados ?? [];
 }
 
 export async function listParties(idLegislatura: number): Promise<CamaraParty[]> {

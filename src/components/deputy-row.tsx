@@ -3,17 +3,27 @@ import { FavoriteButton } from "@/components/favorite-button";
 import type { DeputyListItem } from "@/lib/api/types";
 import Link from "next/link";
 
-export function DeputyRow({ deputy }: { deputy: DeputyListItem }) {
+export function DeputyRow({
+  deputy,
+  legislaturaId,
+}: {
+  deputy: DeputyListItem;
+  legislaturaId?: number | null;
+}) {
   const name = deputy.nomeEleitoral || deputy.nome;
   const meta = [deputy.siglaPartido, deputy.siglaUf, deputy.situacao]
     .filter(Boolean)
     .join(" · ");
+  const href =
+    legislaturaId != null
+      ? `/deputados/${deputy.id}?legislaturaId=${legislaturaId}`
+      : `/deputados/${deputy.id}`;
 
   return (
     <li className="border-b border-border last:border-b-0">
       <div className="flex items-center gap-3 py-3">
         <Link
-          href={`/deputados/${deputy.id}`}
+          href={href}
           className="flex min-w-0 flex-1 items-center gap-3 rounded-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
         >
           <DeputyPhoto id={deputy.id} name={name} urlFoto={deputy.urlFoto} />

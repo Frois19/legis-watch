@@ -3,21 +3,28 @@
  * CLI de sincronização com a Câmara.
  *
  * Exemplos:
+ *   npm run sync -- legislatures
  *   npm run sync -- deputies
+ *   npm run sync -- deputies --legislatura=56
+ *   npm run sync -- mandates --deputy=204515
  *   npm run sync -- parties
  *   npm run sync -- propositions --deputy=204379
- *   npm run sync -- votes --year=2026
- *   npm run sync -- attendance --year=2026
- *   npm run sync -- bootstrap   # parties + deputies (sem votos/presença)
+ *   npm run sync -- votes --year=2022
+ *   npm run sync -- attendance --year=2022
+ *   npm run sync -- bootstrap
  */
 
 import {
   syncAttendanceForYear,
   syncDeputies,
+  syncDeputiesForLegislature,
+  syncLegislatures,
+  syncMandatesForDeputy,
   syncParties,
   syncPropositionsForDeputy,
   syncVotesForYear,
 } from "../src/lib/sync";
+import { currentLegislatura } from "../src/lib/camara/client";
 
 function arg(name: string): string | undefined {
   const prefix = `--${name}=`;
@@ -29,13 +36,25 @@ async function main() {
   const command = process.argv[2];
   const year = Number(arg("year") ?? new Date().getFullYear());
   const deputyId = Number(arg("deputy") ?? 0);
+  const legislaturaId = Number(arg("legislatura") ?? currentLegislatura());
 
   switch (command) {
+    case "legislatures":
+      console.log(await syncLegislatures());
+      break;
     case "parties":
-      console.log(await syncParties());
+      console.log(await syncParties(legislaturaId));
       break;
     case "deputies":
-      console.log(await syncDeputies());
+      if (legislaturaId !== currentLegislatura()) {
+        console.log(await syncDeputiesForLegislature(legislaturaId));
+      } else {
+        console.log(await syncDeputies(legislaturaId));
+      }
+      break;
+    case "mandates":
+      if (!deputyId) throw new Error("Use --deputy=<id>");
+      console.log(await syncMandatesForDeputy(deputyId));
       break;
     case "propositions":
       if (!deputyId) throw new Error("Use --deputy=<id>");
@@ -48,13 +67,14 @@ async function main() {
       console.log(await syncAttendanceForYear(year));
       break;
     case "bootstrap":
+      console.log("legislatures", await syncLegislatures());
       console.log("parties", await syncParties());
       console.log("deputies", await syncDeputies());
       break;
     default:
       console.error(`Unknown command: ${command ?? "(none)"}`);
       console.error(
-        "Commands: parties | deputies | propositions | votes | attendance | bootstrap",
+        "Commands: legislatures | parties | deputies | mandates | propositions | votes | attendance | bootstrap",
       );
       process.exit(1);
   }

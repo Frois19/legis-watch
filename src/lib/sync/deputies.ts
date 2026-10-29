@@ -7,6 +7,7 @@ import {
 } from "@/lib/camara/client";
 import { resolveDeputyPhotoUrl } from "@/lib/camara/photo";
 import { prisma } from "@/lib/db/prisma";
+import { upsertDeputyMandate } from "./legislatures";
 import { withSyncRun } from "./run";
 
 function sleep(ms: number) {
@@ -44,9 +45,11 @@ export async function syncParties(legislaturaId = currentLegislatura()) {
 
 export async function syncDeputies(legislaturaId = currentLegislatura()) {
   return withSyncRun("deputies", async () => {
+    const current = currentLegislatura();
     const list = await listDeputies({ idLegislatura: legislaturaId });
     let upserted = 0;
     let detailed = 0;
+    let mandates = 0;
 
     for (const item of list) {
       const partyId =
@@ -62,33 +65,60 @@ export async function syncDeputies(legislaturaId = currentLegislatura()) {
             )?.id
           : null);
 
-      await prisma.deputy.upsert({
+      const existing = await prisma.deputy.findUnique({
         where: { id: item.id },
-        create: {
-          id: item.id,
-          uri: item.uri,
-          nome: item.nome,
-          siglaPartido: item.siglaPartido,
-          partyId: partyId ?? undefined,
-          siglaUf: item.siglaUf,
-          legislaturaId: item.idLegislatura ?? legislaturaId,
-          urlFoto: resolveDeputyPhotoUrl(item.id, item.urlFoto),
-          email: item.email,
-          syncedAt: new Date(),
-        },
-        update: {
-          uri: item.uri,
-          nome: item.nome,
-          siglaPartido: item.siglaPartido,
-          partyId: partyId ?? undefined,
-          siglaUf: item.siglaUf,
-          legislaturaId: item.idLegislatura ?? legislaturaId,
-          urlFoto: resolveDeputyPhotoUrl(item.id, item.urlFoto),
-          email: item.email,
-          syncedAt: new Date(),
-        },
+        select: { id: true },
       });
-      upserted += 1;
+
+      if (!existing) {
+        await prisma.deputy.create({
+          data: {
+            id: item.id,
+            uri: item.uri,
+            nome: item.nome,
+            siglaPartido: item.siglaPartido,
+            partyId: partyId ?? undefined,
+            siglaUf: item.siglaUf,
+            legislaturaId: item.idLegislatura ?? legislaturaId,
+            urlFoto: resolveDeputyPhotoUrl(item.id, item.urlFoto),
+            email: item.email,
+            syncedAt: new Date(),
+          },
+        });
+        upserted += 1;
+      } else if (legislaturaId === current) {
+        await prisma.deputy.update({
+          where: { id: item.id },
+          data: {
+            uri: item.uri,
+            nome: item.nome,
+            siglaPartido: item.siglaPartido,
+            partyId: partyId ?? undefined,
+            siglaUf: item.siglaUf,
+            legislaturaId: item.idLegislatura ?? legislaturaId,
+            urlFoto: resolveDeputyPhotoUrl(item.id, item.urlFoto),
+            email: item.email,
+            syncedAt: new Date(),
+          },
+        });
+        upserted += 1;
+      }
+
+      const legislature = await prisma.legislature.findUnique({
+        where: { id: legislaturaId },
+        select: { id: true },
+      });
+      if (legislature) {
+        await upsertDeputyMandate({
+          deputyId: item.id,
+          legislaturaId,
+          siglaPartido: item.siglaPartido,
+          uriPartido: item.uriPartido,
+          siglaUf: item.siglaUf,
+          nomeEleitoral: item.nome,
+        });
+        mandates += 1;
+      }
     }
 
     const skipDetail = process.env.SKIP_DEPUTY_DETAIL === "1";
@@ -152,6 +182,6 @@ export async function syncDeputies(legislaturaId = currentLegislatura()) {
       }
     }
 
-    return { deputies: upserted, detailed };
+    return { deputies: upserted, detailed, mandates };
   });
 }

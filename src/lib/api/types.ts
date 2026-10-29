@@ -6,6 +6,25 @@ export type Party = {
   legislaturaId?: number | null;
 };
 
+export type LegislatureItem = {
+  id: number;
+  dataInicio: string;
+  dataFim: string;
+  label: string;
+};
+
+export type MandateItem = {
+  legislaturaId: number;
+  siglaPartido: string | null;
+  siglaUf: string | null;
+  situacao: string | null;
+  condicaoEleitoral: string | null;
+  nomeEleitoral: string | null;
+  dataInicio: string;
+  dataFim: string;
+  label: string;
+};
+
 export type DeputyListItem = {
   id: number;
   nome: string;
@@ -33,6 +52,8 @@ export type DeputyDetail = DeputyListItem & {
     siglaUf: string | null;
     urlFoto: string | null;
   }>;
+  mandates: MandateItem[];
+  selectedLegislaturaId: number | null;
   syncedAt: string | null;
 };
 
@@ -82,7 +103,8 @@ export type VoteItem = {
 };
 
 export type AttendanceResponse = {
-  year: number;
+  year: number | null;
+  years: number[];
   page: number;
   pageSize: number;
   total: number;
