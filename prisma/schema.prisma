@@ -63,9 +63,12 @@ model Deputy {
   mandates          DeputyMandate[]
 
   @@index([nome])
+  @@index([nomeEleitoral])
+  @@index([nomeCivil])
   @@index([siglaPartido])
   @@index([siglaUf])
   @@index([legislaturaId])
+  @@index([siglaPartido, siglaUf])
 }
 
 model DeputyMandate {
@@ -89,6 +92,9 @@ model DeputyMandate {
   @@index([legislaturaId])
   @@index([siglaPartido])
   @@index([siglaUf])
+  @@index([nomeEleitoral])
+  @@index([legislaturaId, siglaPartido, siglaUf])
+  @@index([legislaturaId, nomeEleitoral])
 }
 
 model Proposition {

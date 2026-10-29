@@ -1,6 +1,13 @@
+import {
+  invalidateSearchCache,
+  searchCache,
+} from "@/lib/cache/memory-cache";
+import { searchCacheKey } from "@/lib/cache/search-key";
 import { resolveDeputyPhotoUrl } from "@/lib/camara/photo";
 import { prisma } from "@/lib/db/prisma";
 import { NextRequest, NextResponse } from "next/server";
+
+export { invalidateSearchCache };
 
 export async function GET(request: NextRequest) {
   const { searchParams } = request.nextUrl;
@@ -17,63 +24,119 @@ export async function GET(request: NextRequest) {
     Math.max(1, Number(searchParams.get("pageSize") ?? 20)),
   );
 
-  if (legislaturaId && Number.isFinite(legislaturaId)) {
-    const mandateWhere = {
-      legislaturaId,
-      ...(siglaPartido ? { siglaPartido } : {}),
-      ...(siglaUf ? { siglaUf } : {}),
-      ...(nome
-        ? {
-            OR: [
-              { nomeEleitoral: { contains: nome } },
-              {
-                deputy: {
-                  OR: [
-                    { nome: { contains: nome } },
-                    { nomeEleitoral: { contains: nome } },
-                    { nomeCivil: { contains: nome } },
-                  ],
-                },
-              },
-            ],
-          }
-        : {}),
-    };
+  const cacheKey = searchCacheKey({
+    legislaturaId: legislaturaId && Number.isFinite(legislaturaId) ? legislaturaId : null,
+    nome,
+    siglaPartido,
+    siglaUf,
+    page,
+    pageSize,
+  });
 
-    const [total, mandates] = await Promise.all([
-      prisma.deputyMandate.count({ where: mandateWhere }),
-      prisma.deputyMandate.findMany({
-        where: mandateWhere,
-        orderBy: [{ nomeEleitoral: "asc" }, { deputyId: "asc" }],
-        skip: (page - 1) * pageSize,
-        take: pageSize,
-        include: {
-          deputy: { include: { party: true } },
-          party: true,
-        },
-      }),
-    ]);
-
-    return NextResponse.json({
-      page,
-      pageSize,
-      total,
-      items: mandates.map((m) => ({
-        id: m.deputy.id,
-        nome: m.deputy.nome,
-        nomeEleitoral: m.nomeEleitoral ?? m.deputy.nomeEleitoral,
-        siglaPartido: m.siglaPartido ?? m.deputy.siglaPartido,
-        siglaUf: m.siglaUf ?? m.deputy.siglaUf,
-        legislaturaId: m.legislaturaId,
-        urlFoto: resolveDeputyPhotoUrl(m.deputy.id, m.deputy.urlFoto),
-        email: m.deputy.email,
-        situacao: m.situacao ?? m.deputy.situacao,
-        redesSociais: parseJsonArray(m.deputy.redesSociais),
-        party: m.party ?? m.deputy.party,
-      })),
+  const cached = searchCache.get<unknown>(cacheKey);
+  if (cached) {
+    return NextResponse.json(cached, {
+      headers: { "X-Cache": "HIT" },
     });
   }
 
+  const payload =
+    legislaturaId && Number.isFinite(legislaturaId)
+      ? await searchByMandate({
+          legislaturaId,
+          nome,
+          siglaPartido,
+          siglaUf,
+          page,
+          pageSize,
+        })
+      : await searchAll({
+          nome,
+          siglaPartido,
+          siglaUf,
+          page,
+          pageSize,
+        });
+
+  searchCache.set(cacheKey, payload);
+  return NextResponse.json(payload, {
+    headers: { "X-Cache": "MISS" },
+  });
+}
+
+async function searchByMandate(opts: {
+  legislaturaId: number;
+  nome?: string;
+  siglaPartido?: string;
+  siglaUf?: string;
+  page: number;
+  pageSize: number;
+}) {
+  const { legislaturaId, nome, siglaPartido, siglaUf, page, pageSize } = opts;
+  const mandateWhere = {
+    legislaturaId,
+    ...(siglaPartido ? { siglaPartido } : {}),
+    ...(siglaUf ? { siglaUf } : {}),
+    ...(nome
+      ? {
+          OR: [
+            { nomeEleitoral: { contains: nome } },
+            {
+              deputy: {
+                OR: [
+                  { nome: { contains: nome } },
+                  { nomeEleitoral: { contains: nome } },
+                  { nomeCivil: { contains: nome } },
+                ],
+              },
+            },
+          ],
+        }
+      : {}),
+  };
+
+  const [total, mandates] = await Promise.all([
+    prisma.deputyMandate.count({ where: mandateWhere }),
+    prisma.deputyMandate.findMany({
+      where: mandateWhere,
+      orderBy: [{ nomeEleitoral: "asc" }, { deputyId: "asc" }],
+      skip: (page - 1) * pageSize,
+      take: pageSize,
+      include: {
+        deputy: { include: { party: true } },
+        party: true,
+      },
+    }),
+  ]);
+
+  return {
+    page,
+    pageSize,
+    total,
+    items: mandates.map((m) => ({
+      id: m.deputy.id,
+      nome: m.deputy.nome,
+      nomeEleitoral: m.nomeEleitoral ?? m.deputy.nomeEleitoral,
+      siglaPartido: m.siglaPartido ?? m.deputy.siglaPartido,
+      siglaUf: m.siglaUf ?? m.deputy.siglaUf,
+      legislaturaId: m.legislaturaId,
+      urlFoto: resolveDeputyPhotoUrl(m.deputy.id, m.deputy.urlFoto),
+      email: m.deputy.email,
+      situacao: m.situacao ?? m.deputy.situacao,
+      redesSociais: parseJsonArray(m.deputy.redesSociais),
+      party: m.party ?? m.deputy.party,
+    })),
+  };
+}
+
+async function searchAll(opts: {
+  nome?: string;
+  siglaPartido?: string;
+  siglaUf?: string;
+  page: number;
+  pageSize: number;
+}) {
+  const { nome, siglaPartido, siglaUf, page, pageSize } = opts;
   const where = {
     AND: [
       nome
@@ -101,7 +164,7 @@ export async function GET(request: NextRequest) {
     }),
   ]);
 
-  return NextResponse.json({
+  return {
     page,
     pageSize,
     total,
@@ -118,7 +181,7 @@ export async function GET(request: NextRequest) {
       redesSociais: parseJsonArray(d.redesSociais),
       party: d.party,
     })),
-  });
+  };
 }
 
 function parseJsonArray(value: string | null): string[] {

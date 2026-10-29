@@ -361,6 +361,16 @@ Depois         → Senado (Parte B)
 Produção       → C4 Redis se houver mais de uma instância
 ```
 
+## C.9 Status de implementação
+
+| Item | Status |
+|---|---|
+| C1 Memory cache + TTL/LRU | Feito (`src/lib/cache/`, header `X-Cache`) |
+| C2 Invalidação pós-sync + `POST /api/cache/purge` | Feito |
+| C3 Índices Prisma de busca | Feito |
+| Debounce na UI (300 ms) | Feito |
+| C4 Redis | Pendente (multi-instância) |
+
 ---
 
 ## Resumo executivo

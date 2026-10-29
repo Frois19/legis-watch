@@ -1,3 +1,4 @@
+import { invalidateSearchCache } from "@/lib/cache/memory-cache";
 import {
   syncAttendanceForYear,
   syncDeputies,
@@ -7,6 +8,12 @@ import {
 } from "@/lib/sync";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
+
+const SEARCH_INVALIDATING_DOMAINS = new Set([
+  "parties",
+  "deputies",
+  "bootstrap",
+]);
 
 const bodySchema = z.object({
   domain: z.enum([
@@ -87,7 +94,17 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: "domain inválido" }, { status: 400 });
     }
 
-    return NextResponse.json({ ok: true, domain, result });
+    let searchCacheCleared = 0;
+    if (SEARCH_INVALIDATING_DOMAINS.has(domain)) {
+      searchCacheCleared = invalidateSearchCache();
+    }
+
+    return NextResponse.json({
+      ok: true,
+      domain,
+      result,
+      searchCacheCleared,
+    });
   } catch (error) {
     return NextResponse.json(
       {

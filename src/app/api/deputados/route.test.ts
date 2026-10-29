@@ -16,11 +16,41 @@ const { prisma } = vi.hoisted(() => ({
 
 vi.mock("@/lib/db/prisma", () => ({ prisma }));
 
+import { searchCache } from "@/lib/cache/memory-cache";
 import { GET } from "./route";
 
 describe("GET /api/deputados", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    searchCache.clear();
+  });
+
+  it("serve do cache na segunda chamada idêntica", async () => {
+    prisma.deputy.count.mockResolvedValue(1);
+    prisma.deputy.findMany.mockResolvedValue([
+      {
+        id: 1,
+        nome: "A",
+        nomeEleitoral: null,
+        siglaPartido: "PL",
+        siglaUf: "MG",
+        legislaturaId: 57,
+        urlFoto: null,
+        email: null,
+        situacao: null,
+        redesSociais: null,
+        party: null,
+      },
+    ]);
+
+    const req = new NextRequest(
+      "http://localhost/api/deputados?siglaUf=MG&siglaPartido=PL",
+    );
+    const first = await GET(req);
+    const second = await GET(req);
+    expect(first.headers.get("X-Cache")).toBe("MISS");
+    expect(second.headers.get("X-Cache")).toBe("HIT");
+    expect(prisma.deputy.findMany).toHaveBeenCalledTimes(1);
   });
 
   it("busca por mandato via DeputyMandate", async () => {

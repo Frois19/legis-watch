@@ -3,11 +3,12 @@
 import { DeputyRow } from "@/components/deputy-row";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { searchDeputies } from "@/lib/api/client";
 import type { DeputyListItem, LegislatureItem } from "@/lib/api/types";
 import { Search } from "lucide-react";
 import Link from "next/link";
-import { FormEvent, useId, useState } from "react";
+import { FormEvent, useEffect, useId, useRef, useState } from "react";
 
 const UFS = [
   "AC","AL","AP","AM","BA","CE","DF","ES","GO","MA","MT","MS","MG","PA","PB",
@@ -34,6 +35,10 @@ export function SearchPanel({
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
   const [searched, setSearched] = useState(false);
+  const skipDebounceRef = useRef(false);
+
+  const debouncedNome = useDebouncedValue(nome, 300);
+  const debouncedPartido = useDebouncedValue(siglaPartido, 300);
 
   async function runSearch(next?: {
     nome?: string;
@@ -80,8 +85,25 @@ export function SearchPanel({
     }
   }
 
+  // Busca automática após pausa na digitação (nome/partido) ou troca de UF/mandato
+  useEffect(() => {
+    if (!searched) return;
+    if (skipDebounceRef.current) {
+      skipDebounceRef.current = false;
+      return;
+    }
+    void runSearch({
+      nome: debouncedNome,
+      siglaPartido: debouncedPartido,
+      siglaUf,
+      legislaturaId,
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- intencional: só reage a filtros debounced/UF/mandato
+  }, [debouncedNome, debouncedPartido, siglaUf, legislaturaId]);
+
   function onSubmit(event: FormEvent) {
     event.preventDefault();
+    skipDebounceRef.current = true;
     void runSearch();
   }
 
@@ -196,9 +218,10 @@ export function SearchPanel({
         <button
           type="button"
           className="font-medium text-primary underline underline-offset-2"
-          onClick={() =>
-            void runSearch({ nome: "Janones", legislaturaId: 56 })
-          }
+          onClick={() => {
+            skipDebounceRef.current = true;
+            void runSearch({ nome: "Janones", legislaturaId: 56 });
+          }}
         >
           Janones no mandato 56
         </button>
@@ -206,9 +229,10 @@ export function SearchPanel({
         <button
           type="button"
           className="font-medium text-primary underline underline-offset-2"
-          onClick={() =>
-            void runSearch({ nome: "Nikolas", legislaturaId: 57 })
-          }
+          onClick={() => {
+            skipDebounceRef.current = true;
+            void runSearch({ nome: "Nikolas", legislaturaId: 57 });
+          }}
         >
           Nikolas no mandato 57
         </button>{" "}
