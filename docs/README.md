@@ -10,7 +10,7 @@ Para entender o que o app faz, com prints das telas.
 
 | Documento | Conteúdo |
 |---|---|
-| [Guia do produto](./GUIA-DO-PRODUTO.md) | Busca (federal + estadual + senadores), favoritos, projetos, votações, presença/ata, partido, perfil do Senado — prints atualizados |
+| [Guia do usuário](./GUIA-DO-PRODUTO.md) | Telas e funcionalidades (federal, estadual enriquecido, senadores) — prints atualizados |
 | [Deputados estaduais por UF](./estaduais.md) | Catálogo das 27 UFs (9 live: PE/MG/SAPL), sync e limitações |
 | [Senadores](./senado.md) | Lista atual, perfil (filiações/mandatos/matérias) e disclaimer de presença |
 
@@ -38,7 +38,7 @@ Para rodar, sincronizar dados e integrar com as APIs.
 ```text
 docs/
 ├── README.md                 ← você está aqui (índice)
-├── GUIA-DO-PRODUTO.md        ← produto + screenshots/
+├── GUIA-DO-PRODUTO.md        ← guia do usuário + screenshots/
 ├── estaduais.md              ← cobertura estadual (27 UFs)
 ├── senado.md                 ← senadores (busca/perfil/matérias)
 ├── PLANO-EXPANSAO.md         ← roadmap estadual/Senado + cache

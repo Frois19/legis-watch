@@ -1,6 +1,6 @@
 # Plano de expansão e cache — Legis Watch
 
-> Navegação: [Índice](./README.md) · [Guia do produto](./GUIA-DO-PRODUTO.md) · [Estaduais](./estaduais.md) · [APIs Câmara](./apis-v1.md) · [API interna](./backend-api.md)
+> Navegação: [Índice](./README.md) · [Guia do usuário](./GUIA-DO-PRODUTO.md) · [Estaduais](./estaduais.md) · [APIs Câmara](./apis-v1.md) · [API interna](./backend-api.md)
 
 Situação: **federal completo** (Câmara) + **estadual em 27 UFs** (busca/perfil; PE live via ALEPE, demais fixture até adapter live). Este plano define o que falta:
 

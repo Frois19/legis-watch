@@ -210,17 +210,25 @@ async function main() {
     waitUntil: "domcontentloaded",
   });
   await waitReady(page);
-  await page.waitForTimeout(1200);
+  await page
+    .getByRole("tab", { name: /Filiações/ })
+    .waitFor({ timeout: 30000 })
+    .catch(() => {});
+  await page.getByRole("tab", { name: /Filiações/ }).click().catch(() => {});
+  await page.waitForTimeout(800);
   await shot(page, "10-perfil-estadual-mg.png");
 
-  // AC live (SAPL) — proposições
+  // AC live (SAPL) — proposições + filiações
   let acId = "248";
   try {
     const acRes = await page.request.get(
-      `${BASE}/api/parlamentares?esfera=estadual_deputado&siglaUf=AC&pageSize=1`,
+      `${BASE}/api/parlamentares?esfera=estadual_deputado&siglaUf=AC&nome=ADAILTON&pageSize=5`,
     );
     const acJson = await acRes.json();
-    const href = acJson?.items?.[0]?.href;
+    const preferred =
+      acJson?.items?.find((i) => String(i.href || "").endsWith("/248")) ??
+      acJson?.items?.[0];
+    const href = preferred?.href;
     if (typeof href === "string" && href.includes("/")) {
       acId = href.split("/").pop();
     }
@@ -231,9 +239,17 @@ async function main() {
     waitUntil: "domcontentloaded",
   });
   await waitReady(page);
-  await page.getByRole("tab", { name: /Proposições|Filiações|Cobertura/ }).first().waitFor({ timeout: 30000 }).catch(() => {});
+  await page
+    .getByRole("tab", { name: /Proposições/ })
+    .waitFor({ timeout: 30000 })
+    .catch(() => {});
+  await page.getByRole("tab", { name: /Proposições/ }).click().catch(() => {});
   await page.waitForTimeout(1000);
   await shot(page, "15-perfil-estadual-ac-proposicoes.png");
+
+  await page.getByRole("tab", { name: /Filiações/ }).click().catch(() => {});
+  await page.waitForTimeout(600);
+  await shot(page, "16-perfil-estadual-ac-filiacoes.png");
 
   // 11 — busca senadores
   await page.goto(`${BASE}/`, { waitUntil: "domcontentloaded" });

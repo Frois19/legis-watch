@@ -1,6 +1,6 @@
 # API interna — v1 (backend)
 
-> Navegação: [Índice da documentação](./README.md) · [Guia do produto](./GUIA-DO-PRODUTO.md) · [Estaduais](./estaduais.md) · [APIs da Câmara](./apis-v1.md) · [README](../README.md)
+> Navegação: [Índice da documentação](./README.md) · [Guia do usuário](./GUIA-DO-PRODUTO.md) · [Estaduais](./estaduais.md) · [APIs da Câmara](./apis-v1.md) · [README](../README.md)
 
 Base local: `http://localhost:3456`
 
@@ -165,6 +165,6 @@ Ver [.env.example](../.env.example). Destaques estaduais:
 
 - [Índice da documentação](./README.md)
 - [Deputados estaduais por UF](./estaduais.md)
-- [Guia do produto](./GUIA-DO-PRODUTO.md)
+- [Guia do usuário](./GUIA-DO-PRODUTO.md)
 - [APIs externas da Câmara](./apis-v1.md)
 - [Plano de expansão + cache](./PLANO-EXPANSAO.md)

@@ -1,6 +1,6 @@
 # Senadores — Senado Federal
 
-> Navegação: [Índice](./README.md) · [Guia do produto](./GUIA-DO-PRODUTO.md) · [API interna](./backend-api.md) · [Plano de expansão](./PLANO-EXPANSAO.md)
+> Navegação: [Índice](./README.md) · [Guia do usuário](./GUIA-DO-PRODUTO.md) · [API interna](./backend-api.md) · [Plano de expansão](./PLANO-EXPANSAO.md)
 
 O Legis Watch sincroniza a **lista atual de senadores em exercício** e, sob demanda, **filiações, mandatos e matérias de autoria** via Dados Abertos do Senado.
 
@@ -38,7 +38,7 @@ Resposta do perfil inclui `affiliations`, `mandates`, `matters`, `profileSyncedA
 
 UI: esfera **Senadores** na home · perfil `/parlamentares/senado/{codigo}` com abas Matérias / Filiações / Mandatos / Cobertura.
 
-Prints no [guia do produto](./GUIA-DO-PRODUTO.md#8-senadores): busca, matérias, filiações e cobertura.
+Prints no [guia do usuário](./GUIA-DO-PRODUTO.md#8-senadores): busca, matérias, filiações e cobertura.
 
 ## Cobertura
 

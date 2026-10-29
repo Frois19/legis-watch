@@ -2,7 +2,7 @@
 
 Acompanhe **deputados federais** (Câmara), **deputados estaduais** (27 UFs) e **senadores**: busca unificada por esfera, perfil, partido, proposições, votações e presença quando a casa publicar.
 
-**Documentação:** [índice produto + técnica](./docs/README.md) · [guia do produto](./docs/GUIA-DO-PRODUTO.md) · [estaduais por UF](./docs/estaduais.md)
+**Documentação:** [índice produto + técnica](./docs/README.md) · [guia do usuário](./docs/GUIA-DO-PRODUTO.md) · [estaduais por UF](./docs/estaduais.md)
 
 **Monorepo (recomendado no v1):** backend (API + sync), frontend e docs no mesmo repositório. Repos separados só fazem sentido depois, se times/deploys se separarem.
 
@@ -17,7 +17,7 @@ Acompanhe **deputados federais** (Câmara), **deputados estaduais** (27 UFs) e *
 Comece pelo índice e escolha o caminho:
 
 - [**Índice da documentação**](./docs/README.md) — navega entre produto e técnica
-- [Guia do produto](./docs/GUIA-DO-PRODUTO.md) — telas e funcionalidades (com prints)
+- [Guia do usuário](./docs/GUIA-DO-PRODUTO.md) — telas e funcionalidades novas (com prints)
 - [Deputados estaduais por UF](./docs/estaduais.md) — catálogo das 27 casas (live vs fixture)
 - [Plano de expansão + cache](./docs/PLANO-EXPANSAO.md) — roadmap e status E0/E1 + cache
 - [APIs externas da Câmara (v1)](./docs/apis-v1.md) — fontes oficiais do sync federal

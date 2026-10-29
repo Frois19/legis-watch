@@ -1,6 +1,6 @@
 # APIs externas — Câmara (deputados federais)
 
-> Navegação: [Índice da documentação](./README.md) · [Guia do produto](./GUIA-DO-PRODUTO.md) · [Estaduais](./estaduais.md) · [API interna](./backend-api.md) · [README](../README.md)
+> Navegação: [Índice da documentação](./README.md) · [Guia do usuário](./GUIA-DO-PRODUTO.md) · [Estaduais](./estaduais.md) · [API interna](./backend-api.md) · [README](../README.md)
 
 Catálogo das fontes oficiais da **Câmara dos Deputados** usadas no sync federal. Fontes estaduais (ALEPE e demais) estão em [estaduais.md](./estaduais.md) e no [plano de expansão](./PLANO-EXPANSAO.md). Senado fica fora desta versão.
 
@@ -317,5 +317,5 @@ Complemento se o bulk de eventos não cobrir bem o plenário.
 ## Continuar navegando
 
 - [Índice da documentação](./README.md)
-- [Guia do produto](./GUIA-DO-PRODUTO.md)
+- [Guia do usuário](./GUIA-DO-PRODUTO.md)
 - [API interna do produto](./backend-api.md)

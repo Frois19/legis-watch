@@ -1,6 +1,6 @@
 # Deputados estaduais — cobertura por UF
 
-> Navegação: [Índice](./README.md) · [Guia do produto](./GUIA-DO-PRODUTO.md) · [API interna](./backend-api.md) · [Plano de expansão](./PLANO-EXPANSAO.md)
+> Navegação: [Índice](./README.md) · [Guia do usuário](./GUIA-DO-PRODUTO.md) · [API interna](./backend-api.md) · [Plano de expansão](./PLANO-EXPANSAO.md)
 
 O Legis Watch busca e exibe **deputados estaduais** (e do DF) em todas as **27 UFs**. A qualidade dos dados depende da casa:
 
@@ -91,6 +91,8 @@ Ainda **não** disponível no estadual (APIs sem voto nominal por parlamentar ou
 - Votações nominais individuais
 - Presença / faltas
 - Favoritos (hoje só federais)
+
+Prints no [guia do usuário](./GUIA-DO-PRODUTO.md#7-perfil-estadual): PE, SP, MG (filiações) e AC (proposições/filiações).
 
 URL do perfil: `/parlamentares/{source}/{externalId}`  
 Ex.: `/parlamentares/aleac/248`, `/parlamentares/almg/12193`, `/parlamentares/alepe/joao-paulo`
