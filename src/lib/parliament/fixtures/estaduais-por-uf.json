@@ -1,0 +1,116 @@
+{
+  "AC": [
+    { "nome": "Maria do Acre Souza", "partido": "PT", "email": "maria.acre@fixture.legis.watch" },
+    { "nome": "João Ribeiro Acre", "partido": "PL", "email": "joao.acre@fixture.legis.watch" }
+  ],
+  "AL": [
+    { "nome": "Helena Maceió Alves", "partido": "PP", "email": "helena.al@fixture.legis.watch" },
+    { "nome": "Carlos Arapiraca Lima", "partido": "MDB", "email": "carlos.al@fixture.legis.watch" }
+  ],
+  "AP": [
+    { "nome": "Ana Macapá Ferreira", "partido": "PSB", "email": "ana.ap@fixture.legis.watch" },
+    { "nome": "Pedro Santana Amapá", "partido": "Republicanos", "email": "pedro.ap@fixture.legis.watch" }
+  ],
+  "AM": [
+    { "nome": "Lucia Manaus Rocha", "partido": "UNIÃO", "email": "lucia.am@fixture.legis.watch" },
+    { "nome": "Rafael Parintins Dias", "partido": "PSD", "email": "rafael.am@fixture.legis.watch" }
+  ],
+  "BA": [
+    { "nome": "Carla Salvador Nunes", "partido": "PT", "email": "carla.ba@fixture.legis.watch" },
+    { "nome": "Bruno Feira de Santana", "partido": "PCdoB", "email": "bruno.ba@fixture.legis.watch" }
+  ],
+  "CE": [
+    { "nome": "Fernanda Fortaleza Costa", "partido": "PT", "email": "fernanda.ce@fixture.legis.watch" },
+    { "nome": "Diego Sobral Mendes", "partido": "PDT", "email": "diego.ce@fixture.legis.watch" }
+  ],
+  "DF": [
+    { "nome": "Patrícia Brasília Campos", "partido": "NOVO", "email": "patricia.df@fixture.legis.watch" },
+    { "nome": "André Taguatinga Reis", "partido": "PL", "email": "andre.df@fixture.legis.watch" }
+  ],
+  "ES": [
+    { "nome": "Beatriz Vitória Espírito", "partido": "PSB", "email": "beatriz.es@fixture.legis.watch" },
+    { "nome": "Gustavo Vila Velha", "partido": "Republicanos", "email": "gustavo.es@fixture.legis.watch" }
+  ],
+  "GO": [
+    { "nome": "Camila Goiânia Prado", "partido": "UNIÃO", "email": "camila.go@fixture.legis.watch" },
+    { "nome": "Thiago Anápolis Silva", "partido": "PSD", "email": "thiago.go@fixture.legis.watch" }
+  ],
+  "MA": [
+    { "nome": "Juliana São Luís Matos", "partido": "PCdoB", "email": "juliana.ma@fixture.legis.watch" },
+    { "nome": "Marcos Imperatriz Lopes", "partido": "PDT", "email": "marcos.ma@fixture.legis.watch" }
+  ],
+  "MT": [
+    { "nome": "Aline Cuiabá Torres", "partido": "MDB", "email": "aline.mt@fixture.legis.watch" },
+    { "nome": "Renato Rondonópolis", "partido": "PL", "email": "renato.mt@fixture.legis.watch" }
+  ],
+  "MS": [
+    { "nome": "Sofia Campo Grande", "partido": "PSDB", "email": "sofia.ms@fixture.legis.watch" },
+    { "nome": "Igor Dourados Pires", "partido": "PP", "email": "igor.ms@fixture.legis.watch" }
+  ],
+  "MG": [
+    { "nome": "Larissa Belo Horizonte", "partido": "PT", "email": "larissa.mg@fixture.legis.watch" },
+    { "nome": "Eduardo Uberlândia Cruz", "partido": "NOVO", "email": "eduardo.mg@fixture.legis.watch" }
+  ],
+  "PA": [
+    { "nome": "Natália Belém Souza", "partido": "MDB", "email": "natalia.pa@fixture.legis.watch" },
+    { "nome": "Fábio Santarém Vale", "partido": "PT", "email": "fabio.pa@fixture.legis.watch" }
+  ],
+  "PB": [
+    { "nome": "Isabela João Pessoa", "partido": "PSB", "email": "isabela.pb@fixture.legis.watch" },
+    { "nome": "Rodrigo Campina Grande", "partido": "Republicanos", "email": "rodrigo.pb@fixture.legis.watch" }
+  ],
+  "PR": [
+    { "nome": "Vanessa Curitiba Mello", "partido": "PSD", "email": "vanessa.pr@fixture.legis.watch" },
+    { "nome": "Paulo Londrina Barbosa", "partido": "PL", "email": "paulo.pr@fixture.legis.watch" }
+  ],
+  "PE": [
+    { "nome": "Delegado Gleide Angelo", "partido": "PSB", "email": "gleideangelo@alepe.pe.gov.br" },
+    { "nome": "João Paulo", "partido": "PT", "email": "joaopaulo@alepe.pe.gov.br" },
+    { "nome": "Romário Dias", "partido": "PSD", "email": "romariodias@alepe.pe.gov.br" },
+    { "nome": "Simone Santana", "partido": "PSB", "email": "simonesantana@alepe.pe.gov.br" },
+    { "nome": "Antonio Coelho", "partido": "DEM", "email": "antoniocoelho@alepe.pe.gov.br" },
+    { "nome": "Álvaro Porto", "partido": "PSDB", "email": "alvaroporto@alepe.pe.gov.br" },
+    { "nome": "Odacy Amorim", "partido": "PT", "email": "odacyamorim@alepe.pe.gov.br" },
+    { "nome": "Clarissa Tércio", "partido": "PP", "email": "clarissatercio@alepe.pe.gov.br" }
+  ],
+  "PI": [
+    { "nome": "Elaine Teresina Duarte", "partido": "PT", "email": "elaine.pi@fixture.legis.watch" },
+    { "nome": "Vitor Parnaíba Gomes", "partido": "MDB", "email": "vitor.pi@fixture.legis.watch" }
+  ],
+  "RJ": [
+    { "nome": "Marina Rio de Janeiro", "partido": "PSOL", "email": "marina.rj@fixture.legis.watch" },
+    { "nome": "Leonardo Niterói Alves", "partido": "PL", "email": "leonardo.rj@fixture.legis.watch" }
+  ],
+  "RN": [
+    { "nome": "Cristina Natal Rocha", "partido": "UNIÃO", "email": "cristina.rn@fixture.legis.watch" },
+    { "nome": "André Mossoró Lima", "partido": "PSDB", "email": "andre.rn@fixture.legis.watch" }
+  ],
+  "RS": [
+    { "nome": "Paula Porto Alegre", "partido": "PT", "email": "paula.rs@fixture.legis.watch" },
+    { "nome": "Henrique Caxias do Sul", "partido": "MDB", "email": "henrique.rs@fixture.legis.watch" }
+  ],
+  "RO": [
+    { "nome": "Tatiane Porto Velho", "partido": "UNIÃO", "email": "tatiane.ro@fixture.legis.watch" },
+    { "nome": "Wagner Ji-Paraná", "partido": "PP", "email": "wagner.ro@fixture.legis.watch" }
+  ],
+  "RR": [
+    { "nome": "Daniela Boa Vista", "partido": "Republicanos", "email": "daniela.rr@fixture.legis.watch" },
+    { "nome": "Otávio Rorainópolis", "partido": "PL", "email": "otavio.rr@fixture.legis.watch" }
+  ],
+  "SC": [
+    { "nome": "Amanda Florianópolis", "partido": "NOVO", "email": "amanda.sc@fixture.legis.watch" },
+    { "nome": "Felipe Joinville Costa", "partido": "PL", "email": "felipe.sc@fixture.legis.watch" }
+  ],
+  "SP": [
+    { "nome": "Gabriela São Paulo", "partido": "PT", "email": "gabriela.sp@fixture.legis.watch" },
+    { "nome": "Ricardo Campinas Moraes", "partido": "PSDB", "email": "ricardo.sp@fixture.legis.watch" }
+  ],
+  "SE": [
+    { "nome": "Lorena Aracaju Dias", "partido": "PSD", "email": "lorena.se@fixture.legis.watch" },
+    { "nome": "Mateus Lagarto Nunes", "partido": "PT", "email": "mateus.se@fixture.legis.watch" }
+  ],
+  "TO": [
+    { "nome": "Bruna Palmas Vieira", "partido": "MDB", "email": "bruna.to@fixture.legis.watch" },
+    { "nome": "Sérgio Araguaína Pinto", "partido": "UNIÃO", "email": "sergio.to@fixture.legis.watch" }
+  ]
+}

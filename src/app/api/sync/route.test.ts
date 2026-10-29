@@ -8,6 +8,7 @@ const {
   syncVotesForYear,
   syncAttendanceForYear,
   syncStateAssembly,
+  syncAllStateAssemblies,
 } = vi.hoisted(() => ({
   syncParties: vi.fn(async () => ({ parties: 1 })),
   syncDeputies: vi.fn(async () => ({ deputies: 1 })),
@@ -15,6 +16,11 @@ const {
   syncVotesForYear: vi.fn(async () => ({ votes: 1 })),
   syncAttendanceForYear: vi.fn(async () => ({ attendances: 1 })),
   syncStateAssembly: vi.fn(async () => ({ parliamentarians: 8 })),
+  syncAllStateAssemblies: vi.fn(async () => ({
+    assemblies: 27,
+    parliamentarians: 60,
+    failures: 0,
+  })),
 }));
 
 vi.mock("@/lib/sync", () => ({
@@ -24,6 +30,7 @@ vi.mock("@/lib/sync", () => ({
   syncVotesForYear,
   syncAttendanceForYear,
   syncStateAssembly,
+  syncAllStateAssemblies,
 }));
 
 import { POST } from "./route";
@@ -95,6 +102,10 @@ describe("POST /api/sync", () => {
       (await post({ domain: "estadual", source: "alepe" }, headers)).status,
     ).toBe(200);
     expect(syncStateAssembly).toHaveBeenCalledWith("alepe");
+    expect(
+      (await post({ domain: "estadual", source: "all" }, headers)).status,
+    ).toBe(200);
+    expect(syncAllStateAssemblies).toHaveBeenCalled();
   });
 
   it("retorna 500 quando sync falha", async () => {

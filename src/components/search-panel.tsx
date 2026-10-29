@@ -200,8 +200,11 @@ export function SearchPanel({
           </fieldset>
         ) : (
           <p className="text-xs text-muted-foreground">
-            Piloto estadual: sincronize PE com{" "}
-            <code className="rounded bg-muted px-1">npm run sync -- estadual --source=alepe</code>
+            Cobertura estadual: 27 UFs (PE via ALEPE; demais com fixture de
+            cadastro). Sync:{" "}
+            <code className="rounded bg-muted px-1">
+              npm run sync -- estadual --source=all
+            </code>
             .
           </p>
         )}

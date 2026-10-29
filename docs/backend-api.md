@@ -62,10 +62,11 @@ npm run sync -- propositions --deputy=204379
 npm run sync -- votes --year=2026
 npm run sync -- attendance --year=2026
 npm run sync -- bootstrap
+npm run sync -- estadual --source=all
 npm run sync -- estadual --source=alepe
 ```
 
-Os syncs de `votes` e `attendance` usam os arquivos anuais da Câmara (bulk) e gravam em lote no SQLite. Presença na API considera só **Sessões Deliberativas** não canceladas no Plenário da Câmara. O sync `estadual` usa o adapter da casa (`alepe` no piloto PE) e cai em fixture local se a API estiver indisponível.
+Os syncs de `votes` e `attendance` usam os arquivos anuais da Câmara (bulk) e gravam em lote no SQLite. Presença na API considera só **Sessões Deliberativas** não canceladas no Plenário da Câmara. O sync `estadual --source=all` cobre as **27 UFs** (PE via ALEPE com fallback; demais casas via fixture de cadastro até haver adapter live).
 
 
 ## Variáveis de ambiente

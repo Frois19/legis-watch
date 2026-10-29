@@ -4,6 +4,7 @@ import {
   syncDeputies,
   syncParties,
   syncPropositionsForDeputy,
+  syncAllStateAssemblies,
   syncStateAssembly,
   syncVotesForYear,
 } from "@/lib/sync";
@@ -95,7 +96,10 @@ export async function POST(request: NextRequest) {
         };
         break;
       case "estadual":
-        result = await syncStateAssembly(source ?? "alepe");
+        result =
+          !source || source === "all"
+            ? await syncAllStateAssemblies()
+            : await syncStateAssembly(source);
         break;
       default:
         return NextResponse.json({ error: "domain inválido" }, { status: 400 });

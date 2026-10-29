@@ -15,7 +15,7 @@ Hoje o produto cobre **apenas deputados federais** (Câmara). Este plano define:
 | Casa | Status |
 |---|---|
 | Câmara dos Deputados (federal) | Implementado (sync + UI) |
-| Assembleias Legislativas (estadual) | Piloto PE (ALEPE): busca + perfil mínimo |
+| Assembleias Legislativas (estadual) | 27 UFs: busca + perfil (PE live ALEPE; demais fixture de cadastro) |
 | Senado Federal | Previsto no estudo; ainda não implementado |
 
 Não existe API nacional única para deputados estaduais. Cada Assembleia publica (ou não) seus dados com formatos diferentes. Por isso a expansão estadual precisa ser **por adapter + rollout UFs**.
@@ -177,7 +177,8 @@ Cada UF SAPL recebe só a **base URL** + mapeamento de campos no adapter.
 | E1 adapter ALEPE (PE) + fixture fallback | Feito |
 | E1 sync `npm run sync -- estadual --source=alepe` | Feito |
 | E1 UI filtro de esfera + perfil `/parlamentares/[source]/[id]` | Feito |
-| E1 ALMG (MG) | Pendente |
+| E1 cobertura 27 UFs (fixture + matriz de testes) | Feito |
+| E1 ALMG (MG) live + proposições | Pendente |
 
 ---
 

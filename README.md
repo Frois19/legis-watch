@@ -50,7 +50,10 @@ npm run sync -- attendance --year=2026
 # Detalhar redes sociais dos primeiros N deputados
 DEPUTY_DETAIL_LIMIT=50 npm run sync -- deputies
 
-# Piloto estadual (PE / ALEPE) — usa fixture se a API falhar
+# Estaduais — todas as 27 UFs (PE via ALEPE; demais via fixture de cadastro)
+npm run sync -- estadual --source=all
+
+# Só PE (ALEPE live + fallback de fixture)
 npm run sync -- estadual --source=alepe
 ```
 

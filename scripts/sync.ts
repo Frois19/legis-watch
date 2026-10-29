@@ -22,6 +22,7 @@ import {
   syncMandatesForDeputy,
   syncParties,
   syncPropositionsForDeputy,
+  syncAllStateAssemblies,
   syncStateAssembly,
   syncVotesForYear,
 } from "../src/lib/sync";
@@ -38,7 +39,7 @@ async function main() {
   const year = Number(arg("year") ?? new Date().getFullYear());
   const deputyId = Number(arg("deputy") ?? 0);
   const legislaturaId = Number(arg("legislatura") ?? currentLegislatura());
-  const source = arg("source") ?? "alepe";
+  const source = arg("source") ?? "all";
 
   switch (command) {
     case "legislatures":
@@ -74,12 +75,19 @@ async function main() {
       console.log("deputies", await syncDeputies());
       break;
     case "estadual":
-      console.log(await syncStateAssembly(source));
+      if (source === "all") {
+        console.log(await syncAllStateAssemblies());
+      } else {
+        console.log(await syncStateAssembly(source));
+      }
       break;
     default:
       console.error(`Unknown command: ${command ?? "(none)"}`);
       console.error(
         "Commands: legislatures | parties | deputies | mandates | propositions | votes | attendance | bootstrap | estadual",
+      );
+      console.error(
+        "estadual: npm run sync -- estadual --source=all | --source=alepe",
       );
       process.exit(1);
   }

@@ -1,5 +1,8 @@
 import { prisma } from "@/lib/db/prisma";
-import { getStateAdapter } from "@/lib/parliament/adapters";
+import {
+  getStateAdapter,
+  listStateAdapterSources,
+} from "@/lib/parliament/adapters";
 import { parliamentarianId } from "@/lib/parliament/types";
 import { withSyncRun } from "./run";
 
@@ -47,4 +50,34 @@ export async function syncStateAssembly(source: string) {
 
     return { parliamentarians: upserted };
   });
+}
+
+/** Sincroniza todas as casas estaduais registradas. */
+export async function syncAllStateAssemblies() {
+  const sources = listStateAdapterSources();
+  let parliamentarians = 0;
+  let assemblies = 0;
+  const failures: string[] = [];
+
+  for (const source of sources) {
+    try {
+      const result = await syncStateAssembly(source);
+      parliamentarians += result.parliamentarians;
+      assemblies += 1;
+    } catch (error) {
+      failures.push(
+        `${source}:${error instanceof Error ? error.message : String(error)}`,
+      );
+    }
+  }
+
+  if (failures.length > 0 && assemblies === 0) {
+    throw new Error(`estadual_sync_all_failed:${failures.join("|")}`);
+  }
+
+  return {
+    assemblies,
+    parliamentarians,
+    failures: failures.length,
+  };
 }
