@@ -3,6 +3,7 @@
 import { DeputyPhoto } from "@/components/deputy-photo";
 import { FavoriteButton } from "@/components/favorite-button";
 import { PropositionsPanel } from "@/components/propositions-panel";
+import { VotesPanel } from "@/components/votes-panel";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type {
@@ -13,18 +14,10 @@ import type {
   PropositionStats,
   VoteItem,
 } from "@/lib/api/types";
-import { formatDateTime, propositionLabel, socialLabel } from "@/lib/format";
+import { formatDateTime, socialLabel } from "@/lib/format";
 import { ExternalLink } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-
-function voteVariant(tipo: string) {
-  const t = tipo.toLowerCase();
-  if (t.includes("sim")) return "success" as const;
-  if (t.includes("não") || t.includes("nao")) return "danger" as const;
-  if (t.includes("obstru")) return "warn" as const;
-  return "secondary" as const;
-}
 
 export function DeputyProfile({
   deputy,
@@ -201,52 +194,9 @@ export function DeputyProfile({
         <TabsContent value="votos">
           <SectionTitle
             title="Histórico de votações"
-            description="Como o deputado votou nas votações nominais sincronizadas."
+            description="Como o deputado votou, o que era o projeto, o resultado da sessão e link para a ficha na Câmara."
           />
-          {votes.items.length === 0 ? (
-            <EmptyState message="Ainda não há votações sincronizadas para este perfil." />
-          ) : (
-            <ul className="divide-y divide-border border border-border bg-card">
-              {votes.items.map((vote) => (
-                <li key={vote.id} className="p-4">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <Badge variant={voteVariant(vote.tipoVoto)}>
-                      {vote.tipoVoto}
-                    </Badge>
-                    {vote.proposicao ? (
-                      <span className="text-sm font-medium">
-                        {propositionLabel(vote.proposicao)}
-                      </span>
-                    ) : (
-                      <span className="text-sm text-muted-foreground">
-                        Proposição não vinculada
-                      </span>
-                    )}
-                    {vote.votacao.siglaOrgao ? (
-                      <span className="text-xs text-muted-foreground">
-                        {vote.votacao.siglaOrgao}
-                      </span>
-                    ) : null}
-                  </div>
-                  <p className="mt-2 text-sm text-muted-foreground">
-                    {vote.votacao.descricao ||
-                      vote.proposicao?.ementa ||
-                      "Sem descrição."}
-                  </p>
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    {formatDateTime(
-                      vote.dataRegistro || vote.votacao.dataHoraRegistro,
-                    )}
-                  </p>
-                </li>
-              ))}
-            </ul>
-          )}
-          {votes.total > votes.items.length ? (
-            <p className="mt-3 text-xs text-muted-foreground">
-              Mostrando {votes.items.length} de {votes.total} votos.
-            </p>
-          ) : null}
+          <VotesPanel items={votes.items} total={votes.total} />
         </TabsContent>
 
         <TabsContent value="presenca">

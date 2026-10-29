@@ -105,6 +105,26 @@ export async function syncVotesForYear(year: number) {
       }),
     );
 
+    // Completa stubs já existentes que entraram sem ementa/tipo
+    for (const p of propositions) {
+      if (!existingPropIds.has(p.id)) continue;
+      if (!p.ementa && !p.siglaTipo) continue;
+      await prisma.proposition.updateMany({
+        where: {
+          id: p.id,
+          OR: [{ ementa: null }, { ementa: "" }, { siglaTipo: null }],
+        },
+        data: {
+          ...(p.uri ? { uri: p.uri } : {}),
+          ...(p.siglaTipo ? { siglaTipo: p.siglaTipo } : {}),
+          ...(p.numero != null ? { numero: p.numero } : {}),
+          ...(p.ano != null ? { ano: p.ano } : {}),
+          ...(p.ementa ? { ementa: p.ementa } : {}),
+          syncedAt: new Date(),
+        },
+      });
+    }
+
     // Replace year vote rows for idempotent re-sync
     await prisma.vote.deleteMany({ where: { year } });
     await prisma.voteSession.deleteMany({ where: { year } });

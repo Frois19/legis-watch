@@ -1,5 +1,6 @@
 import { resolveDeputyPhotoUrl } from "@/lib/camara/photo";
 import { prisma } from "@/lib/db/prisma";
+import { camaraPropositionUrl } from "@/lib/format";
 import {
   defaultLegislaturaId,
   formatLegislaturaLabel,
@@ -289,6 +290,7 @@ export async function getDeputyPropositions(
       dataApresentacao: p.dataApresentacao,
       statusResumo: p.statusResumo,
       proponente: p.authors[0]?.proponente ?? false,
+      urlCamara: camaraPropositionUrl(p.id),
     })),
   };
 }
@@ -313,10 +315,32 @@ export async function getDeputyVotes(
     prisma.vote.count({ where }),
     prisma.vote.findMany({
       where,
-      orderBy: { id: "desc" },
+      orderBy: [{ dataRegistro: "desc" }, { id: "desc" }],
       take: pageSize,
       include: {
-        voteSession: { include: { proposition: true } },
+        voteSession: {
+          include: {
+            proposition: {
+              include: {
+                authors: {
+                  include: {
+                    deputy: {
+                      select: {
+                        id: true,
+                        nome: true,
+                        nomeEleitoral: true,
+                        siglaPartido: true,
+                        siglaUf: true,
+                      },
+                    },
+                  },
+                  orderBy: [{ proponente: "desc" }, { ordemAssinatura: "asc" }],
+                  take: 8,
+                },
+              },
+            },
+          },
+        },
       },
     }),
   ]);
@@ -325,28 +349,43 @@ export async function getDeputyVotes(
     page: 1,
     pageSize,
     total,
-    items: items.map((v) => ({
-      id: v.id,
-      tipoVoto: v.tipoVoto,
-      dataRegistro: v.dataRegistro,
-      year: v.year,
-      votacao: {
-        id: v.voteSession.id,
-        descricao: v.voteSession.descricao,
-        dataHoraRegistro: v.voteSession.dataHoraRegistro,
-        aprovacao: v.voteSession.aprovacao,
-        siglaOrgao: v.voteSession.siglaOrgao,
-      },
-      proposicao: v.voteSession.proposition
-        ? {
-            id: v.voteSession.proposition.id,
-            siglaTipo: v.voteSession.proposition.siglaTipo,
-            numero: v.voteSession.proposition.numero,
-            ano: v.voteSession.proposition.ano,
-            ementa: v.voteSession.proposition.ementa,
-          }
-        : null,
-    })),
+    items: items.map((v) => {
+      const prop = v.voteSession.proposition;
+      return {
+        id: v.id,
+        tipoVoto: v.tipoVoto,
+        dataRegistro: v.dataRegistro,
+        year: v.year,
+        votacao: {
+          id: v.voteSession.id,
+          descricao: v.voteSession.descricao,
+          dataHoraRegistro: v.voteSession.dataHoraRegistro,
+          aprovacao: v.voteSession.aprovacao,
+          siglaOrgao: v.voteSession.siglaOrgao,
+        },
+        proposicao: prop
+          ? {
+              id: prop.id,
+              uri: prop.uri,
+              siglaTipo: prop.siglaTipo,
+              numero: prop.numero,
+              ano: prop.ano,
+              ementa: prop.ementa,
+              dataApresentacao: prop.dataApresentacao,
+              statusResumo: prop.statusResumo,
+              authorsResumo: prop.authorsResumo,
+              urlCamara: camaraPropositionUrl(prop.id),
+              authors: prop.authors.map((a) => ({
+                id: a.deputy.id,
+                nome: a.deputy.nomeEleitoral || a.deputy.nome,
+                siglaPartido: a.deputy.siglaPartido,
+                siglaUf: a.deputy.siglaUf,
+                proponente: a.proponente,
+              })),
+            }
+          : null,
+      };
+    }),
   };
 }
 
@@ -425,7 +464,7 @@ export async function getDeputyProfileBundle(
   const selected = deputy.selectedLegislaturaId;
   const [propositions, votes, attendance] = await Promise.all([
     getDeputyPropositions(id, 100, selected),
-    getDeputyVotes(id, 20, selected),
+    getDeputyVotes(id, 40, selected),
     getDeputyAttendance(id, selected),
   ]);
   return { deputy, propositions, votes, attendance };

@@ -1,9 +1,11 @@
 import { describe, expect, it } from "vitest";
 import {
+  camaraPropositionUrl,
   formatDate,
   formatDateTime,
   propositionLabel,
   socialLabel,
+  voteApprovalLabel,
 } from "./format";
 
 describe("formatDateTime", () => {
@@ -39,6 +41,23 @@ describe("propositionLabel", () => {
       "PEC 2023",
     );
     expect(propositionLabel({})).toBe("");
+  });
+});
+
+describe("camaraPropositionUrl", () => {
+  it("monta a ficha de tramitação", () => {
+    expect(camaraPropositionUrl(123)).toBe(
+      "https://www.camara.leg.br/proposicoesWeb/fichadetramitacao?idProposicao=123",
+    );
+  });
+});
+
+describe("voteApprovalLabel", () => {
+  it("traduz aprovado, rejeitado e desconhecido", () => {
+    expect(voteApprovalLabel(true)).toBe("Aprovado");
+    expect(voteApprovalLabel(false)).toBe("Rejeitado");
+    expect(voteApprovalLabel(null)).toBe("Resultado não informado");
+    expect(voteApprovalLabel(undefined)).toBe("Resultado não informado");
   });
 });
 

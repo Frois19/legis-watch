@@ -182,10 +182,26 @@ describe("api/server", () => {
           siglaOrgao: "PLEN",
           proposition: {
             id: 10,
+            uri: null,
             siglaTipo: "PL",
             numero: 1,
             ano: 2026,
             ementa: "e",
+            dataApresentacao: "2026-01-01",
+            statusResumo: "Aguardando",
+            authorsResumo: null,
+            authors: [
+              {
+                proponente: true,
+                deputy: {
+                  id: 9,
+                  nome: "Autor",
+                  nomeEleitoral: "Autor",
+                  siglaPartido: "PL",
+                  siglaUf: "SP",
+                },
+              },
+            ],
           },
         },
       },
@@ -195,6 +211,9 @@ describe("api/server", () => {
     expect(votes.total).toBe(1);
     expect(votes.items[0]?.votacao.id).toBe("v1");
     expect(votes.items[0]?.proposicao?.siglaTipo).toBe("PL");
+    expect(votes.items[0]?.proposicao?.urlCamara).toContain("idProposicao=10");
+    expect(votes.items[0]?.proposicao?.authors[0]?.siglaPartido).toBe("PL");
+    expect(votes.items[0]?.votacao.aprovacao).toBe(true);
   });
 
   it("getDeputyAttendance resume presença e faltas", async () => {

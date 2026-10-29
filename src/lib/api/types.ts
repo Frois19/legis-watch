@@ -79,6 +79,27 @@ export type PropositionItem = {
   dataApresentacao: string | null;
   statusResumo: string | null;
   proponente: boolean;
+  urlCamara: string;
+};
+
+export type VotePropositionAuthor = {
+  id: number;
+  nome: string;
+  siglaPartido: string | null;
+  siglaUf: string | null;
+  proponente: boolean;
+};
+
+export type EnrichedProposition = {
+  id: number;
+  ementa: string | null;
+  dataApresentacao: string | null;
+  statusResumo: string | null;
+  siglaTipo: string | null;
+  numero: number | null;
+  ano: number | null;
+  authorsResumo: string | null;
+  authors: VotePropositionAuthor[];
 };
 
 export type VoteItem = {
@@ -95,10 +116,16 @@ export type VoteItem = {
   };
   proposicao: {
     id: number;
+    uri: string | null;
     siglaTipo: string | null;
     numero: number | null;
     ano: number | null;
     ementa: string | null;
+    dataApresentacao: string | null;
+    statusResumo: string | null;
+    authorsResumo: string | null;
+    urlCamara: string;
+    authors: VotePropositionAuthor[];
   } | null;
 };
 

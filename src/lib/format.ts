@@ -25,6 +25,19 @@ export function propositionLabel(item: {
     .join(" ");
 }
 
+/** Ficha pública de tramitação na Câmara (leitura humana). */
+export function camaraPropositionUrl(propositionId: number): string {
+  return `https://www.camara.leg.br/proposicoesWeb/fichadetramitacao?idProposicao=${propositionId}`;
+}
+
+export function voteApprovalLabel(
+  aprovacao?: boolean | null,
+): "Aprovado" | "Rejeitado" | "Resultado não informado" {
+  if (aprovacao === true) return "Aprovado";
+  if (aprovacao === false) return "Rejeitado";
+  return "Resultado não informado";
+}
+
 export function socialLabel(url: string): string {
   try {
     const host = new URL(url).hostname.replace(/^www\./, "");

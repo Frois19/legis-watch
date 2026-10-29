@@ -10,6 +10,7 @@ import {
   getStatusCategoryMeta,
   type PropositionStatusCategory,
 } from "@/lib/propositions/status-meta";
+import { ExternalLink } from "lucide-react";
 import { useId, useMemo, useState } from "react";
 
 export function PropositionsPanel({
@@ -103,6 +104,16 @@ export function PropositionsPanel({
                       Sem status
                     </span>
                   )}
+                  <a
+                    href={item.urlCamara}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 text-xs font-medium text-primary underline underline-offset-2"
+                  >
+                    Ler na Câmara
+                    <ExternalLink className="size-3.5" aria-hidden="true" />
+                    <span className="sr-only">(abre em nova aba)</span>
+                  </a>
                 </div>
                 <p className="mt-2 text-sm leading-relaxed">
                   {item.ementa || "Sem ementa disponível."}
