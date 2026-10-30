@@ -1,12 +1,10 @@
-import { SenatorProfileView } from "@/components/senator-profile";
-import { StateDeputyProfileView } from "@/components/state-deputy-profile";
+import { SenatorProfileLoader } from "@/components/senator-profile-loader";
+import { StateDeputyProfileLoader } from "@/components/state-deputy-profile-loader";
+import { prisma } from "@/lib/db/prisma";
 import { getAssembly } from "@/lib/parliament/assemblies";
 import { serializeStateDeputyDetail } from "@/lib/parliament/serialize";
+import { parliamentarianId } from "@/lib/parliament/types";
 import { serializeSenatorDetail } from "@/lib/senado/serialize";
-import {
-  ensureStateDeputyProfile,
-} from "@/lib/sync/estadual";
-import { ensureSenatorProfile } from "@/lib/sync/senado";
 import { notFound } from "next/navigation";
 
 export const dynamic = "force-dynamic";
@@ -22,9 +20,18 @@ export default async function ParliamentarianPage({ params }: Params) {
 }
 
 async function SenatorProfile({ externalId }: { externalId: string }) {
-  const row = await ensureSenatorProfile(externalId);
+  const id = parliamentarianId("senado", String(externalId).trim());
+  const row = await prisma.senator.findUnique({
+    where: { id },
+    include: {
+      affiliations: { orderBy: { dataFiliacao: "desc" } },
+      mandates: { orderBy: { dataInicio: "desc" } },
+      matters: { orderBy: [{ ano: "desc" }, { numero: "desc" }] },
+      votes: { orderBy: { dataSessao: "desc" } },
+    },
+  });
   if (!row) notFound();
-  return <SenatorProfileView detail={serializeSenatorDetail(row)} />;
+  return <SenatorProfileLoader initial={serializeSenatorDetail(row)} />;
 }
 
 async function StateDeputyProfile({
@@ -34,12 +41,21 @@ async function StateDeputyProfile({
   source: string;
   externalId: string;
 }) {
-  const row = await ensureStateDeputyProfile(source, externalId);
+  const id = parliamentarianId(source, String(externalId).trim());
+  const row = await prisma.stateDeputy.findUnique({
+    where: { id },
+    include: {
+      affiliations: { orderBy: { dataFiliacao: "desc" } },
+      mandates: { orderBy: { dataInicio: "desc" } },
+      propositions: { orderBy: [{ ano: "desc" }, { numero: "desc" }] },
+      attendances: { orderBy: { dataSessao: "desc" } },
+    },
+  });
   if (!row) notFound();
   const assembly = getAssembly(row.source);
   return (
-    <StateDeputyProfileView
-      detail={serializeStateDeputyDetail(row)}
+    <StateDeputyProfileLoader
+      initial={serializeStateDeputyDetail(row)}
       docsUrl={assembly?.docsUrl}
     />
   );

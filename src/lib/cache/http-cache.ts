@@ -8,6 +8,9 @@ type MemoryEntry = {
 };
 
 const memory = new Map<string, MemoryEntry>();
+let hits = 0;
+let misses = 0;
+let networkFetches = 0;
 
 function envInt(name: string, fallback: number): number {
   const raw = Number(process.env[name] ?? fallback);
@@ -62,11 +65,26 @@ function touchMemory(key: string, entry: MemoryEntry) {
 export function clearHttpCache(prefix?: string) {
   if (!prefix) {
     memory.clear();
+    hits = 0;
+    misses = 0;
+    networkFetches = 0;
     return;
   }
   for (const key of [...memory.keys()]) {
     if (key.startsWith(prefix)) memory.delete(key);
   }
+}
+
+export function httpCacheStats() {
+  return {
+    size: memory.size,
+    hits,
+    misses,
+    networkFetches,
+    maxEntries: maxMemoryEntries(),
+    defaultTtlMs: defaultTtlMs(),
+    diskEnabled: diskEnabled(),
+  };
 }
 
 async function readCache(
@@ -121,9 +139,14 @@ export async function cachedFetchText(
   const ttlMs = opts.ttlMs ?? defaultTtlMs();
   const useDisk = opts.disk ?? diskEnabled();
   const cached = await readCache(key, useDisk);
-  if (cached) return cached.body;
+  if (cached) {
+    hits += 1;
+    return cached.body;
+  }
+  misses += 1;
 
   const method = (opts.method ?? "GET").toUpperCase();
+  networkFetches += 1;
   const response = await fetch(url, {
     method,
     headers: opts.headers,

@@ -56,6 +56,7 @@ export function createFixtureAdapter(
     uf: entry.uf,
     name: entry.name,
     sphere: "estadual_deputado",
+    dataMode: "fixture",
     coverage: {
       search: true,
       profile: true,

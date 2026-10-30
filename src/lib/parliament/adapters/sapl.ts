@@ -346,6 +346,7 @@ export function createSaplAdapter(config: SaplHouseConfig): StateAssemblyAdapter
     uf: config.uf,
     name: config.name,
     sphere: "estadual_deputado",
+    dataMode: "live",
     coverage: {
       search: true,
       profile: true,

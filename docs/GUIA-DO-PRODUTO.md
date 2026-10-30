@@ -38,14 +38,18 @@ Regenerar prints: `npm run docs:screenshots` (dev server em `:3456`).
 
 Na home, escolha a **esfera** e os filtros. No federal, escolha também o **mandato**.
 
+A URL reflete a busca e pode ser compartilhada, por exemplo  
+`/?esfera=estadual_deputado&uf=PR` ou `/?esfera=senador&uf=AC`.
+
 ![Busca com filtro de esfera](./screenshots/07-busca-esfera.png)
 
 **Na prática**
 
 - Esfera: Deputados federais · Deputados estaduais · Senadores · Todos
 - Federais: legislaturas recentes (52ª–57ª)
-- Estaduais: **11 casas live** (PE, MG, SP, PR + 7 SAPL) e 16 UFs com cadastro de demonstração
+- Estaduais: **11 casas live** (PE, MG, SP, PR + 7 SAPL) e 16 UFs com cadastro de demonstração (banner no perfil)
 - Senadores: lista em exercício do Senado
+- Perfis mostram **frescor** (“atualizado há X h”) e skeleton enquanto enriquecem
 
 ### Resultados federais
 
@@ -132,6 +136,10 @@ URL: `/parlamentares/{source}/{id}`
 ![Perfil estadual — Acre com proposições](./screenshots/15-perfil-estadual-ac-proposicoes.png)
 
 ![Perfil estadual — Acre com filiações](./screenshots/16-perfil-estadual-ac-filiacoes.png)
+
+UFs ainda em fixture mostram banner de demonstração:
+
+![Perfil estadual fixture — banner de demonstração](./screenshots/19-perfil-fixture-banner.png)
 
 ### O que cada casa live entrega
 

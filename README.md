@@ -80,10 +80,22 @@ App em [http://localhost:3456](http://localhost:3456) · API em `/api/health`.
 
 ### UI (v1)
 
-- `/` — busca por esfera (federal / estadual / senador / todos), nome, partido, UF e mandato
-- `/favoritos` — favoritos (federal, estadual e senador) no `localStorage` do navegador
-- `/deputados/[id]` — perfil federal com abas de projetos, votações, presença e partido
-- `/parlamentares/[source]/[id]` — perfil estadual (27 UFs) ou senador (`senado/{codigo}` com matérias, votações, filiações e mandatos)
+- `/` — busca por esfera (federal / estadual / senador / todos); deep-link `?esfera=&uf=&nome=&partido=&legislaturaId=`
+- `/favoritos` — favoritos multi-esfera no `localStorage`
+- `/deputados/[id]` — perfil federal (projetos, votações, presença, partido)
+- `/parlamentares/[source]/[id]` — estadual (27 UFs) ou senador; enrich on-demand com skeleton
+
+### Cache (envs)
+
+| Env | Default | Uso |
+|---|---|---|
+| `SEARCH_CACHE_TTL_MS` | `120000` | Busca em memória |
+| `SEARCH_CACHE_MAX` | `500` | Teto da busca |
+| `HTTP_CACHE_TTL_MS` | `21600000` | APIs externas (assembleias/Senado) |
+| `HTTP_CACHE_MAX` | `400` | Teto HTTP em memória |
+| `HTTP_CACHE_DISK` | `1` | Disco em `.cache/parliament` (`0` desliga) |
+
+Stats: `GET /api/cache/stats` · também em `GET /api/health` → `cache`.
 
 ## Testes (backend)
 
@@ -114,6 +126,7 @@ Relatórios: `coverage/` e `reports/mutation/`.
 | GET | `/api/deputados/{id}/votos` |
 | GET | `/api/deputados/{id}/presencas` |
 | GET | `/api/partidos/{id}/membros` |
+| GET | `/api/cache/stats` |
 | POST | `/api/cache/purge` |
 | POST | `/api/sync` |
 

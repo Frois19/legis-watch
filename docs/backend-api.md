@@ -101,11 +101,24 @@ Usado pela aba de presença do perfil federal (pauta + votações do dia).
 
 ```http
 POST /api/cache/purge
+GET  /api/cache/stats
 ```
 
-Invalida o prefixo de busca em memória. Também limpa automaticamente após syncs de cadastro (`deputies`, `mandates`, `estadual:*`, `parties`, `bootstrap`).
+- `purge` — invalida o prefixo de busca em memória (também após syncs de cadastro).
+- `stats` — hit/miss da busca + HTTP cache externo + últimos syncs com `durationMs`.
 
-Envs: `SEARCH_CACHE_TTL_MS`, `SEARCH_CACHE_MAX` (ver [.env.example](../.env.example)).
+`GET /api/health` também inclui `cache.search` / `cache.http` e `lastSync.durationMs`.
+
+| Env | Default | Uso |
+|---|---|---|
+| `SEARCH_CACHE_TTL_MS` | 120000 | TTL busca em memória |
+| `SEARCH_CACHE_MAX` | 500 | Máx. entradas da busca |
+| `HTTP_CACHE_TTL_MS` | 21600000 | TTL HTTP assembleias/Senado |
+| `HTTP_CACHE_MAX` | 400 | Máx. entradas HTTP em memória |
+| `HTTP_CACHE_DISK` | 1 | `0` desliga disco (`.cache/parliament`) |
+| `PARLIAMENT_CACHE_DIR` | `.cache/parliament` | Diretório do cache em disco |
+
+Overrides por casa: `ALEP_CACHE_TTL_MS`, `ALESP_CACHE_TTL_MS`, `ALEPE_CACHE_TTL_MS`, `ALMG_CSV_TTL_MS`, `SAPL_CACHE_TTL_MS`, `SENADO_CACHE_TTL_MS`.
 
 ---
 

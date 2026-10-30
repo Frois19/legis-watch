@@ -343,6 +343,7 @@ export const alespAdapter: StateAssemblyAdapter = {
     uf: "SP",
     name: "Assembleia Legislativa de São Paulo",
     sphere: "estadual_deputado",
+    dataMode: "live",
     coverage: {
       search: true,
       profile: true,

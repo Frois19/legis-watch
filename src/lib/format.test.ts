@@ -3,6 +3,7 @@ import {
   camaraPropositionUrl,
   formatDate,
   formatDateTime,
+  formatRelativeTime,
   propositionLabel,
   socialLabel,
   voteApprovalLabel,
@@ -17,6 +18,17 @@ describe("formatDateTime", () => {
   it("formata data válida em pt-BR", () => {
     const formatted = formatDateTime("2026-10-18T12:00:00.000Z");
     expect(formatted).toMatch(/\d{2}\/\d{2}\/\d{4}/);
+  });
+});
+
+describe("formatRelativeTime", () => {
+  it("descreve frescor relativo", () => {
+    const now = Date.parse("2026-10-30T20:00:00.000Z");
+    expect(formatRelativeTime(null)).toBe("ainda não sincronizado");
+    expect(formatRelativeTime("2026-10-30T19:59:30.000Z", now)).toBe("agora");
+    expect(formatRelativeTime("2026-10-30T19:30:00.000Z", now)).toBe("há 30 min");
+    expect(formatRelativeTime("2026-10-30T18:00:00.000Z", now)).toBe("há 2 h");
+    expect(formatRelativeTime("2026-10-28T20:00:00.000Z", now)).toBe("há 2 dias");
   });
 });
 

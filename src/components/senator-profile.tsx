@@ -2,6 +2,7 @@
 
 import { DeputyPhoto } from "@/components/deputy-photo";
 import { FavoriteButton } from "@/components/favorite-button";
+import { ProfileFreshness } from "@/components/profile-meta";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { SenatorDetail } from "@/lib/api/types";
@@ -31,7 +32,7 @@ export function SenatorProfileView({ detail }: { detail: SenatorDetail }) {
   return (
     <article className="space-y-6">
       <Link
-        href="/"
+        href={`/?esfera=senador${detail.siglaUf ? `&uf=${encodeURIComponent(detail.siglaUf)}` : ""}`}
         className="text-sm text-primary underline-offset-2 hover:underline"
       >
         ← Voltar à busca
@@ -60,6 +61,10 @@ export function SenatorProfileView({ detail }: { detail: SenatorDetail }) {
             {detail.email ? (
               <p className="text-sm text-muted-foreground">{detail.email}</p>
             ) : null}
+            <ProfileFreshness
+              label="Perfil sincronizado"
+              syncedAt={detail.profileSyncedAt ?? detail.syncedAt}
+            />
             <div className="flex flex-wrap gap-3 text-sm font-medium text-primary">
               {detail.urlPagina ? (
                 <a
@@ -101,7 +106,10 @@ export function SenatorProfileView({ detail }: { detail: SenatorDetail }) {
       </header>
 
       <Tabs defaultValue="materias">
-        <TabsList aria-label="Seções do perfil do senador">
+          <TabsList
+            aria-label="Seções do perfil do senador"
+            className="h-auto w-full flex-wrap justify-start gap-1 overflow-x-auto"
+          >
           <TabsTrigger value="materias">
             Matérias ({detail.matters.length})
           </TabsTrigger>

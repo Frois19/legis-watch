@@ -1,6 +1,7 @@
 import { SearchPanel } from "@/components/search-panel";
 import { listLegislatures } from "@/lib/api/server";
 import { defaultLegislaturaId } from "@/lib/legislatures";
+import { Suspense } from "react";
 
 export const dynamic = "force-dynamic";
 
@@ -24,14 +25,24 @@ export default async function HomePage() {
         </h1>
         <p className="max-w-xl text-sm leading-relaxed text-muted-foreground sm:text-base">
           Busque deputados federais, estaduais (27 UFs) ou senadores, favorite
-          perfis federais e veja projetos, votações e presença — com dados
-          públicos.
+          perfis e veja projetos, votações e presença — com dados públicos.
+          A busca aceita link compartilhável (
+          <code className="rounded bg-muted px-1 text-xs">
+            ?esfera=&amp;uf=&amp;nome=
+          </code>
+          ).
         </p>
       </header>
-      <SearchPanel
-        legislatures={legislatures}
-        initialLegislaturaId={initialLegislaturaId}
-      />
+      <Suspense
+        fallback={
+          <p className="text-sm text-muted-foreground">Carregando busca…</p>
+        }
+      >
+        <SearchPanel
+          legislatures={legislatures}
+          initialLegislaturaId={initialLegislaturaId}
+        />
+      </Suspense>
     </div>
   );
 }

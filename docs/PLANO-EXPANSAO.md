@@ -43,30 +43,30 @@ Critério: só plugar adapter/live se o probe responder **e** o dado couber no m
 ### 2.1 Dados e sync
 
 - [ ] Sync agendado / cron (ou botão admin) para federal + casas live, sem depender só de “abrir perfil”
-- [ ] Indicador de **frescor** no perfil (`syncedAt` / “atualizado há X h”)
+- [x] Indicador de **frescor** no perfil (`formatRelativeTime` + `profileSyncedAt`)
 - [ ] Retry/backoff unificado no sync federal (já parcial) e nos adapters estaduais
-- [ ] Alertas quando fixture substitui live (banner “dados de demonstração” na UF)
+- [x] Alertas quando fixture substitui live (banner “Dados de demonstração” + badge)
 
 ### 2.2 UX e acessibilidade
 
-- [ ] Estados vazios mais guiados (ex.: UF fixture → link para portal da casa)
-- [ ] Loading skeleton nas abas de perfil (estadual/Senado) durante enrich on-demand
-- [ ] Filtro de presença estadual (todas / faltas / presentes), espelhando o federal
-- [ ] Busca: deep-link por querystring (`?esfera=&uf=&nome=`) para compartilhar resultados
-- [ ] Revisão mobile das abas densas (votos/presença)
+- [x] Estados vazios mais guiados (link para portal da casa)
+- [x] Loading skeleton no enrich on-demand (estadual/Senado via loaders)
+- [x] Filtro de presença estadual (todas / faltas / presentes / justificados) + paginação
+- [x] Busca: deep-link `?esfera=&uf=&nome=&partido=&legislaturaId=`
+- [x] Abas com wrap/scroll no mobile (perfil estadual e senador)
 
 ### 2.3 Performance e confiabilidade
 
 - [ ] Redis para cache de busca em multi-instância (C4)
-- [ ] Limitar tamanho de resposta de proposições/presença com paginação na UI (API já pagina proposições)
-- [ ] Observabilidade mínima: contadores hit/miss do HTTP cache + duração de sync
+- [x] Paginação na UI de proposições/presença estadual
+- [x] Observabilidade: `GET /api/cache/stats` + `cache`/`durationMs` em `/api/health`
 - [ ] `npm run docs:screenshots` no CI opcional (smoke visual)
 
 ### 2.4 Código e testes
 
 - [ ] Cobertura de integração para ALEP presença + proposições
-- [ ] Contrato de serialização do perfil estadual (snapshot dos campos públicos)
-- [ ] Documentar envs de cache/TTL num único quadro no README (já espalhado no `.env.example`)
+- [x] Contrato de serialização do perfil estadual (`serialize.test.ts`)
+- [x] Envs de cache/TTL documentados no README + backend-api
 
 ---
 
@@ -103,17 +103,20 @@ Critério: só plugar adapter/live se o probe responder **e** o dado couber no m
 ## 4. Ordem sugerida (próximos ciclos)
 
 ```text
-Ciclo A — Qualidade UX
+Ciclo A — Qualidade UX                         ← feito
   deep-link busca · skeleton enrich · banner fixture · filtro presença PR
 
 Ciclo B — Dados PR completo
-  indexar votos ALEP (ZIP) · paginação UI de presença
+  indexar votos ALEP (ZIP)
 
 Ciclo C — Mais casas live
   CLDF quando a rede responder · 1–2 SAPL extras · CKAN/CSV onde couber
 
 Ciclo D — Produto
   comparar parlamentares · export CSV · (opcional) contas/alertas
+
+Ainda em qualidade (opcional)
+  Redis · cron de sync · retry unificado · CI de screenshots · integração ALEP
 ```
 
 ---

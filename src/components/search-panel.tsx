@@ -9,20 +9,23 @@ import type {
   LegislatureItem,
   ParliamentarianListItem,
 } from "@/lib/api/types";
+import {
+  buildSearchQuery,
+  parseSearchQuery,
+  sameSearchQuery,
+  searchQueryHasFilters,
+  type SearchQueryState,
+  type SphereFilter,
+} from "@/lib/search/query";
 import { Search } from "lucide-react";
 import Link from "next/link";
-import { FormEvent, useEffect, useId, useRef, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { FormEvent, useEffect, useId, useMemo, useRef, useState } from "react";
 
 const UFS = [
   "AC","AL","AP","AM","BA","CE","DF","ES","GO","MA","MT","MS","MG","PA","PB",
   "PR","PE","PI","RJ","RN","RS","RO","RR","SC","SP","SE","TO",
 ];
-
-type SphereFilter =
-  | "federal_deputado"
-  | "estadual_deputado"
-  | "senador"
-  | "todos";
 
 export function SearchPanel({
   legislatures,
@@ -33,12 +36,24 @@ export function SearchPanel({
 }) {
   const formId = useId();
   const statusId = `${formId}-status`;
-  const [esfera, setEsfera] = useState<SphereFilter>("federal_deputado");
-  const [nome, setNome] = useState("");
-  const [siglaUf, setSiglaUf] = useState("");
-  const [siglaPartido, setSiglaPartido] = useState("");
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const initial = useMemo(
+    () => parseSearchQuery(new URLSearchParams(searchParams.toString()), initialLegislaturaId),
+    // só na montagem / mudança externa da URL
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [searchParams],
+  );
+
+  const [esfera, setEsfera] = useState<SphereFilter>(initial.esfera);
+  const [nome, setNome] = useState(initial.nome);
+  const [siglaUf, setSiglaUf] = useState(initial.siglaUf);
+  const [siglaPartido, setSiglaPartido] = useState(initial.siglaPartido);
   const [legislaturaId, setLegislaturaId] = useState<number | "">(
-    initialLegislaturaId ?? "",
+    initial.legislaturaId === ""
+      ? (initialLegislaturaId ?? "")
+      : initial.legislaturaId,
   );
   const [items, setItems] = useState<ParliamentarianListItem[] | null>(null);
   const [total, setTotal] = useState(0);
@@ -46,6 +61,7 @@ export function SearchPanel({
   const [pending, setPending] = useState(false);
   const [searched, setSearched] = useState(false);
   const skipDebounceRef = useRef(false);
+  const bootstrappedRef = useRef(false);
 
   const debouncedNome = useDebouncedValue(nome, 300);
   const debouncedPartido = useDebouncedValue(siglaPartido, 300);
@@ -53,20 +69,28 @@ export function SearchPanel({
   const isSenador = esfera === "senador";
   const isEstadual = esfera === "estadual_deputado";
 
-  async function runSearch(next?: {
-    esfera?: SphereFilter;
-    nome?: string;
-    siglaUf?: string;
-    siglaPartido?: string;
-    legislaturaId?: number | "";
-  }) {
-    const query = {
-      esfera: next?.esfera ?? esfera,
-      nome: (next?.nome ?? nome).trim(),
-      siglaUf: next?.siglaUf ?? siglaUf,
-      siglaPartido: (next?.siglaPartido ?? siglaPartido).trim().toUpperCase(),
-      legislaturaId: next?.legislaturaId ?? legislaturaId,
+  function currentState(overrides?: Partial<SearchQueryState>): SearchQueryState {
+    return {
+      esfera: overrides?.esfera ?? esfera,
+      nome: (overrides?.nome ?? nome).trim(),
+      siglaUf: overrides?.siglaUf ?? siglaUf,
+      siglaPartido: (overrides?.siglaPartido ?? siglaPartido).trim().toUpperCase(),
+      legislaturaId: overrides?.legislaturaId ?? legislaturaId,
     };
+  }
+
+  function syncUrl(state: SearchQueryState) {
+    const qs = buildSearchQuery(state).toString();
+    const parsedCurrent = parseSearchQuery(
+      new URLSearchParams(searchParams.toString()),
+      initialLegislaturaId,
+    );
+    if (sameSearchQuery(parsedCurrent, state)) return;
+    router.replace(qs ? `/?${qs}` : "/", { scroll: false });
+  }
+
+  async function runSearch(next?: Partial<SearchQueryState>) {
+    const query = currentState(next);
 
     setEsfera(query.esfera);
     setNome(query.nome);
@@ -76,6 +100,7 @@ export function SearchPanel({
     setError(null);
     setSearched(true);
     setPending(true);
+    syncUrl(query);
 
     try {
       const result = await searchParliamentarians({
@@ -105,6 +130,51 @@ export function SearchPanel({
       setPending(false);
     }
   }
+
+  // Deep-link / links de exemplo: aplica querystring na busca
+  useEffect(() => {
+    const fromUrl = parseSearchQuery(
+      new URLSearchParams(searchParams.toString()),
+      initialLegislaturaId,
+    );
+    const first = !bootstrappedRef.current;
+    bootstrappedRef.current = true;
+    if (!searchQueryHasFilters(fromUrl) && first) return;
+
+    const local = currentState({
+      legislaturaId:
+        fromUrl.legislaturaId === "" &&
+        (fromUrl.esfera === "federal_deputado" || fromUrl.esfera === "todos")
+          ? (initialLegislaturaId ?? "")
+          : fromUrl.legislaturaId,
+    });
+    // Já refletimos essa URL (ex.: acabamos de dar replace) — não rebusca.
+    if (
+      !first &&
+      sameSearchQuery(local, {
+        ...fromUrl,
+        legislaturaId:
+          fromUrl.legislaturaId === "" &&
+          (fromUrl.esfera === "federal_deputado" || fromUrl.esfera === "todos")
+            ? (initialLegislaturaId ?? "")
+            : fromUrl.legislaturaId,
+      }) &&
+      searched
+    ) {
+      return;
+    }
+
+    skipDebounceRef.current = true;
+    void runSearch({
+      ...fromUrl,
+      legislaturaId:
+        fromUrl.legislaturaId === "" &&
+        (fromUrl.esfera === "federal_deputado" || fromUrl.esfera === "todos")
+          ? (initialLegislaturaId ?? "")
+          : fromUrl.legislaturaId,
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
 
   useEffect(() => {
     if (!searched) return;
@@ -209,8 +279,8 @@ export function SearchPanel({
           </fieldset>
         ) : isEstadual ? (
           <p className="text-xs text-muted-foreground">
-            Cobertura estadual: 27 UFs (PE via ALEPE; demais com fixture de
-            cadastro). Sync:{" "}
+            27 UFs · 11 casas live (PE, MG, SP, PR + 7 SAPL). UFs fixture
+            mostram banner de demonstração no perfil. Sync:{" "}
             <code className="rounded bg-muted px-1">
               npm run sync -- estadual --source=all
             </code>
@@ -218,16 +288,12 @@ export function SearchPanel({
           </p>
         ) : isSenador ? (
           <p className="text-xs text-muted-foreground">
-            Senadores em exercício (Dados Abertos do Senado). Sync:{" "}
-            <code className="rounded bg-muted px-1">
-              npm run sync -- senadores
-            </code>
-            . Presença oficial não vem pela API — ver disclaimer no perfil.
+            Senadores em exercício. Presença oficial não vem pela API — ver
+            disclaimer no perfil.
           </p>
         ) : (
           <p className="text-xs text-muted-foreground">
-            Busca em federais, estaduais e senadores. Mandato federal só se
-            aplica aos deputados da Câmara.
+            Busca em federais, estaduais e senadores.
           </p>
         )}
 
@@ -288,58 +354,32 @@ export function SearchPanel({
 
       <p className="text-sm text-muted-foreground">
         Exemplo:{" "}
-        <button
-          type="button"
+        <Link
+          href="/?esfera=federal_deputado&nome=Janones&legislaturaId=56"
           className="font-medium text-primary underline underline-offset-2"
-          onClick={() => {
-            skipDebounceRef.current = true;
-            void runSearch({
-              esfera: "federal_deputado",
-              nome: "Janones",
-              legislaturaId: 56,
-            });
-          }}
         >
           Janones (federal)
-        </button>
+        </Link>
         ,{" "}
-        <button
-          type="button"
+        <Link
+          href="/?esfera=estadual_deputado&uf=PE"
           className="font-medium text-primary underline underline-offset-2"
-          onClick={() => {
-            skipDebounceRef.current = true;
-            void runSearch({
-              esfera: "estadual_deputado",
-              nome: "",
-              siglaUf: "PE",
-              legislaturaId: "",
-            });
-          }}
         >
-          deputados estaduais de PE
-        </button>
+          estaduais de PE
+        </Link>
         ,{" "}
-        <button
-          type="button"
+        <Link
+          href="/?esfera=estadual_deputado&uf=PR"
           className="font-medium text-primary underline underline-offset-2"
-          onClick={() => {
-            skipDebounceRef.current = true;
-            void runSearch({
-              esfera: "senador",
-              nome: "",
-              siglaUf: "AC",
-              legislaturaId: "",
-            });
-          }}
+        >
+          estaduais do PR
+        </Link>
+        ,{" "}
+        <Link
+          href="/?esfera=senador&uf=AC"
+          className="font-medium text-primary underline underline-offset-2"
         >
           senadores do AC
-        </button>{" "}
-        ou{" "}
-        <Link
-          href="/deputados/204515?legislaturaId=56"
-          className="font-medium text-primary underline underline-offset-2"
-        >
-          perfil de Janones
         </Link>
         .
       </p>
@@ -357,6 +397,16 @@ export function SearchPanel({
         <p className="text-sm text-destructive" role="alert">
           {error}
         </p>
+      ) : null}
+
+      {!pending && searched && items && items.length === 0 ? (
+        <div className="border border-border bg-card p-4 text-sm text-muted-foreground">
+          <p className="font-medium text-foreground">Nenhum resultado</p>
+          <p>
+            Ajuste nome, UF ou partido. Em UFs fixture o cadastro é de
+            demonstração até haver adapter live.
+          </p>
+        </div>
       ) : null}
 
       {!pending && items && items.length > 0 ? (

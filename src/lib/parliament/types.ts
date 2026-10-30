@@ -13,11 +13,15 @@ export type ParliamentSource =
   | "senado"
   | string;
 
+export type AssemblyDataMode = "live" | "fixture";
+
 export type AssemblyInfo = {
   source: ParliamentSource;
   uf: string;
   name: string;
   sphere: ParliamentSphere;
+  /** live = adapter consulta API oficial; fixture = cadastro de demonstração. */
+  dataMode: AssemblyDataMode;
   coverage: {
     search: boolean;
     profile: boolean;

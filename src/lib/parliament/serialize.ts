@@ -20,6 +20,17 @@ export function serializeStateDeputyDetail(
     email: row.email,
     situacao: row.situacao,
     assemblyName: assembly?.name ?? row.source,
+    dataMode: assembly?.dataMode ?? "fixture",
+    isDemoData:
+      (assembly?.dataMode ?? "fixture") === "fixture" ||
+      (() => {
+        try {
+          const raw = row.rawJson ? JSON.parse(row.rawJson) : null;
+          return Boolean(raw && typeof raw === "object" && raw.fixture);
+        } catch {
+          return false;
+        }
+      })(),
     coverage: assembly?.coverage ?? {
       search: true,
       profile: true,

@@ -116,6 +116,9 @@ export type StateDeputyDetail = {
   email: string | null;
   situacao: string | null;
   assemblyName: string;
+  dataMode: "live" | "fixture";
+  /** true quando o cadastro vem de fixture / demonstração. */
+  isDemoData: boolean;
   coverage: {
     search: boolean;
     profile: boolean;

@@ -1,22 +1,41 @@
+import { httpCacheStats } from "@/lib/cache/http-cache";
+import { searchCache } from "@/lib/cache/memory-cache";
 import { prisma } from "@/lib/db/prisma";
 import { NextResponse } from "next/server";
 
 export async function GET() {
   try {
-    const [deputies, parties, lastSync] = await Promise.all([
-      prisma.deputy.count(),
-      prisma.party.count(),
-      prisma.syncRun.findFirst({
-        orderBy: { startedAt: "desc" },
-      }),
-    ]);
+    const [deputies, parties, stateDeputies, senators, lastSync] =
+      await Promise.all([
+        prisma.deputy.count(),
+        prisma.party.count(),
+        prisma.stateDeputy.count(),
+        prisma.senator.count(),
+        prisma.syncRun.findFirst({
+          orderBy: { startedAt: "desc" },
+        }),
+      ]);
+
+    const durationMs =
+      lastSync?.finishedAt != null
+        ? lastSync.finishedAt.getTime() - lastSync.startedAt.getTime()
+        : null;
 
     return NextResponse.json({
       ok: true,
       service: "legis-watch-api",
       version: "v1",
-      counts: { deputies, parties },
-      lastSync,
+      counts: { deputies, parties, stateDeputies, senators },
+      lastSync: lastSync
+        ? {
+            ...lastSync,
+            durationMs,
+          }
+        : null,
+      cache: {
+        search: searchCache.stats(),
+        http: httpCacheStats(),
+      },
     });
   } catch (error) {
     return NextResponse.json(

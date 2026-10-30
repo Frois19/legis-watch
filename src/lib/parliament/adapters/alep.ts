@@ -453,6 +453,7 @@ export const alepAdapter: StateAssemblyAdapter = {
     uf: "PR",
     name: "Assembleia Legislativa do Paraná",
     sphere: "estadual_deputado",
+    dataMode: "live",
     coverage: {
       search: true,
       profile: true,

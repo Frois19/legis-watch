@@ -242,6 +242,7 @@ export const alepeAdapter: StateAssemblyAdapter = {
     uf: "PE",
     name: "Assembleia Legislativa de Pernambuco",
     sphere: "estadual_deputado",
+    dataMode: "live",
     coverage: {
       search: true,
       profile: true,

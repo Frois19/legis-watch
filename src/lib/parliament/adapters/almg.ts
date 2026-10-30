@@ -317,6 +317,7 @@ export const almgAdapter: StateAssemblyAdapter = {
     uf: "MG",
     name: "Assembleia Legislativa de Minas Gerais",
     sphere: "estadual_deputado",
+    dataMode: "live",
     coverage: {
       search: true,
       profile: true,
