@@ -16,12 +16,12 @@ Acompanhe **deputados federais** (Câmara), **deputados estaduais** (27 UFs) e *
 
 Comece pelo índice e escolha o caminho:
 
-- [**Índice da documentação**](./docs/README.md) — navega entre produto e técnica
-- [Guia do usuário](./docs/GUIA-DO-PRODUTO.md) — telas e funcionalidades novas (com prints)
-- [Deputados estaduais por UF](./docs/estaduais.md) — catálogo das 27 casas (live vs fixture)
-- [Plano de expansão + cache](./docs/PLANO-EXPANSAO.md) — roadmap e status E0/E1 + cache
-- [APIs externas da Câmara (v1)](./docs/apis-v1.md) — fontes oficiais do sync federal
-- [API interna do produto](./docs/backend-api.md) — endpoints `/api/...`
+- [**Índice da documentação**](./docs/README.md) — produto e técnica
+- [Guia do usuário](./docs/GUIA-DO-PRODUTO.md) — telas com prints
+- [Deputados estaduais por UF](./docs/estaduais.md) — 11 live + 16 fixture
+- [Roadmap](./docs/PLANO-EXPANSAO.md) — gaps, qualidade e ideias de features
+- [APIs da Câmara (v1)](./docs/apis-v1.md) — sync federal
+- [API interna](./docs/backend-api.md) — `/api/...`
 - [Estudo de viabilidade](./ESTUDO-VIABILIDADE.md)
 
 ## Setup

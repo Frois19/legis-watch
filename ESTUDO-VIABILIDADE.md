@@ -6,7 +6,7 @@ Documento de viabilidade técnica para um site que permite pesquisar, favoritar 
 
 **Data:** outubro de 2026  
 
-**Status de implementação (atualização):** federal (Câmara) em produção local; estaduais com busca/perfil nas 27 UFs ([docs/estaduais.md](docs/estaduais.md)); senadores ainda não. Catálogo federal: [docs/apis-v1.md](docs/apis-v1.md).
+**Status de implementação (atualização):** federal completo; estaduais nas 27 UFs (11 live — PE/MG/SP/PR + 7 SAPL); Senado com busca/perfil/votos (presença com disclaimer). Roadmap: [docs/PLANO-EXPANSAO.md](docs/PLANO-EXPANSAO.md). Catálogo federal: [docs/apis-v1.md](docs/apis-v1.md).
 
 ---
 

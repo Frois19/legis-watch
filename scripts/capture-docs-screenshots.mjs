@@ -16,8 +16,17 @@ async function shot(page, name) {
 }
 
 async function waitReady(page) {
+  await page.waitForLoadState("domcontentloaded").catch(() => {});
   await page.waitForLoadState("networkidle").catch(() => {});
   await page.waitForTimeout(500);
+}
+
+async function gotoProfile(page, path) {
+  await page.goto(`${BASE}${path}`, {
+    waitUntil: "domcontentloaded",
+    timeout: 120_000,
+  });
+  await waitReady(page);
 }
 
 async function main() {
@@ -198,10 +207,7 @@ async function main() {
   await shot(page, "06-favoritos.png");
 
   // 08/09/10 — perfis estaduais
-  await page.goto(`${BASE}/parlamentares/alepe/joao-paulo`, {
-    waitUntil: "domcontentloaded",
-  });
-  await waitReady(page);
+  await gotoProfile(page, "/parlamentares/alepe/joao-paulo");
   await page
     .getByRole("tab", { name: /Proposições/ })
     .waitFor({ timeout: 30000 })
@@ -224,10 +230,7 @@ async function main() {
   } catch {
     /* usa fallback */
   }
-  await page.goto(`${BASE}/parlamentares/alesp/${alespId}`, {
-    waitUntil: "domcontentloaded",
-  });
-  await waitReady(page);
+  await gotoProfile(page, `/parlamentares/alesp/${alespId}`);
   await page
     .getByRole("tab", { name: /Proposições/ })
     .waitFor({ timeout: 120000 })
@@ -250,10 +253,7 @@ async function main() {
   } catch {
     /* usa fallback */
   }
-  await page.goto(`${BASE}/parlamentares/almg/${almgId}`, {
-    waitUntil: "domcontentloaded",
-  });
-  await waitReady(page);
+  await gotoProfile(page, `/parlamentares/almg/${almgId}`);
   await page
     .getByRole("tab", { name: /Proposições/ })
     .waitFor({ timeout: 60000 })
@@ -279,10 +279,7 @@ async function main() {
   } catch {
     /* usa fallback */
   }
-  await page.goto(`${BASE}/parlamentares/aleac/${acId}`, {
-    waitUntil: "domcontentloaded",
-  });
-  await waitReady(page);
+  await gotoProfile(page, `/parlamentares/aleac/${acId}`);
   await page
     .getByRole("tab", { name: /Proposições/ })
     .waitFor({ timeout: 30000 })
@@ -295,6 +292,50 @@ async function main() {
   await page.waitForTimeout(600);
   await shot(page, "16-perfil-estadual-ac-filiacoes.png");
 
+  // PR live (ALEP) — proposições + presença
+  let alepId = "7000394";
+  try {
+    const prRes = await page.request.get(
+      `${BASE}/api/parlamentares?esfera=estadual_deputado&siglaUf=PR&nome=ADEMAR&pageSize=5`,
+    );
+    const prJson = await prRes.json();
+    const preferred =
+      prJson?.items?.find((i) =>
+        String(i.href || "").includes("7000394"),
+      ) ?? prJson?.items?.[0];
+    const href = preferred?.href;
+    if (typeof href === "string" && href.includes("/")) {
+      alepId = href.split("/").pop();
+    }
+  } catch {
+    /* usa fallback */
+  }
+  await gotoProfile(page, `/parlamentares/alep/${alepId}`);
+  await page
+    .getByRole("tab", { name: /Proposições/ })
+    .waitFor({ timeout: 60000 })
+    .catch(() => {});
+  await page.getByRole("tab", { name: /Proposições/ }).click().catch(() => {});
+  await page.waitForTimeout(1000);
+  await shot(page, "17-perfil-estadual-pr.png");
+
+  await page.getByRole("tab", { name: /Presença/ }).click().catch(() => {});
+  await page.waitForTimeout(800);
+  await page.getByText(/Sessões/i).first().waitFor({ timeout: 15000 }).catch(() => {});
+  await shot(page, "18-perfil-estadual-pr-presenca.png");
+
+  // busca estadual PR
+  await page.goto(`${BASE}/`, { waitUntil: "domcontentloaded" });
+  await waitReady(page);
+  await page
+    .getByRole("button", { name: "Deputados estaduais", exact: true })
+    .click();
+  await page.getByLabel("UF").selectOption("PR");
+  await page.getByRole("button", { name: "Buscar", exact: true }).click();
+  await page.getByText(/resultado/i).waitFor({ timeout: 15000 });
+  await page.waitForTimeout(800);
+  await shot(page, "07c-busca-estadual-pr.png");
+
   // 11 — busca senadores
   await page.goto(`${BASE}/`, { waitUntil: "domcontentloaded" });
   await waitReady(page);
@@ -306,10 +347,7 @@ async function main() {
   await shot(page, "11-busca-senadores.png");
 
   // 12 — perfil senador (matérias)
-  await page.goto(`${BASE}/parlamentares/senado/5672`, {
-    waitUntil: "domcontentloaded",
-  });
-  await waitReady(page);
+  await gotoProfile(page, "/parlamentares/senado/5672");
   await page.getByRole("tab", { name: /Matérias/ }).waitFor({ timeout: 20000 });
   await page.waitForTimeout(800);
   await shot(page, "12-perfil-senador.png");

@@ -106,26 +106,29 @@ Lista dedicada de proposições sincronizadas:
 GET /api/parlamentares/{source}/{id}/proposicoes?page=1&pageSize=50
 ```
 
-Prints no [guia do usuário](./GUIA-DO-PRODUTO.md#7-perfil-estadual): PE, SP, MG (filiações) e AC (proposições/filiações).
+Prints no [guia](./GUIA-DO-PRODUTO.md#7-perfil-estadual): PE, SP, PR (proposições + presença), MG, AC.
 
 URL do perfil: `/parlamentares/{source}/{externalId}`  
-Ex.: `/parlamentares/aleac/248`, `/parlamentares/almg/12193`, `/parlamentares/alepe/joao-paulo`
+Ex.: `/parlamentares/aleac/248`, `/parlamentares/almg/12193`, `/parlamentares/alep/7000394`
 
 ## Testes
 
 ```bash
-npm test                   # inclui matriz unitária por UF + adapters SAPL/ALMG + sync de perfil
+npm test                   # matriz por UF + adapters + sync de perfil
 npm run test:integration   # sync + busca/perfil nas 27 UFs
+npm run docs:screenshots   # regenera prints do guia (dev em :3456)
 ```
 
-## Próximos adapters live
+## Próximos passos (dados)
 
-Ordem sugerida: CLDF PLE (quando a rede responder) · presença ALESP em comissões (com disclaimer) · ALEP (PR). Detalhes: [fontes-endpoints.md](./fontes-endpoints.md).
+1. Votos nominais ALEP (ZIP por sessão)  
+2. CLDF quando o egress responder  
+3. Mais SAPL / CKAN onde o probe passar  
+
+Detalhes: [fontes-endpoints.md](./fontes-endpoints.md) · [roadmap](./PLANO-EXPANSAO.md).
 
 ---
 
-## Continuar navegando
+## Continuar
 
-- [Índice](./README.md)
-- [API interna](./backend-api.md)
-- [Plano de expansão + cache](./PLANO-EXPANSAO.md)
+- [Índice](./README.md) · [API interna](./backend-api.md) · [Roadmap](./PLANO-EXPANSAO.md)
