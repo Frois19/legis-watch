@@ -1,5 +1,6 @@
 import { cachedFetchJson } from "@/lib/cache/http-cache";
 import type {
+  AdapterAttendance,
   AdapterParliamentarian,
   AdapterProfileBundle,
   AdapterProposition,
@@ -48,6 +49,18 @@ type AlepFilterPayload = {
   lista?: AlepPropRow[];
 };
 
+type AlepPresencaSessao = {
+  data?: string;
+  linhas?: string[][];
+};
+
+type AlepPresencaPayload = {
+  ano?: string | number;
+  sessoes?: AlepPresencaSessao[];
+};
+
+type ParsedName = { nome: string; observacao: string | null };
+
 const STOP = new Set([
   "DE",
   "DA",
@@ -86,6 +99,21 @@ function propositionYears(): number[] {
   }
   const current = new Date().getUTCFullYear();
   return [current, current - 1];
+}
+
+function attendanceYears(): number[] {
+  const raw = process.env.ALEP_ATTENDANCE_YEARS;
+  if (raw) {
+    return raw
+      .split(",")
+      .map((y) => Number(y.trim()))
+      .filter((y) => Number.isFinite(y));
+  }
+  return propositionYears();
+}
+
+function attendanceLimit() {
+  return Number(process.env.ESTADUAL_ATTENDANCE_LIMIT ?? 120);
 }
 
 function propositionLimit() {
@@ -304,6 +332,118 @@ async function buildPropositionIndex(
   return byAuthor;
 }
 
+/** Converte "11/12/2024" → "2024-12-11". */
+export function brSessionDateToIso(value: string | null | undefined): string | null {
+  if (!value) return null;
+  const m = value.trim().match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+  if (!m) return value.slice(0, 10);
+  return `${m[3]}-${m[2]}-${m[1]}`;
+}
+
+/** Extrai nome e observação de célula ("NOME (Req. …)"). */
+export function parsePresenceCell(raw: string | null | undefined): ParsedName | null {
+  if (!raw) return null;
+  const trimmed = raw.trim();
+  if (!trimmed) return null;
+  const match = trimmed.match(/^(.+?)\s*\((.+)\)\s*$/);
+  if (match) {
+    return { nome: match[1]!.trim(), observacao: match[2]!.trim() };
+  }
+  return { nome: trimmed, observacao: null };
+}
+
+/**
+ * Colunas PRESENTES / JUSTIFICADOS / AUSENTES são listas independentes
+ * alinhadas em linhas (não uma pessoa por linha).
+ */
+export function extractSessionStatuses(
+  linhas: string[][] | undefined,
+): Array<{ status: AdapterAttendance["status"]; nome: string; observacao: string | null }> {
+  if (!linhas || linhas.length < 2) return [];
+  const out: Array<{
+    status: AdapterAttendance["status"];
+    nome: string;
+    observacao: string | null;
+  }> = [];
+  const statuses = ["presente", "justificado", "ausente"] as const;
+  for (const row of linhas.slice(1)) {
+    for (let col = 0; col < 3; col += 1) {
+      const parsed = parsePresenceCell(row?.[col]);
+      if (!parsed) continue;
+      out.push({
+        status: statuses[col]!,
+        nome: parsed.nome,
+        observacao: parsed.observacao,
+      });
+    }
+  }
+  return out;
+}
+
+async function fetchYearAttendance(year: number): Promise<AlepPresencaPayload> {
+  const url = `${ALEP_TRANSPARENCIA_BASE.replace(/\/$/, "")}/presenca/ano?ano=${year}`;
+  return cachedFetchJson<AlepPresencaPayload>(url, {
+    namespace: "alep",
+    headers: {
+      Accept: "application/json",
+      "X-Requested-With": "XMLHttpRequest",
+    },
+    timeoutMs: timeoutMs(),
+    ttlMs: cacheTtlMs(),
+  });
+}
+
+export function attendanceForDeputyName(
+  payload: AlepPresencaPayload,
+  deputyName: string,
+): AdapterAttendance[] {
+  const rows: AdapterAttendance[] = [];
+  for (const sessao of payload.sessoes ?? []) {
+    const dataSessao = brSessionDateToIso(sessao.data);
+    if (!dataSessao) continue;
+    const year = Number(dataSessao.slice(0, 4));
+    const entries = extractSessionStatuses(sessao.linhas);
+    const match = entries.find((e) => authorMatchesDeputy(e.nome, deputyName));
+    if (!match) continue;
+    rows.push({
+      dataSessao,
+      year: Number.isFinite(year) ? year : null,
+      status: match.status,
+      observacao: match.observacao,
+    });
+  }
+  rows.sort((a, b) => b.dataSessao.localeCompare(a.dataSessao));
+  return rows;
+}
+
+async function fetchAttendanceForDeputy(
+  deputy: AdapterParliamentarian,
+): Promise<AdapterAttendance[]> {
+  const years = attendanceYears();
+  const limit = attendanceLimit();
+  const collected: AdapterAttendance[] = [];
+  const seen = new Set<string>();
+
+  for (const year of years) {
+    try {
+      const payload = await fetchYearAttendance(year);
+      for (const row of attendanceForDeputyName(payload, deputy.nome)) {
+        if (seen.has(row.dataSessao)) continue;
+        seen.add(row.dataSessao);
+        collected.push(row);
+      }
+    } catch (error) {
+      console.warn(
+        `[alep] presença ${year}:`,
+        error instanceof Error ? error.message : error,
+      );
+    }
+  }
+
+  collected.sort((a, b) => b.dataSessao.localeCompare(a.dataSessao));
+  return collected.slice(0, limit);
+}
+
 const catalog = ASSEMBLY_CATALOG.find((c) => c.source === "alep")!;
 const fixtureFallback = createFixtureAdapter(catalog);
 
@@ -317,9 +457,8 @@ export const alepAdapter: StateAssemblyAdapter = {
       search: true,
       profile: true,
       propositions: true,
-      // API de presença/votos existe no portal; modelo de produto ainda não persiste.
       votes: false,
-      attendance: false,
+      attendance: true,
     },
     docsUrl: "https://transparencia.assembleia.pr.leg.br/servicos/dados-abertos",
   },
@@ -351,11 +490,16 @@ export const alepAdapter: StateAssemblyAdapter = {
   },
 
   async fetchProfileBundle(externalId: string): Promise<AdapterProfileBundle> {
+    const deputy = await this.getParliamentarian?.(String(externalId));
     const propositions = await this.listPropositions!(String(externalId));
+    const attendance = deputy
+      ? await fetchAttendanceForDeputy(deputy)
+      : [];
     return {
       affiliations: [],
       mandates: [],
       propositions,
+      attendance,
     };
   },
 };

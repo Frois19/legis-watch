@@ -88,6 +88,20 @@ export type StateDeputyPropositionItem = {
   urlPublica: string | null;
 };
 
+export type StateDeputyAttendanceItem = {
+  dataSessao: string;
+  year: number | null;
+  status: "presente" | "justificado" | "ausente" | string;
+  observacao: string | null;
+};
+
+export type StateDeputyAttendanceSummary = {
+  eventosConsiderados: number;
+  presentes: number;
+  justificados: number;
+  ausentes: number;
+};
+
 export type StateDeputyDetail = {
   key: string;
   sphere: "estadual_deputado";
@@ -112,6 +126,8 @@ export type StateDeputyDetail = {
   affiliations: StateDeputyAffiliationItem[];
   mandates: StateDeputyMandateItem[];
   propositions: StateDeputyPropositionItem[];
+  attendance: StateDeputyAttendanceItem[];
+  attendanceSummary: StateDeputyAttendanceSummary;
   profileSyncedAt: string | null;
   syncedAt: string | null;
   href: string;

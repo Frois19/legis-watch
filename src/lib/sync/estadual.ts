@@ -174,6 +174,21 @@ export async function syncStateDeputyProfile(
         });
       }
 
+      await tx.stateAttendance.deleteMany({ where: { stateDeputyId: id } });
+      const attendance = bundle.attendance ?? [];
+      if (attendance.length > 0) {
+        await tx.stateAttendance.createMany({
+          data: attendance.map((row) => ({
+            stateDeputyId: id,
+            dataSessao: row.dataSessao,
+            year: row.year,
+            status: row.status,
+            observacao: row.observacao ?? null,
+            syncedAt: new Date(),
+          })),
+        });
+      }
+
       await tx.stateDeputy.update({
         where: { id },
         data: { profileSyncedAt: new Date() },
@@ -184,6 +199,7 @@ export async function syncStateDeputyProfile(
       affiliations: bundle.affiliations.length,
       mandates: bundle.mandates.length,
       propositions: bundle.propositions.length,
+      attendance: (bundle.attendance ?? []).length,
     };
   });
 }
@@ -203,6 +219,7 @@ async function loadStateDeputyWithProfile(id: string) {
       affiliations: { orderBy: { dataFiliacao: "desc" } },
       mandates: { orderBy: { dataInicio: "desc" } },
       propositions: { orderBy: [{ ano: "desc" }, { numero: "desc" }] },
+      attendances: { orderBy: { dataSessao: "desc" } },
     },
   });
 }

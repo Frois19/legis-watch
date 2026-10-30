@@ -4,9 +4,13 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import {
   alepAdapter,
+  attendanceForDeputyName,
   authorMatchesDeputy,
+  brSessionDateToIso,
   clearAlepCaches,
+  extractSessionStatuses,
   mapAlepProposition,
+  parsePresenceCell,
 } from "./alep";
 import { clearHttpCache } from "@/lib/cache/http-cache";
 
@@ -26,6 +30,62 @@ describe("ALEP adapter", () => {
     clearHttpCache();
     delete process.env.PARLIAMENT_CACHE_DIR;
     await rm(cacheDir, { recursive: true, force: true });
+  });
+
+  it("parseia células e colunas de presença", () => {
+    expect(brSessionDateToIso("11/12/2024")).toBe("2024-12-11");
+    expect(parsePresenceCell("ADEMAR TRAIANO")).toEqual({
+      nome: "ADEMAR TRAIANO",
+      observacao: null,
+    });
+    expect(
+      parsePresenceCell(
+        "CANTORA MARA LIMA (Req. 3765 - Art. 97, § 3º , IV do Regimento Interno)",
+      ),
+    ).toMatchObject({
+      nome: "CANTORA MARA LIMA",
+      observacao: expect.stringContaining("Req. 3765"),
+    });
+    const statuses = extractSessionStatuses([
+      ["PRESENTES", "JUSTIFICADOS", "AUSENTES", "TOTAL"],
+      [
+        "ADEMAR TRAIANO",
+        "CANTORA MARA LIMA (Req. 1)",
+        "BATATINHA",
+        "",
+      ],
+    ]);
+    expect(statuses).toEqual([
+      { status: "presente", nome: "ADEMAR TRAIANO", observacao: null },
+      {
+        status: "justificado",
+        nome: "CANTORA MARA LIMA",
+        observacao: "Req. 1",
+      },
+      { status: "ausente", nome: "BATATINHA", observacao: null },
+    ]);
+    const rows = attendanceForDeputyName(
+      {
+        sessoes: [
+          {
+            data: "11/12/2024",
+            linhas: [
+              ["PRESENTES", "JUSTIFICADOS", "AUSENTES", "TOTAL"],
+              ["ADEMAR TRAIANO", "", "", ""],
+            ],
+          },
+        ],
+      },
+      "ADEMAR LUIZ TRAIANO",
+    );
+    expect(rows).toEqual([
+      {
+        dataSessao: "2024-12-11",
+        year: 2024,
+        status: "presente",
+        observacao: null,
+      },
+    ]);
   });
 
   it("authorMatchesDeputy reconhece autor parlamentar vs nome civil", () => {

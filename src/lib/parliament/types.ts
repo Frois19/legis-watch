@@ -69,10 +69,19 @@ export type AdapterMandate = {
   dataFim: string | null;
 };
 
+/** status: presente | justificado | ausente */
+export type AdapterAttendance = {
+  dataSessao: string;
+  year: number | null;
+  status: "presente" | "justificado" | "ausente";
+  observacao?: string | null;
+};
+
 export type AdapterProfileBundle = {
   affiliations: AdapterAffiliation[];
   mandates: AdapterMandate[];
   propositions: AdapterProposition[];
+  attendance?: AdapterAttendance[];
 };
 
 export interface StateAssemblyAdapter {

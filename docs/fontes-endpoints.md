@@ -14,7 +14,7 @@
 | **SP — presença comissões** | caminho antigo `comissoes_permanentes_presencas.xml` | **404** agora | Fora (escopo ≠ plenário) |
 | **PR — cadastro** | Transparência `/api/remuneracao?t=deputado estadual` | **OK** | **Implementado** (matrícula) |
 | **PR — proposições** | `POST .../proposicao/filtrar` | **OK** | **Implementado** |
-| **PR — presença plenário** | `/api/presenca/ano?ano=` | **OK** (78 sessões/2024) | Documentado; modelo ainda não persiste |
+| **PR — presença plenário** | `/api/presenca/ano?ano=` | **OK** (78 sessões/2024; 90/2025) | **Implementado** (perfil + `StateAttendance`) |
 | **PR — votos** | `/api/votacoes/sessoes` + ZIP por sessão | **OK** | Documentado; modelo ainda não persiste |
 | **PE — proposições** | `/api/v1/proposicoes/{projetos\|indicacoes\|requerimentos}/` | Docs OK; **timeout** daqui | **Implementado** (live + fixture de perfil) |
 | **DF — proposições** | CLDF PLE `POST /proposicao/filter` + CKAN | **timeout** daqui | Pendente (egress) |
@@ -77,11 +77,11 @@ Cache: HTTP para XML + `.cache/parliament/alesp-props-v1.json` (`ALESP_CACHE_TTL
 | Cadastro (folha) | `GET https://transparencia.assembleia.pr.leg.br/api/remuneracao?t=deputado%20estadual&mes=&ano=&page=` | Header `X-Requested-With`; ~54–56 ativos |
 | Metadados pesquisa | `GET http://webservices.assembleia.pr.leg.br/api/public/proposicao/campos` | Tipos, assuntos, autores |
 | Proposições | `POST .../proposicao/filtrar` body `{"ano":AAAA,"numeroMaximoRegistro":N}` | **GET `/filtrar` 400**; usar POST |
-| Presença plenário | `GET .../api/presenca/ano?ano=` | Linhas PRESENTES / JUSTIFICADOS / AUSENTES |
+| Presença plenário | `GET .../api/presenca/ano?ano=` | Colunas independentes PRESENTES / JUSTIFICADOS / AUSENTES |
 | Sessões com voto | `GET .../api/votacoes/sessoes?ano=` | Mapa id→nome |
 | ZIP votos da sessão | `GET .../api/votacoes/dados-abertos?sessao=` | URL do ZIP em storage |
 
-Env: `ALEP_PROP_YEARS`, `ALEP_CACHE_TTL_MS`, `ALEP_WS_BASE`, `ALEP_TRANSPARENCIA_BASE`.
+Env: `ALEP_PROP_YEARS`, `ALEP_ATTENDANCE_YEARS`, `ALEP_CACHE_TTL_MS`, `ALEP_WS_BASE`, `ALEP_TRANSPARENCIA_BASE`, `ESTADUAL_ATTENDANCE_LIMIT`.
 
 ---
 

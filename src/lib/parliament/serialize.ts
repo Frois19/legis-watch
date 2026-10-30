@@ -54,6 +54,21 @@ export function serializeStateDeputyDetail(
       statusResumo: p.statusResumo,
       urlPublica: p.urlPublica,
     })),
+    attendance: (row.attendances ?? []).map((a) => ({
+      dataSessao: a.dataSessao,
+      year: a.year,
+      status: a.status,
+      observacao: a.observacao,
+    })),
+    attendanceSummary: (() => {
+      const items = row.attendances ?? [];
+      return {
+        eventosConsiderados: items.length,
+        presentes: items.filter((a) => a.status === "presente").length,
+        justificados: items.filter((a) => a.status === "justificado").length,
+        ausentes: items.filter((a) => a.status === "ausente").length,
+      };
+    })(),
     profileSyncedAt: row.profileSyncedAt?.toISOString() ?? null,
     syncedAt: row.syncedAt?.toISOString() ?? null,
     href: `/parlamentares/${row.source}/${row.externalId}`,

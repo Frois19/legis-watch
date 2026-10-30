@@ -342,6 +342,7 @@ model StateDeputy {
   affiliations  StateDeputyAffiliation[]
   mandates      StateDeputyMandate[]
   propositions  StateProposition[]
+  attendances   StateAttendance[]
 
   @@unique([source, externalId])
   @@index([source])
@@ -400,4 +401,20 @@ model StateProposition {
   @@unique([source, externalId])
   @@index([stateDeputyId])
   @@index([source])
+}
+
+/** Presença em sessão plenária (estadual). status: presente | justificado | ausente */
+model StateAttendance {
+  id            Int      @id @default(autoincrement())
+  stateDeputyId String
+  stateDeputy   StateDeputy @relation(fields: [stateDeputyId], references: [id], onDelete: Cascade)
+  dataSessao    String
+  year          Int?
+  status        String
+  observacao    String?
+  syncedAt      DateTime?
+
+  @@unique([stateDeputyId, dataSessao])
+  @@index([stateDeputyId, year])
+  @@index([status])
 }

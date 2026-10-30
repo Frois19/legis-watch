@@ -47,7 +47,7 @@ Catálogo em runtime: `GET /api/assembleias` (inclui `syncedCount` e flags de co
 | MG | `almg` | Assembleia Legislativa de Minas Gerais | **Live ALMG** — cadastro + filiações + mandatos + proposições (CSV anual; REST 403) |
 | PA | `alepa` | Assembleia Legislativa do Pará | Fixture |
 | PB | `alepb` | Assembleia Legislativa da Paraíba | **Live SAPL** — cadastro + filiações + mandatos + matérias |
-| PR | `alep` | Assembleia Legislativa do Paraná | **Live ALEP** — cadastro (remuneração) + proposições (`POST /proposicao/filtrar`; cache HTTP) |
+| PR | `alep` | Assembleia Legislativa do Paraná | **Live ALEP** — cadastro + proposições + **presença** (portal transparência; cache HTTP) |
 | PE | `alepe` | Assembleia Legislativa de Pernambuco | **Live ALEPE** — cadastro + proposições (XML anual; fixture se a API falhar) |
 | PI | `alepi` | Assembleia Legislativa do Piauí | **Live SAPL** — cadastro + filiações + mandatos + matérias |
 | RJ | `alerj` | Assembleia Legislativa do Rio de Janeiro | Fixture |
@@ -90,13 +90,13 @@ Nas casas **SAPL** e **ALMG**, o perfil ganha abas:
 | **Cobertura** | Flags da casa |
 
 **ALESP (SP):** cadastro + proposições no perfil (primeira carga indexa os ZIPs; depois usa cache).  
-**ALEP (PR):** cadastro via folha de remuneração + proposições via webservice (cache HTTP).  
+**ALEP (PR):** cadastro via folha de remuneração + proposições + presença plenária (cache HTTP).  
 **ALEPE (PE):** proposições quando a API responde; senão fixture de demonstração no enriquecimento.
 
 Ainda **não** disponível no estadual (APIs sem voto nominal por parlamentar ou portal HTML):
 
-- Votações nominais individuais
-- Presença / faltas
+- Votações nominais individuais (exceto ZIP por sessão na ALEP, ainda não indexado)
+- Presença / faltas fora do Paraná
 
 Favoritos locais cobrem federal, estadual e senador (mesmo navegador).
 

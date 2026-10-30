@@ -148,6 +148,8 @@ Nome, partido, UF, e-mail (quando houver), badge da casa e tabela de cobertura.
 
 ![Perfil estadual — Paraná (ALEP) com proposições](./screenshots/17-perfil-estadual-pr.png)
 
+![Perfil estadual — Paraná (ALEP) presença plenária](./screenshots/18-perfil-estadual-pr-presenca.png)
+
 ### Casas com perfil enriquecido
 
 Ao abrir o perfil, o app sincroniza sob demanda o que a Assembleia publica:
@@ -158,7 +160,7 @@ Ao abrir o perfil, o app sincroniza sob demanda o que a Assembleia publica:
 | Minas Gerais | `almg` | Sim (CSV anual) | Sim | Sim |
 | São Paulo | `alesp` | Sim (XML/ZIP) | — | — |
 | Pernambuco | `alepe` | Sim (XML; fixture se offline) | — | — |
-| Paraná | `alep` | Sim (webservice + cache) | — | — |
+| Paraná | `alep` | Sim (webservice + cache) | — | Sim (plenário) |
 | Demais UFs | fixture | — | — | — |
 
 #### Minas Gerais (ALMG) — proposições (CSV)

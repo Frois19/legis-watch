@@ -32,9 +32,11 @@ export function StateDeputyProfileView({
   const photoId = detail.urlFoto ? Number(detail.externalId) || -1 : -1;
   const hasEnrichment =
     detail.coverage.propositions ||
+    detail.coverage.attendance ||
     detail.affiliations.length > 0 ||
     detail.mandates.length > 0 ||
-    detail.propositions.length > 0;
+    detail.propositions.length > 0 ||
+    detail.attendance.length > 0;
 
   return (
     <article className="space-y-6">
@@ -99,11 +101,24 @@ export function StateDeputyProfileView({
       </header>
 
       {hasEnrichment ? (
-        <Tabs defaultValue={detail.coverage.propositions ? "proposicoes" : "filiacoes"}>
+        <Tabs
+          defaultValue={
+            detail.coverage.propositions
+              ? "proposicoes"
+              : detail.coverage.attendance
+                ? "presenca"
+                : "filiacoes"
+          }
+        >
           <TabsList aria-label="Seções do perfil estadual">
             {detail.coverage.propositions || detail.propositions.length > 0 ? (
               <TabsTrigger value="proposicoes">
                 Proposições ({detail.propositions.length})
+              </TabsTrigger>
+            ) : null}
+            {detail.coverage.attendance || detail.attendance.length > 0 ? (
+              <TabsTrigger value="presenca">
+                Presença ({detail.attendanceSummary.ausentes} faltas)
               </TabsTrigger>
             ) : null}
             <TabsTrigger value="filiacoes">
@@ -172,6 +187,72 @@ export function StateDeputyProfileView({
                       </li>
                     );
                   })}
+                </ul>
+              )}
+            </TabsContent>
+          )}
+
+          {(detail.coverage.attendance || detail.attendance.length > 0) && (
+            <TabsContent value="presenca" className="space-y-3">
+              <div className="grid gap-2 sm:grid-cols-4">
+                {(
+                  [
+                    ["Sessões", detail.attendanceSummary.eventosConsiderados],
+                    ["Presentes", detail.attendanceSummary.presentes],
+                    ["Justificados", detail.attendanceSummary.justificados],
+                    ["Ausentes", detail.attendanceSummary.ausentes],
+                  ] as const
+                ).map(([label, value]) => (
+                  <div
+                    key={label}
+                    className="border border-border bg-card px-3 py-2 text-sm"
+                  >
+                    <p className="text-muted-foreground">{label}</p>
+                    <p className="font-display text-xl font-semibold text-foreground">
+                      {value}
+                    </p>
+                  </div>
+                ))}
+              </div>
+              {detail.attendance.length === 0 ? (
+                <p className="border border-border bg-card p-4 text-sm text-muted-foreground">
+                  Nenhuma presença sincronizada ainda. Abra o perfil de novo após
+                  o sync de perfil desta casa.
+                </p>
+              ) : (
+                <ul className="divide-y divide-border border border-border bg-card">
+                  {detail.attendance.map((row) => (
+                    <li
+                      key={row.dataSessao}
+                      className="flex flex-wrap items-baseline justify-between gap-2 px-4 py-3"
+                    >
+                      <div className="space-y-1">
+                        <p className="font-medium text-foreground">
+                          Sessão {formatDate(row.dataSessao)}
+                        </p>
+                        {row.observacao ? (
+                          <p className="text-xs text-muted-foreground">
+                            {row.observacao}
+                          </p>
+                        ) : null}
+                      </div>
+                      <Badge
+                        variant={
+                          row.status === "presente"
+                            ? "success"
+                            : row.status === "justificado"
+                              ? "secondary"
+                              : "danger"
+                        }
+                      >
+                        {row.status === "presente"
+                          ? "Presente"
+                          : row.status === "justificado"
+                            ? "Justificado"
+                            : "Ausente"}
+                      </Badge>
+                    </li>
+                  ))}
                 </ul>
               )}
             </TabsContent>
@@ -258,8 +339,9 @@ function CoverageSection({ detail }: { detail: StateDeputyDetail }) {
     <section className="space-y-2 border border-border bg-card p-4">
       <h2 className="font-display text-xl font-semibold">Cobertura nesta casa</h2>
       <p className="text-sm text-muted-foreground">
-        Cadastro está disponível em todas as UFs. Proposições, filiações e
-        mandatos entram quando a Assembleia publica API (SAPL/ALMG/ALEPE).
+        Cadastro está disponível em todas as UFs. Proposições, filiações,
+        mandatos e presença entram quando a Assembleia publica API
+        (SAPL/ALMG/ALEPE/ALESP/ALEP).
       </p>
       <ul className="grid gap-2 sm:grid-cols-2">
         {(
