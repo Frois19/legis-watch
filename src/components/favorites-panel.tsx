@@ -75,7 +75,10 @@ export function FavoritesPanel() {
           Limpar todos
         </Button>
       </div>
-      <ul className="border border-border bg-card px-4" aria-label="Favoritos">
+      <ul
+        className="rounded-xl border border-border bg-card/80 px-4"
+        aria-label="Favoritos"
+      >
         {favorites.map((fav) => {
           const meta = [
             sphereLabel(fav),

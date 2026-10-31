@@ -215,7 +215,7 @@ export function SearchPanel({
 
       <form
         onSubmit={onSubmit}
-        className="space-y-3 border border-border bg-card p-4"
+        className="space-y-4 rounded-xl border border-border bg-card/80 p-4 shadow-[0_1px_0_color-mix(in_oklab,var(--foreground)_4%,transparent)] backdrop-blur-sm sm:p-5"
         aria-describedby={statusId}
       >
         <fieldset className="space-y-1.5">
@@ -238,8 +238,8 @@ export function SearchPanel({
                   onClick={() => setEsfera(value)}
                   className={
                     selected
-                      ? "border border-primary bg-primary px-3 py-2 text-sm font-medium text-primary-foreground"
-                      : "border border-border bg-background px-3 py-2 text-sm text-foreground hover:bg-secondary"
+                      ? "rounded-md border border-primary bg-primary px-3 py-2 text-sm font-medium text-primary-foreground"
+                      : "rounded-md border border-border bg-card px-3 py-2 text-sm text-foreground hover:bg-secondary"
                   }
                 >
                   {label}
@@ -267,8 +267,8 @@ export function SearchPanel({
                     onClick={() => setLegislaturaId(leg.id)}
                     className={
                       selected
-                        ? "border border-primary bg-primary px-3 py-2 text-sm font-medium text-primary-foreground"
-                        : "border border-border bg-background px-3 py-2 text-sm text-foreground hover:bg-secondary"
+                        ? "rounded-md border border-primary bg-primary px-3 py-2 text-sm font-medium text-primary-foreground"
+                        : "rounded-md border border-border bg-card px-3 py-2 text-sm text-foreground hover:bg-secondary"
                     }
                   >
                     {leg.label}
@@ -316,7 +316,7 @@ export function SearchPanel({
             </label>
             <select
               id={`${formId}-uf`}
-              className="flex h-11 w-full rounded-md border border-input bg-background px-3 text-sm"
+              className="flex h-11 w-full rounded-md border border-input bg-card px-3 text-sm text-foreground"
               value={siglaUf}
               onChange={(e) => setSiglaUf(e.target.value)}
             >
@@ -400,7 +400,7 @@ export function SearchPanel({
       ) : null}
 
       {!pending && searched && items && items.length === 0 ? (
-        <div className="border border-border bg-card p-4 text-sm text-muted-foreground">
+        <div className="rounded-xl border border-border bg-card/80 p-4 text-sm text-muted-foreground">
           <p className="font-medium text-foreground">Nenhum resultado</p>
           <p>
             Ajuste nome, UF ou partido. Em UFs fixture o cadastro é de
@@ -410,7 +410,10 @@ export function SearchPanel({
       ) : null}
 
       {!pending && items && items.length > 0 ? (
-        <ul className="border border-border bg-card px-4" aria-label="Resultados">
+        <ul
+          className="rounded-xl border border-border bg-card/80 px-4"
+          aria-label="Resultados"
+        >
           {items.map((item) => (
             <ParliamentarianRow key={item.key} item={item} />
           ))}

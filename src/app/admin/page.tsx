@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 export default function AdminPage() {
   return (
     <div className="space-y-6">
-      <header className="space-y-2">
+      <header className="space-y-2 rounded-xl border border-border bg-card/70 px-5 py-6">
         <h1 className="font-display text-3xl font-semibold text-primary">
           Admin · sincronização
         </h1>

@@ -104,7 +104,7 @@ export function StateDeputyProfileView({
         />
       ) : null}
 
-      <header className="space-y-3 border border-border bg-card p-4">
+      <header className="space-y-3 rounded-xl border border-border bg-card/80 p-4 sm:p-5">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="flex flex-wrap items-start gap-4">
             <DeputyPhoto

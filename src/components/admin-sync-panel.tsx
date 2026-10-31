@@ -48,7 +48,7 @@ export function AdminSyncPanel() {
   }
 
   return (
-    <section className="space-y-4 border border-border bg-card p-4">
+    <section className="space-y-4 rounded-xl border border-border bg-card/80 p-4 sm:p-5">
       <label className="block space-y-1 text-sm">
         <span className="font-medium text-foreground">SYNC_SECRET</span>
         <input

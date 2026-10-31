@@ -15,22 +15,22 @@ export default async function HomePage() {
     null;
 
   return (
-    <div className="space-y-6">
-      <header className="space-y-2">
+    <div className="space-y-8">
+      <header className="relative space-y-3 overflow-hidden rounded-xl border border-border bg-card/70 px-5 py-8 sm:px-8 sm:py-10">
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-y-0 right-0 w-1/2 bg-[radial-gradient(circle_at_70%_20%,color-mix(in_oklab,var(--primary)_18%,transparent),transparent_60%)]"
+        />
         <p className="font-display text-4xl font-semibold tracking-tight text-primary sm:text-5xl">
           Legis Watch
         </p>
-        <h1 className="text-lg text-foreground sm:text-xl">
-          Acompanhe parlamentares federais, estaduais e senadores
+        <h1 className="max-w-2xl text-lg font-medium text-foreground sm:text-xl">
+          Transparência parlamentar com dados públicos
         </h1>
         <p className="max-w-xl text-sm leading-relaxed text-muted-foreground sm:text-base">
-          Busque deputados federais, estaduais (27 UFs) ou senadores, favorite
-          perfis e veja projetos, votações e presença — com dados públicos.
-          A busca aceita link compartilhável (
-          <code className="rounded bg-muted px-1 text-xs">
-            ?esfera=&amp;uf=&amp;nome=
-          </code>
-          ).
+          Busque deputados federais, estaduais (27 UFs) ou senadores. Favorite
+          perfis e acompanhe projetos, votações e presença quando a casa
+          publicar.
         </p>
       </header>
       <Suspense

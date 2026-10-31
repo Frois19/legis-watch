@@ -90,6 +90,12 @@ App em [http://localhost:3456](http://localhost:3456) · API em `/api/health`.
 - `/parlamentares/[source]/[id]` — estadual (27 UFs) ou senador; enrich on-demand com skeleton
 - `/admin` — dispara sync protegido (`SYNC_SECRET`)
 
+### Tema
+
+- Modo claro / escuro pelo botão no cabeçalho (Lua / Sol)
+- Preferência em `localStorage` (`legis-watch:theme`: `light` | `dark` | `system`)
+- Sem flash: script anti-FOUC no `<html>` antes do paint
+
 ### Cache (envs)
 
 | Env | Default | Uso |

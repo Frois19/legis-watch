@@ -34,7 +34,7 @@ export function DemoDataBanner({
   return (
     <div
       role="status"
-      className="border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-950"
+      className="rounded-xl border border-border bg-warn px-4 py-3 text-sm text-warn-foreground"
     >
       <div className="flex flex-wrap items-center gap-2">
         <Badge variant="warn">Dados de demonstração</Badge>

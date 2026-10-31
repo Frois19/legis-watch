@@ -43,7 +43,7 @@ export function DeputyProfile({
 
   return (
     <article className="space-y-8">
-      <header className="border border-border bg-card p-5 sm:p-6">
+      <header className="rounded-xl border border-border bg-card/80 p-5 sm:p-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div className="flex gap-4">
             <DeputyPhoto
