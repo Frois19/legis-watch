@@ -41,7 +41,24 @@ export function useTheme() {
       applyResolved(value);
     };
     mq.addEventListener("change", onChange);
-    return () => mq.removeEventListener("change", onChange);
+
+    // Mantém o ícone alinhado se a classe .dark for aplicada por fora (prints / script).
+    const syncFromDom = () => {
+      const dark = document.documentElement.classList.contains("dark");
+      setResolved(dark ? "dark" : "light");
+      const pref = readStoredTheme();
+      setPreferenceState(pref);
+    };
+    const obs = new MutationObserver(syncFromDom);
+    obs.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["class"],
+    });
+
+    return () => {
+      mq.removeEventListener("change", onChange);
+      obs.disconnect();
+    };
   }, []);
 
   function setPreference(next: ThemePreference) {

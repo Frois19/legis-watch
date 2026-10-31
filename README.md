@@ -95,6 +95,7 @@ App em [http://localhost:3456](http://localhost:3456) · API em `/api/health`.
 - Modo claro / escuro pelo botão no cabeçalho (Lua / Sol)
 - Preferência em `localStorage` (`legis-watch:theme`: `light` | `dark` | `system`)
 - Sem flash: script anti-FOUC no `<html>` antes do paint
+- Guia do usuário com prints **claro | escuro** lado a lado: `npm run docs:screenshots`
 
 ### Cache (envs)
 

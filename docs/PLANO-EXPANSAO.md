@@ -127,7 +127,7 @@ Ainda adiado
 | Casas estaduais live | > 11 (hoje) sem regressão nas atuais |
 | Perfil PR | proposições + presença + votos (ZIPs recentes) |
 | Tempo até 1º resultado na busca (cache quente) | < 200 ms p95 na instância única |
-| Prints do guia | regeneráveis com `npm run docs:screenshots` |
+| Prints do guia | pares claro/escuro via `npm run docs:screenshots` |
 | Clareza de cobertura | usuário vê o que falta em cada casa (aba Cobertura) |
 
 ---

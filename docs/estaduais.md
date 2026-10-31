@@ -106,7 +106,7 @@ Lista dedicada de proposições sincronizadas:
 GET /api/parlamentares/{source}/{id}/proposicoes?page=1&pageSize=50
 ```
 
-Prints no [guia](./GUIA-DO-PRODUTO.md#7-perfil-estadual): PE, SP, PR (proposições + presença), MG, AC.
+Prints no [guia](./GUIA-DO-PRODUTO.md#7-perfil-estadual): PE, SP, PR (proposições + presença + votos), MG, AC — cada um em **claro e escuro**.
 
 URL do perfil: `/parlamentares/{source}/{externalId}`  
 Ex.: `/parlamentares/aleac/248`, `/parlamentares/almg/12193`, `/parlamentares/alep/7000394`
