@@ -8,7 +8,7 @@
 
 | Documento | Conteúdo |
 |---|---|
-| [Guia do usuário](./GUIA-DO-PRODUTO.md) | Telas e funcionalidades — prints claro/escuro lado a lado |
+| [Guia do usuário](./GUIA-DO-PRODUTO.md) | Telas e funcionalidades — prints claro/escuro lado a lado (abas segmentadas) |
 | [Deputados estaduais por UF](./estaduais.md) | 27 UFs (11 live: PE/MG/SP/PR + SAPL) |
 | [Senadores](./senado.md) | Busca, perfil, votos e disclaimer de presença |
 | [Roadmap](./PLANO-EXPANSAO.md) | O que falta, qualidade e ideias de features |

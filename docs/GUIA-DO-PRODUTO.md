@@ -89,7 +89,7 @@ Exemplo: esfera **Senadores** + UF **AC**.
 
 ## 2. Perfil federal — projetos
 
-Resumo do mandato, contadores e abas. Em **Projetos**: filtro por status, link para a Câmara, ementa e data.
+Resumo do mandato, contadores e abas (a ativa aparece como **pill** preenchida no trilho). Em **Projetos**: filtro por status, link para a Câmara, ementa e data.
 
 | Claro | Escuro |
 |:---:|:---:|

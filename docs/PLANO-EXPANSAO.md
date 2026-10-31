@@ -53,6 +53,7 @@ Critério: só plugar adapter/live se o probe responder **e** o dado couber no m
 - [x] Filtro de presença estadual (todas / faltas / presentes / justificados) + paginação
 - [x] Busca: deep-link `?esfera=&uf=&nome=&partido=&legislaturaId=`
 - [x] Abas com wrap/scroll no mobile (perfil estadual e senador)
+- [x] Aba ativa do perfil em estilo segmentado (pill), claro e escuro
 
 ### 2.3 Performance e confiabilidade
 
