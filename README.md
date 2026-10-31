@@ -68,6 +68,10 @@ npm run sync -- senadores
 
 # Perfil enriquecido (filiações, mandatos, matérias e votos de um senador)
 npm run sync -- senador-perfil --codigo=5672
+
+# Cron / agendado — federal + listas estaduais + senadores
+npm run sync -- cron
+# ou POST /api/sync { "domain": "cron" } com x-sync-secret / UI em /admin
 ```
 
 ## Dev server
@@ -84,6 +88,7 @@ App em [http://localhost:3456](http://localhost:3456) · API em `/api/health`.
 - `/favoritos` — favoritos multi-esfera no `localStorage`
 - `/deputados/[id]` — perfil federal (projetos, votações, presença, partido)
 - `/parlamentares/[source]/[id]` — estadual (27 UFs) ou senador; enrich on-demand com skeleton
+- `/admin` — dispara sync protegido (`SYNC_SECRET`)
 
 ### Cache (envs)
 
@@ -94,6 +99,7 @@ App em [http://localhost:3456](http://localhost:3456) · API em `/api/health`.
 | `HTTP_CACHE_TTL_MS` | `21600000` | APIs externas (assembleias/Senado) |
 | `HTTP_CACHE_MAX` | `400` | Teto HTTP em memória |
 | `HTTP_CACHE_DISK` | `1` | Disco em `.cache/parliament` (`0` desliga) |
+| `HTTP_CACHE_MAX_RETRIES` | `3` | Retry em 429/503/504 e rede |
 
 Stats: `GET /api/cache/stats` · também em `GET /api/health` → `cache`.
 

@@ -197,7 +197,8 @@ Presença no Senado **não** é inferida pela API — use o tutorial oficial (li
 - **Estadual:** 11 live · 16 fixture — [estaduais.md](./estaduais.md) · [fontes](./fontes-endpoints.md)  
 - **Senado:** matérias e votos; presença só pelo Diário / tutorial  
 - Favoritos: só neste navegador  
-- Votos nominais estaduais: ainda não indexados (ZIP ALEP documentado no roadmap)  
+- Votos nominais estaduais: **Paraná (ALEP)** indexa ZIPs recentes; demais UFs ainda sem API útil  
+ 
 
 Roadmap (qualidade + features): [PLANO-EXPANSAO.md](./PLANO-EXPANSAO.md).
 

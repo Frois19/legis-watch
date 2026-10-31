@@ -80,6 +80,18 @@ export function serializeStateDeputyDetail(
         ausentes: items.filter((a) => a.status === "ausente").length,
       };
     })(),
+    votes: (row.votes ?? []).map((v) => ({
+      id: v.id,
+      externalId: v.externalId,
+      tipoVoto: v.tipoVoto,
+      descricaoVotacao: v.descricaoVotacao,
+      descricaoResultado: v.descricaoResultado,
+      dataSessao: v.dataSessao,
+      materiaExternalId: v.materiaExternalId,
+      materiaIdentificacao: v.materiaIdentificacao,
+      materiaEmenta: v.materiaEmenta,
+      urlPublica: v.urlPublica,
+    })),
     profileSyncedAt: row.profileSyncedAt?.toISOString() ?? null,
     syncedAt: row.syncedAt?.toISOString() ?? null,
     href: `/parlamentares/${row.source}/${row.externalId}`,

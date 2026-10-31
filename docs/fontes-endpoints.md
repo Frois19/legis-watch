@@ -15,7 +15,7 @@
 | **PR — cadastro** | Transparência `/api/remuneracao?t=deputado estadual` | **OK** | **Implementado** (matrícula) |
 | **PR — proposições** | `POST .../proposicao/filtrar` | **OK** | **Implementado** |
 | **PR — presença plenário** | `/api/presenca/ano?ano=` | **OK** (78 sessões/2024; 90/2025) | **Implementado** (perfil + `StateAttendance`) |
-| **PR — votos** | `/api/votacoes/sessoes` + ZIP por sessão | **OK** | Documentado; modelo ainda não persiste |
+| **PR — votos** | `/api/votacoes/sessoes` + ZIP/XLSX por sessão | **OK** | Indexado no perfil (`StateVote`); limite de sessões via env |
 | **PE — proposições** | `/api/v1/proposicoes/{projetos\|indicacoes\|requerimentos}/` | Docs OK; **timeout** daqui | **Implementado** (live + fixture de perfil) |
 | **DF — proposições** | CLDF PLE `POST /proposicao/filter` + CKAN | **timeout** daqui | Pendente (egress) |
 | **MT — dados abertos** | host `dadosabertos.al.mt.gov.br` | **DNS fail** | Pendente |
@@ -79,9 +79,10 @@ Cache: HTTP para XML + `.cache/parliament/alesp-props-v1.json` (`ALESP_CACHE_TTL
 | Proposições | `POST .../proposicao/filtrar` body `{"ano":AAAA,"numeroMaximoRegistro":N}` | **GET `/filtrar` 400**; usar POST |
 | Presença plenário | `GET .../api/presenca/ano?ano=` | Colunas independentes PRESENTES / JUSTIFICADOS / AUSENTES |
 | Sessões com voto | `GET .../api/votacoes/sessoes?ano=` | Mapa id→nome |
-| ZIP votos da sessão | `GET .../api/votacoes/dados-abertos?sessao=` | URL do ZIP em storage |
+| ZIP votos da sessão | `GET .../api/votacoes/dados-abertos?sessao=` | URL do ZIP; nem toda sessão publica arquivo |
+| Conteúdo do ZIP | XLSX por item (PARLAMENTAR / PARTIDO / VOTO) | Parser OOXML interno |
 
-Env: `ALEP_PROP_YEARS`, `ALEP_ATTENDANCE_YEARS`, `ALEP_CACHE_TTL_MS`, `ALEP_WS_BASE`, `ALEP_TRANSPARENCIA_BASE`, `ESTADUAL_ATTENDANCE_LIMIT`.
+Env: `ALEP_PROP_YEARS`, `ALEP_ATTENDANCE_YEARS`, `ALEP_VOTE_YEARS`, `ALEP_VOTE_SESSION_LIMIT`, `ALEP_CACHE_TTL_MS`, `ALEP_WS_BASE`, `ALEP_TRANSPARENCIA_BASE`, `ESTADUAL_ATTENDANCE_LIMIT`, `ESTADUAL_VOTE_LIMIT`.
 
 ---
 

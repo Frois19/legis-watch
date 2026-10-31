@@ -105,7 +105,7 @@ export async function syncStateDeputyProfile(
     const detail = adapter.getParliamentarian
       ? await adapter.getParliamentarian(codigo).catch(() => null)
       : null;
-    const bundle = await adapter.fetchProfileBundle(codigo);
+    const bundle = await adapter.fetchProfileBundle!(codigo);
 
     await prisma.$transaction(async (tx) => {
       if (detail) {
@@ -189,6 +189,28 @@ export async function syncStateDeputyProfile(
         });
       }
 
+      await tx.stateVote.deleteMany({ where: { stateDeputyId: id } });
+      const votes = bundle.votes ?? [];
+      if (votes.length > 0) {
+        await tx.stateVote.createMany({
+          data: votes.map((row) => ({
+            id: `${source}:vote:${row.externalId}`,
+            stateDeputyId: id,
+            source,
+            externalId: row.externalId,
+            tipoVoto: row.tipoVoto ?? null,
+            descricaoVotacao: row.descricaoVotacao ?? null,
+            descricaoResultado: row.descricaoResultado ?? null,
+            dataSessao: row.dataSessao ?? null,
+            materiaExternalId: row.materiaExternalId ?? null,
+            materiaIdentificacao: row.materiaIdentificacao ?? null,
+            materiaEmenta: row.materiaEmenta ?? null,
+            urlPublica: row.urlPublica ?? null,
+            syncedAt: new Date(),
+          })),
+        });
+      }
+
       await tx.stateDeputy.update({
         where: { id },
         data: { profileSyncedAt: new Date() },
@@ -200,6 +222,7 @@ export async function syncStateDeputyProfile(
       mandates: bundle.mandates.length,
       propositions: bundle.propositions.length,
       attendance: (bundle.attendance ?? []).length,
+      votes: (bundle.votes ?? []).length,
     };
   });
 }
@@ -220,6 +243,7 @@ async function loadStateDeputyWithProfile(id: string) {
       mandates: { orderBy: { dataInicio: "desc" } },
       propositions: { orderBy: [{ ano: "desc" }, { numero: "desc" }] },
       attendances: { orderBy: { dataSessao: "desc" } },
+      votes: { orderBy: { dataSessao: "desc" } },
     },
   });
 }

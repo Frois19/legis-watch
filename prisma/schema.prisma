@@ -343,6 +343,7 @@ model StateDeputy {
   mandates      StateDeputyMandate[]
   propositions  StateProposition[]
   attendances   StateAttendance[]
+  votes         StateVote[]
 
   @@unique([source, externalId])
   @@index([source])
@@ -417,4 +418,30 @@ model StateAttendance {
   @@unique([stateDeputyId, dataSessao])
   @@index([stateDeputyId, year])
   @@index([status])
+}
+
+/** Voto nominal em sessão (estadual — ex.: ZIP ALEP). */
+model StateVote {
+  id                   String   @id
+  stateDeputyId        String
+  stateDeputy          StateDeputy @relation(fields: [stateDeputyId], references: [id], onDelete: Cascade)
+  source               String
+  externalId           String
+  tipoVoto             String?
+  descricaoVotacao     String?
+  descricaoResultado   String?
+  dataSessao           String?
+  materiaExternalId    String?
+  materiaIdentificacao String?
+  materiaEmenta        String?
+  urlPublica           String?
+  syncedAt             DateTime?
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  @@unique([stateDeputyId, externalId])
+  @@index([stateDeputyId])
+  @@index([source])
+  @@index([tipoVoto])
+  @@index([dataSessao])
 }

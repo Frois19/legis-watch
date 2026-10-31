@@ -16,6 +16,7 @@
 
 import {
   syncAttendanceForYear,
+  syncCron,
   syncDeputies,
   syncDeputiesForLegislature,
   syncLegislatures,
@@ -79,6 +80,9 @@ async function main() {
       console.log("parties", await syncParties());
       console.log("deputies", await syncDeputies());
       break;
+    case "cron":
+      console.log(await syncCron());
+      break;
     case "estadual":
       if (source === "all") {
         console.log(await syncAllStateAssemblies());
@@ -136,7 +140,7 @@ async function main() {
     default:
       console.error(`Unknown command: ${command ?? "(none)"}`);
       console.error(
-        "Commands: legislatures | parties | deputies | mandates | propositions | votes | attendance | bootstrap | estadual | estadual-perfil | senadores | senador-perfil",
+        "Commands: legislatures | parties | deputies | mandates | propositions | votes | attendance | bootstrap | cron | estadual | estadual-perfil | senadores | senador-perfil",
       );
       console.error(
         "estadual: npm run sync -- estadual --source=all | --source=alepe",

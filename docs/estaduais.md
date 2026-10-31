@@ -90,12 +90,12 @@ Nas casas **SAPL** e **ALMG**, o perfil ganha abas:
 | **Cobertura** | Flags da casa |
 
 **ALESP (SP):** cadastro + proposições no perfil (primeira carga indexa os ZIPs; depois usa cache).  
-**ALEP (PR):** cadastro via folha de remuneração + proposições + presença plenária (cache HTTP).  
+**ALEP (PR):** cadastro via folha de remuneração + proposições + presença plenária + **votos nominais** (ZIP/XLSX por sessão, cache HTTP).  
 **ALEPE (PE):** proposições quando a API responde; senão fixture de demonstração no enriquecimento.
 
-Ainda **não** disponível no estadual (APIs sem voto nominal por parlamentar ou portal HTML):
+Ainda **não** disponível no estadual (APIs sem endpoint útil por parlamentar ou portal HTML):
 
-- Votações nominais individuais (exceto ZIP por sessão na ALEP, ainda não indexado)
+- Votações nominais fora do Paraná  
 - Presença / faltas fora do Paraná
 
 Favoritos locais cobrem federal, estadual e senador (mesmo navegador).
@@ -121,9 +121,9 @@ npm run docs:screenshots   # regenera prints do guia (dev em :3456)
 
 ## Próximos passos (dados)
 
-1. Votos nominais ALEP (ZIP por sessão)  
-2. CLDF quando o egress responder  
-3. Mais SAPL / CKAN onde o probe passar  
+1. CLDF quando o egress responder  
+2. Mais SAPL / CKAN onde o probe passar  
+3. Presença em outras UFs se surgir API estável  
 
 Detalhes: [fontes-endpoints.md](./fontes-endpoints.md) · [roadmap](./PLANO-EXPANSAO.md).
 

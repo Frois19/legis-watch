@@ -6,6 +6,7 @@ import {
   cachedFetchJson,
   cachedFetchText,
   clearHttpCache,
+  httpCacheStats,
 } from "./http-cache";
 
 describe("http-cache", () => {
@@ -72,5 +73,28 @@ describe("http-cache", () => {
     expect(a).toBe('{"ano":2024}');
     expect(b).toBe('{"ano":2025}');
     expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
+
+  it("retenta 503 com backoff e depois sucede", async () => {
+    process.env.HTTP_CACHE_MAX_RETRIES = "3";
+    process.env.HTTP_CACHE_RETRY_BASE_MS = "1";
+    let calls = 0;
+    const fetchMock = vi.fn(async () => {
+      calls += 1;
+      if (calls < 3) return new Response("busy", { status: 503 });
+      return new Response("ok", { status: 200 });
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const body = await cachedFetchText("https://example.test/retry", {
+      namespace: "test",
+      ttlMs: 60_000,
+      disk: false,
+    });
+    expect(body).toBe("ok");
+    expect(fetchMock).toHaveBeenCalledTimes(3);
+    expect(httpCacheStats().retries).toBeGreaterThanOrEqual(2);
+    delete process.env.HTTP_CACHE_MAX_RETRIES;
+    delete process.env.HTTP_CACHE_RETRY_BASE_MS;
   });
 });

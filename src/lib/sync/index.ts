@@ -21,3 +21,4 @@ export {
 } from "./senado";
 export type { SenatorWithProfile } from "./senado";
 export { syncVotesForYear } from "./votes";
+export { syncCron } from "./cron";

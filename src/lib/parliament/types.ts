@@ -81,11 +81,24 @@ export type AdapterAttendance = {
   observacao?: string | null;
 };
 
+export type AdapterVote = {
+  externalId: string;
+  tipoVoto: string;
+  descricaoVotacao?: string | null;
+  descricaoResultado?: string | null;
+  dataSessao?: string | null;
+  materiaExternalId?: string | null;
+  materiaIdentificacao?: string | null;
+  materiaEmenta?: string | null;
+  urlPublica?: string | null;
+};
+
 export type AdapterProfileBundle = {
   affiliations: AdapterAffiliation[];
   mandates: AdapterMandate[];
   propositions: AdapterProposition[];
   attendance?: AdapterAttendance[];
+  votes?: AdapterVote[];
 };
 
 export interface StateAssemblyAdapter {

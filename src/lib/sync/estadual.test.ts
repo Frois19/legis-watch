@@ -26,6 +26,10 @@ const {
       deleteMany: vi.fn(),
       createMany: vi.fn(),
     },
+    stateVote: {
+      deleteMany: vi.fn(),
+      createMany: vi.fn(),
+    },
     $transaction: vi.fn(async (fn: (tx: unknown) => Promise<unknown>) =>
       fn({
         stateDeputy: { update: vi.fn() },
@@ -42,6 +46,10 @@ const {
           createMany: vi.fn(),
         },
         stateAttendance: {
+          deleteMany: vi.fn(),
+          createMany: vi.fn(),
+        },
+        stateVote: {
           deleteMany: vi.fn(),
           createMany: vi.fn(),
         },
@@ -131,6 +139,7 @@ describe("sync estadual perfil", () => {
       mandates: 1,
       propositions: 1,
       attendance: 0,
+      votes: 0,
     });
     expect(prisma.$transaction).toHaveBeenCalledOnce();
   });

@@ -12,7 +12,7 @@ Plano **para frente**: o que já entregamos fica só como baseline; o foco é qu
 |---|---|
 | **Federal (Câmara)** | Busca, perfil, projetos, votos, presença/ata, partido, sync + SQLite |
 | **Estadual** | 27 UFs na busca; **11 live** (PE, MG, SP, PR + 7 SAPL); 16 fixture |
-| **ALEP (PR)** | Cadastro + proposições + **presença plenária** |
+| **ALEP (PR)** | Cadastro + proposições + presença + **votos nominais (ZIP)** |
 | **Senado** | Busca, perfil (matérias, votos, filiações, mandatos) + disclaimer de presença |
 | **Favoritos** | Multi-esfera no `localStorage` |
 | **Cache** | Busca em memória + HTTP externo (assembleias/Senado) em disco; Redis ainda não |
@@ -27,12 +27,11 @@ Prioridade por **impacto no perfil** × **API já confirmada**.
 
 | # | Item | Por quê | Risco |
 |---|---|---|---|
-| 1 | **Votos nominais ALEP (PR)** | Portal já expõe sessões + ZIP por sessão | Parsing de ZIP; volume |
-| 2 | **CLDF (DF)** live | PLE/CKAN documentados; timeout neste egress | Rede; fixture até liberar |
-| 3 | **Mais SAPL** (CE, ES, GO, RS…) | Adapter genérico já existe | Host/DNS por casa |
-| 4 | **ALMT / outras UFs** com CSV/CKAN | Tirar fixture onde houver arquivo estável | Schemas frágeis |
-| 5 | **Presença fora do PR** | Só Paraná tem lista plenária utilizável hoje | Maioria das casas não publica |
-| 6 | **Senado — presença** | Continua sem API equivalente à Câmara | Manter disclaimer; não inventar “falta” |
+| 1 | **CLDF (DF)** live | PLE/CKAN documentados; timeout neste egress | Rede; fixture até liberar |
+| 2 | **Mais SAPL** (CE, ES, GO, RS…) | Adapter genérico já existe | Host/DNS por casa |
+| 3 | **ALMT / outras UFs** com CSV/CKAN | Tirar fixture onde houver arquivo estável | Schemas frágeis |
+| 4 | **Presença fora do PR** | Só Paraná tem lista plenária utilizável hoje | Maioria das casas não publica |
+| 5 | **Senado — presença** | Continua sem API equivalente à Câmara | Manter disclaimer; não inventar “falta” |
 
 Critério: só plugar adapter/live se o probe responder **e** o dado couber no modelo (`StateProposition` / `StateAttendance` / votos).
 
@@ -42,9 +41,9 @@ Critério: só plugar adapter/live se o probe responder **e** o dado couber no m
 
 ### 2.1 Dados e sync
 
-- [ ] Sync agendado / cron (ou botão admin) para federal + casas live, sem depender só de “abrir perfil”
+- [x] Sync agendado / cron (`npm run sync -- cron`, `POST /api/sync` domain `cron`, UI `/admin`)
 - [x] Indicador de **frescor** no perfil (`formatRelativeTime` + `profileSyncedAt`)
-- [ ] Retry/backoff unificado no sync federal (já parcial) e nos adapters estaduais
+- [x] Retry/backoff unificado no HTTP cache (estaduais/Senado) + Câmara já tinha
 - [x] Alertas quando fixture substitui live (banner “Dados de demonstração” + badge)
 
 ### 2.2 UX e acessibilidade
@@ -57,14 +56,14 @@ Critério: só plugar adapter/live se o probe responder **e** o dado couber no m
 
 ### 2.3 Performance e confiabilidade
 
-- [ ] Redis para cache de busca em multi-instância (C4)
-- [x] Paginação na UI de proposições/presença estadual
+- [ ] Redis para cache de busca em multi-instância (C4) — adiado
+- [x] Paginação na UI de proposições/presença/votos estadual
 - [x] Observabilidade: `GET /api/cache/stats` + `cache`/`durationMs` em `/api/health`
-- [ ] `npm run docs:screenshots` no CI opcional (smoke visual)
+- [x] Smoke de screenshots no CI (`screenshots-smoke`)
 
 ### 2.4 Código e testes
 
-- [ ] Cobertura de integração para ALEP presença + proposições
+- [x] Cobertura de integração para ALEP (lista + perfil)
 - [x] Contrato de serialização do perfil estadual (`serialize.test.ts`)
 - [x] Envs de cache/TTL documentados no README + backend-api
 
@@ -106,8 +105,8 @@ Critério: só plugar adapter/live se o probe responder **e** o dado couber no m
 Ciclo A — Qualidade UX                         ← feito
   deep-link busca · skeleton enrich · banner fixture · filtro presença PR
 
-Ciclo B — Dados PR completo
-  indexar votos ALEP (ZIP)
+Ciclo B — Dados PR completo + qualidade ops   ← feito
+  votos ALEP (ZIP) · cron/admin · retry HTTP · CI smoke · integração ALEP
 
 Ciclo C — Mais casas live
   CLDF quando a rede responder · 1–2 SAPL extras · CKAN/CSV onde couber
@@ -115,8 +114,8 @@ Ciclo C — Mais casas live
 Ciclo D — Produto
   comparar parlamentares · export CSV · (opcional) contas/alertas
 
-Ainda em qualidade (opcional)
-  Redis · cron de sync · retry unificado · CI de screenshots · integração ALEP
+Ainda adiado
+  Redis (multi-instância)
 ```
 
 ---
@@ -126,7 +125,7 @@ Ainda em qualidade (opcional)
 | Métrica | Meta prática |
 |---|---|
 | Casas estaduais live | > 11 (hoje) sem regressão nas atuais |
-| Perfil PR | proposições + presença + votos |
+| Perfil PR | proposições + presença + votos (ZIPs recentes) |
 | Tempo até 1º resultado na busca (cache quente) | < 200 ms p95 na instância única |
 | Prints do guia | regeneráveis com `npm run docs:screenshots` |
 | Clareza de cobertura | usuário vê o que falta em cada casa (aba Cobertura) |

@@ -8,6 +8,10 @@ import type {
 } from "../types";
 import { createFixtureAdapter } from "./fixture-assembly";
 import { ASSEMBLY_CATALOG } from "../ufs";
+import { authorMatchesDeputy } from "./alep-names";
+import { buildAlepVoteIndex } from "./alep-votes";
+
+export { authorMatchesDeputy } from "./alep-names";
 
 const ALEP_WS_BASE =
   process.env.ALEP_WS_BASE ??
@@ -61,24 +65,19 @@ type AlepPresencaPayload = {
 
 type ParsedName = { nome: string; observacao: string | null };
 
-const STOP = new Set([
-  "DE",
-  "DA",
-  "DO",
-  "DOS",
-  "DAS",
-  "E",
-  "DEPUTADO",
-  "DEPUTADA",
-]);
-
 let memoryProps: {
   expiresAt: number;
   byAuthor: Record<string, AdapterProposition[]>;
 } | null = null;
 
+let memoryVotes: {
+  expiresAt: number;
+  byAuthor: Record<string, import("../types").AdapterVote[]>;
+} | null = null;
+
 export function clearAlepCaches() {
   memoryProps = null;
+  memoryVotes = null;
 }
 
 function timeoutMs() {
@@ -118,44 +117,6 @@ function attendanceLimit() {
 
 function propositionLimit() {
   return Number(process.env.ESTADUAL_MATTER_LIMIT ?? 60);
-}
-
-function normalizeName(value: string): string {
-  return value
-    .normalize("NFD")
-    .replace(/\p{M}/gu, "")
-    .toUpperCase()
-    .replace(/[^A-Z0-9\s]/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
-}
-
-function nameTokens(value: string): string[] {
-  return normalizeName(value)
-    .split(" ")
-    .filter((t) => t.length > 1 && !STOP.has(t));
-}
-
-/** True se o campo autor da proposição cobre o nome do deputado. */
-export function authorMatchesDeputy(
-  autorField: string,
-  deputyName: string,
-): boolean {
-  const deputyTokens = nameTokens(deputyName);
-  if (deputyTokens.length === 0) return false;
-  const segments = normalizeName(autorField)
-    .split(",")
-    .map((s) => s.trim())
-    .filter(Boolean);
-  for (const segment of segments) {
-    const segTokens = nameTokens(segment);
-    if (segTokens.length === 0) continue;
-    const matched = deputyTokens.filter((t) => segTokens.includes(t));
-    // Exige pelo menos 2 tokens (ou o único token significativo).
-    const need = Math.min(2, deputyTokens.length);
-    if (matched.length >= need) return true;
-  }
-  return false;
 }
 
 function tipoSigla(row: AlepPropRow): string {
@@ -444,6 +405,29 @@ async function fetchAttendanceForDeputy(
   return collected.slice(0, limit);
 }
 
+async function fetchVotesForDeputy(
+  deputies: AdapterParliamentarian[],
+  externalId: string,
+) {
+  if (memoryVotes && memoryVotes.expiresAt > Date.now()) {
+    return memoryVotes.byAuthor[externalId] ?? [];
+  }
+  try {
+    const index = await buildAlepVoteIndex(deputies);
+    memoryVotes = {
+      expiresAt: Date.now() + cacheTtlMs(),
+      byAuthor: index.byAuthor,
+    };
+    return index.byAuthor[externalId] ?? [];
+  } catch (error) {
+    console.warn(
+      "[alep] votos:",
+      error instanceof Error ? error.message : error,
+    );
+    return [];
+  }
+}
+
 const catalog = ASSEMBLY_CATALOG.find((c) => c.source === "alep")!;
 const fixtureFallback = createFixtureAdapter(catalog);
 
@@ -458,7 +442,7 @@ export const alepAdapter: StateAssemblyAdapter = {
       search: true,
       profile: true,
       propositions: true,
-      votes: false,
+      votes: true,
       attendance: true,
     },
     docsUrl: "https://transparencia.assembleia.pr.leg.br/servicos/dados-abertos",
@@ -491,16 +475,20 @@ export const alepAdapter: StateAssemblyAdapter = {
   },
 
   async fetchProfileBundle(externalId: string): Promise<AdapterProfileBundle> {
-    const deputy = await this.getParliamentarian?.(String(externalId));
+    const deputies = await this.listParliamentarians();
+    const deputy =
+      deputies.find((r) => r.externalId === String(externalId)) ?? null;
     const propositions = await this.listPropositions!(String(externalId));
     const attendance = deputy
       ? await fetchAttendanceForDeputy(deputy)
       : [];
+    const votes = await fetchVotesForDeputy(deputies, String(externalId));
     return {
       affiliations: [],
       mandates: [],
       propositions,
       attendance,
+      votes,
     };
   },
 };

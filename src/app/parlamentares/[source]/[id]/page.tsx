@@ -49,6 +49,7 @@ async function StateDeputyProfile({
       mandates: { orderBy: { dataInicio: "desc" } },
       propositions: { orderBy: [{ ano: "desc" }, { numero: "desc" }] },
       attendances: { orderBy: { dataSessao: "desc" } },
+      votes: { orderBy: { dataSessao: "desc" } },
     },
   });
   if (!row) notFound();

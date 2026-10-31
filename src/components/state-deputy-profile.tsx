@@ -38,15 +38,24 @@ export function StateDeputyProfileView({
   const hasEnrichment =
     detail.coverage.propositions ||
     detail.coverage.attendance ||
+    detail.coverage.votes ||
     detail.affiliations.length > 0 ||
     detail.mandates.length > 0 ||
     detail.propositions.length > 0 ||
-    detail.attendance.length > 0;
+    detail.attendance.length > 0 ||
+    detail.votes.length > 0;
 
   const [attendanceFilter, setAttendanceFilter] =
     useState<AttendanceFilter>("todos");
   const [attendancePage, setAttendancePage] = useState(0);
   const [propsPage, setPropsPage] = useState(0);
+  const [votesPage, setVotesPage] = useState(0);
+  const votes = detail.votes ?? [];
+  const votesSlice = votes.slice(
+    votesPage * ATTENDANCE_PAGE,
+    votesPage * ATTENDANCE_PAGE + ATTENDANCE_PAGE,
+  );
+  const votesPages = Math.max(1, Math.ceil(votes.length / ATTENDANCE_PAGE));
 
   const filteredAttendance = useMemo(() => {
     if (attendanceFilter === "faltas") {
@@ -179,6 +188,11 @@ export function StateDeputyProfileView({
             {detail.coverage.attendance || detail.attendance.length > 0 ? (
               <TabsTrigger value="presenca">
                 Presença ({detail.attendanceSummary.ausentes} faltas)
+              </TabsTrigger>
+            ) : null}
+            {detail.coverage.votes || votes.length > 0 ? (
+              <TabsTrigger value="votacoes">
+                Votações ({votes.length})
               </TabsTrigger>
             ) : null}
             <TabsTrigger value="filiacoes">
@@ -364,6 +378,84 @@ export function StateDeputyProfileView({
                     pages={attendancePages}
                     total={filteredAttendance.length}
                     onChange={setAttendancePage}
+                  />
+                </>
+              )}
+            </TabsContent>
+          )}
+
+          {(detail.coverage.votes || votes.length > 0) && (
+            <TabsContent value="votacoes" className="space-y-3">
+              {votes.length === 0 ? (
+                <EmptyBlock
+                  title="Nenhuma votação nominal sincronizada"
+                  hint="O Legis Watch indexa ZIPs recentes da ALEP; reabra o perfil após o sync ou consulte o portal."
+                  docsUrl={docsUrl}
+                />
+              ) : (
+                <>
+                  <ul className="divide-y divide-border border border-border bg-card">
+                    {votesSlice.map((vote) => (
+                      <li key={vote.id} className="space-y-1 px-4 py-3">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <Badge
+                            variant={
+                              /^sim$/i.test(vote.tipoVoto || "")
+                                ? "success"
+                                : /^n[aã]o$/i.test(vote.tipoVoto || "")
+                                  ? "danger"
+                                  : "secondary"
+                            }
+                          >
+                            {vote.tipoVoto || "Voto"}
+                          </Badge>
+                          <p className="font-medium text-foreground">
+                            {vote.materiaIdentificacao ||
+                              vote.descricaoVotacao ||
+                              "Votação"}
+                          </p>
+                        </div>
+                        {vote.descricaoVotacao &&
+                        vote.descricaoVotacao !== vote.materiaIdentificacao ? (
+                          <p className="text-sm text-muted-foreground">
+                            {vote.descricaoVotacao}
+                          </p>
+                        ) : null}
+                        {vote.materiaEmenta ? (
+                          <p className="text-sm text-muted-foreground">
+                            {vote.materiaEmenta}
+                          </p>
+                        ) : null}
+                        <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
+                          {vote.dataSessao ? (
+                            <span>Sessão: {formatDate(vote.dataSessao)}</span>
+                          ) : null}
+                          {vote.descricaoResultado ? (
+                            <span>Resultado: {vote.descricaoResultado}</span>
+                          ) : null}
+                          {vote.urlPublica ? (
+                            <a
+                              href={vote.urlPublica}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1 font-medium text-primary underline underline-offset-2"
+                            >
+                              Ver matéria
+                              <ExternalLink
+                                className="size-3"
+                                aria-hidden="true"
+                              />
+                            </a>
+                          ) : null}
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                  <Pager
+                    page={votesPage}
+                    pages={votesPages}
+                    total={votes.length}
+                    onChange={setVotesPage}
                   />
                 </>
               )}

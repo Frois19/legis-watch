@@ -11,6 +11,7 @@ const memory = new Map<string, MemoryEntry>();
 let hits = 0;
 let misses = 0;
 let networkFetches = 0;
+let retries = 0;
 
 function envInt(name: string, fallback: number): number {
   const raw = Number(process.env[name] ?? fallback);
@@ -23,6 +24,14 @@ function defaultTtlMs() {
 
 function maxMemoryEntries() {
   return envInt("HTTP_CACHE_MAX", 400);
+}
+
+function maxRetries() {
+  return envInt("HTTP_CACHE_MAX_RETRIES", 3);
+}
+
+function retryBaseMs() {
+  return envInt("HTTP_CACHE_RETRY_BASE_MS", 400);
 }
 
 function diskEnabled() {
@@ -39,6 +48,8 @@ export type CachedFetchOptions = {
   timeoutMs?: number;
   /** Persistência em `.cache/parliament` (default true). */
   disk?: boolean;
+  /** Tentativas extras em 429/503/504 e erros de rede (default HTTP_CACHE_MAX_RETRIES). */
+  maxRetries?: number;
 };
 
 function cacheKey(url: string, opts: CachedFetchOptions): string {
@@ -62,12 +73,21 @@ function touchMemory(key: string, entry: MemoryEntry) {
   }
 }
 
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function isRetryableStatus(status: number) {
+  return status === 429 || status === 503 || status === 504;
+}
+
 export function clearHttpCache(prefix?: string) {
   if (!prefix) {
     memory.clear();
     hits = 0;
     misses = 0;
     networkFetches = 0;
+    retries = 0;
     return;
   }
   for (const key of [...memory.keys()]) {
@@ -81,8 +101,10 @@ export function httpCacheStats() {
     hits,
     misses,
     networkFetches,
+    retries,
     maxEntries: maxMemoryEntries(),
     defaultTtlMs: defaultTtlMs(),
+    maxRetries: maxRetries(),
     diskEnabled: diskEnabled(),
   };
 }
@@ -127,8 +149,47 @@ async function writeCache(
   );
 }
 
+async function fetchWithRetry(
+  url: string,
+  opts: CachedFetchOptions,
+): Promise<Response> {
+  const method = (opts.method ?? "GET").toUpperCase();
+  const attempts = Math.max(1, opts.maxRetries ?? maxRetries());
+  let lastError: unknown;
+
+  for (let attempt = 1; attempt <= attempts; attempt += 1) {
+    try {
+      networkFetches += 1;
+      const response = await fetch(url, {
+        method,
+        headers: opts.headers,
+        body: opts.body,
+        signal: AbortSignal.timeout(opts.timeoutMs ?? 30_000),
+      });
+      if (isRetryableStatus(response.status) && attempt < attempts) {
+        retries += 1;
+        await sleep(retryBaseMs() * attempt * 2);
+        continue;
+      }
+      return response;
+    } catch (error) {
+      lastError = error;
+      if (attempt < attempts) {
+        retries += 1;
+        await sleep(retryBaseMs() * attempt * 2);
+        continue;
+      }
+      throw error;
+    }
+  }
+
+  throw lastError instanceof Error
+    ? lastError
+    : new Error(`HTTP falhou em ${method} ${url}`);
+}
+
 /**
- * Fetch HTTP com cache em memória + disco (TTL).
+ * Fetch HTTP com cache em memória + disco (TTL) e retry/backoff.
  * Usar em todas as consultas a APIs parlamentares externas.
  */
 export async function cachedFetchText(
@@ -146,13 +207,7 @@ export async function cachedFetchText(
   misses += 1;
 
   const method = (opts.method ?? "GET").toUpperCase();
-  networkFetches += 1;
-  const response = await fetch(url, {
-    method,
-    headers: opts.headers,
-    body: opts.body,
-    signal: AbortSignal.timeout(opts.timeoutMs ?? 30_000),
-  });
+  const response = await fetchWithRetry(url, opts);
   if (!response.ok) {
     throw new Error(`HTTP ${response.status} em ${method} ${url}`);
   }
@@ -178,4 +233,26 @@ export async function cachedFetchJson<T>(
     },
   });
   return JSON.parse(text) as T;
+}
+
+/**
+ * Baixa binário (ZIP etc.) com o mesmo retry/backoff do cache de texto.
+ * Não cacheia o corpo em memória/disco — o caller indexa o resultado parseado.
+ */
+export async function fetchBufferWithRetry(
+  url: string,
+  opts: Omit<CachedFetchOptions, "body" | "disk" | "ttlMs"> & {
+    method?: string;
+  },
+): Promise<Buffer> {
+  const method = (opts.method ?? "GET").toUpperCase();
+  const response = await fetchWithRetry(url, {
+    ...opts,
+    method,
+    namespace: opts.namespace,
+  });
+  if (!response.ok) {
+    throw new Error(`HTTP ${response.status} em ${method} ${url}`);
+  }
+  return Buffer.from(await response.arrayBuffer());
 }

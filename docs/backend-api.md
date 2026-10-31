@@ -130,7 +130,7 @@ Content-Type: application/json
 x-sync-secret: <SYNC_SECRET se definido>
 
 {
-  "domain": "bootstrap" | "parties" | "deputies" | "propositions" | "votes" | "attendance" | "estadual" | "senadores",
+  "domain": "bootstrap" | "parties" | "deputies" | "propositions" | "votes" | "attendance" | "estadual" | "senadores" | "cron",
   "deputyId": 204379,
   "year": 2026,
   "source": "all"
@@ -141,6 +141,9 @@ x-sync-secret: <SYNC_SECRET se definido>
 
 - `source` omitido ou `"all"` → sincroniza as **27 UFs**
 - `source=alepe` (ou outra casa) → só aquela Assembleia
+
+`domain=cron` → partidos + deputados + listas estaduais + senadores (mesmo fluxo do CLI).  
+UI admin: `/admin` (envie `SYNC_SECRET` se configurado).
 
 `domain=senadores` → lista atual do Senado (`/senador/lista/atual.json`).  
 Perfil enriquecido (filiações/mandatos/autorias) roda sob demanda no `GET /api/parlamentares/senado/{codigo}` ou via CLI `npm run sync -- senador-perfil --codigo=5672`.
@@ -154,6 +157,7 @@ npm run sync -- propositions --deputy=204379
 npm run sync -- votes --year=2026
 npm run sync -- attendance --year=2026
 npm run sync -- bootstrap
+npm run sync -- cron
 npm run sync -- estadual --source=all
 npm run sync -- estadual --source=alepe
 npm run sync -- senadores

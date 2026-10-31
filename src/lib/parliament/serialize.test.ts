@@ -50,6 +50,25 @@ describe("serializeStateDeputyDetail contrato", () => {
           syncedAt: null,
         },
       ],
+      votes: [
+        {
+          id: "alep:vote:1658:1",
+          stateDeputyId: "alep:7000394",
+          source: "alep",
+          externalId: "1658:1",
+          tipoVoto: "Sim",
+          descricaoVotacao: "22ª SESSÃO EXTRAORDINÁRIA",
+          descricaoResultado: "APROVADO",
+          dataSessao: "2025-12-10",
+          materiaExternalId: "1658:31182",
+          materiaIdentificacao: "PROJETO DE LEI 1245/2025",
+          materiaEmenta: "Ementa teste",
+          urlPublica: null,
+          syncedAt: null,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+      ],
     });
 
     expect(detail).toMatchObject({
@@ -57,13 +76,14 @@ describe("serializeStateDeputyDetail contrato", () => {
       source: "alep",
       dataMode: "live",
       isDemoData: false,
-      coverage: { attendance: true, propositions: true },
+      coverage: { attendance: true, propositions: true, votes: true },
       attendanceSummary: {
         eventosConsiderados: 1,
         presentes: 1,
         justificados: 0,
         ausentes: 0,
       },
+      votes: [{ tipoVoto: "Sim", materiaIdentificacao: "PROJETO DE LEI 1245/2025" }],
       href: "/parlamentares/alep/7000394",
     });
     expect(Object.keys(detail).sort()).toEqual(
@@ -92,6 +112,7 @@ describe("serializeStateDeputyDetail contrato", () => {
         "sphere",
         "syncedAt",
         "urlFoto",
+        "votes",
       ].sort(),
     );
   });
@@ -117,8 +138,10 @@ describe("serializeStateDeputyDetail contrato", () => {
       mandates: [],
       propositions: [],
       attendances: [],
+      votes: [],
     });
     expect(detail.dataMode).toBe("fixture");
     expect(detail.isDemoData).toBe(true);
+    expect(detail.votes).toEqual([]);
   });
 });

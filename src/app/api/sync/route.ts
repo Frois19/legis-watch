@@ -1,6 +1,7 @@
 import { invalidateSearchCache } from "@/lib/cache/memory-cache";
 import {
   syncAttendanceForYear,
+  syncCron,
   syncDeputies,
   syncParties,
   syncPropositionsForDeputy,
@@ -18,6 +19,7 @@ const SEARCH_INVALIDATING_DOMAINS = new Set([
   "bootstrap",
   "estadual",
   "senadores",
+  "cron",
 ]);
 
 const bodySchema = z.object({
@@ -30,6 +32,7 @@ const bodySchema = z.object({
     "bootstrap",
     "estadual",
     "senadores",
+    "cron",
   ]),
   deputyId: z.number().int().positive().optional(),
   year: z.number().int().min(2000).max(2100).optional(),
@@ -106,6 +109,9 @@ export async function POST(request: NextRequest) {
         break;
       case "senadores":
         result = await syncSenadores();
+        break;
+      case "cron":
+        result = await syncCron();
         break;
       default:
         return NextResponse.json({ error: "domain inválido" }, { status: 400 });

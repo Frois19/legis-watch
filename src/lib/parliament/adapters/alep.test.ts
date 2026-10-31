@@ -165,6 +165,8 @@ describe("ALEP adapter", () => {
       nome: "ADEMAR LUIZ TRAIANO",
     });
     expect(alepAdapter.info.coverage.propositions).toBe(true);
+    expect(alepAdapter.info.coverage.votes).toBe(true);
+    expect(alepAdapter.info.coverage.attendance).toBe(true);
   });
 
   it("indexa proposições por autor com cache HTTP", async () => {
