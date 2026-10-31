@@ -106,10 +106,7 @@ export function SenatorProfileView({ detail }: { detail: SenatorDetail }) {
       </header>
 
       <Tabs defaultValue="materias">
-          <TabsList
-            aria-label="Seções do perfil do senador"
-            className="h-auto w-full flex-wrap justify-start gap-1 overflow-x-auto"
-          >
+          <TabsList aria-label="Seções do perfil do senador">
           <TabsTrigger value="materias">
             Matérias ({detail.matters.length})
           </TabsTrigger>

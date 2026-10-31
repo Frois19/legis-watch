@@ -176,10 +176,7 @@ export function StateDeputyProfileView({
                 : "filiacoes"
           }
         >
-          <TabsList
-            aria-label="Seções do perfil estadual"
-            className="h-auto w-full flex-wrap justify-start gap-1 overflow-x-auto"
-          >
+          <TabsList aria-label="Seções do perfil estadual">
             {detail.coverage.propositions || detail.propositions.length > 0 ? (
               <TabsTrigger value="proposicoes">
                 Proposições ({detail.propositions.length})
